@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{B1C2D3E4-F5A6-4789-9ABC-DE1234567891}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BBGFinance</RootNamespace>
+    <AssemblyName>BBGFinance</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <Use64BitIISExpress />
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <!-- Referanslar -->
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.SqlClient" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>bin\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <!-- İçerik dosyaları (.aspx, .master, .css, .js, config) -->
+  <ItemGroup>
+    <Content Include="Web.config" />
+    <Content Include="Content\css\site.css" />
+    <Content Include="Content\css\login.css" />
+    <Content Include="Scripts\site.js" />
+    <Content Include="Database\01_CreateAuthDatabase.sql" />
+    <Content Include="Database\02_JPRoibeds_TestSchema.sql" />
+    <Content Include="Database\03_TestData.sql" />
+  </ItemGroup>
+  <!-- Master Page -->
+  <ItemGroup>
+    <Content Include="Site.Master">
+      <Generator>MasterPageCodeGenerator</Generator>
+      <LastGenOutput>Site.Master.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="Site.Master.cs">
+      <DependentUpon>Site.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Site.Master.designer.cs">
+      <DependentUpon>Site.Master</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <!-- Default.aspx -->
+  <ItemGroup>
+    <Content Include="Default.aspx">
+      <Generator>ASPXCodeGenerator</Generator>
+      <LastGenOutput>Default.aspx.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="Default.aspx.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Default.aspx.designer.cs">
+      <DependentUpon>Default.aspx</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <!-- Login.aspx -->
+  <ItemGroup>
+    <Content Include="Login.aspx">
+      <Generator>ASPXCodeGenerator</Generator>
+      <LastGenOutput>Login.aspx.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="Login.aspx.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Login.aspx.designer.cs">
+      <DependentUpon>Login.aspx</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <!-- Error.aspx -->
+  <ItemGroup>
+    <Content Include="Error.aspx" />
+    <Compile Include="Error.aspx.cs">
+      <DependentUpon>Error.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+  </ItemGroup>
+  <!-- Core -->
+  <ItemGroup>
+    <Compile Include="Core\AppConstants.cs" />
+    <Compile Include="Core\SessionManager.cs" />
+    <Compile Include="Core\AuthBase.cs" />
+    <Compile Include="Core\DbHelper.cs" />
+    <Compile Include="Core\JsonHelper.cs" />
+  </ItemGroup>
+  <!-- Data -->
+  <ItemGroup>
+    <Compile Include="Data\RezervasyonRepository.cs" />
+  </ItemGroup>
+  <!-- Modules/Rezervasyonlar -->
+  <ItemGroup>
+    <Folder Include="Modules\Rezervasyonlar\" />
+    <Content Include="Modules\Rezervasyonlar\Liste.aspx">
+      <Generator>ASPXCodeGenerator</Generator>
+      <LastGenOutput>Liste.aspx.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="Modules\Rezervasyonlar\Liste.aspx.cs">
+      <DependentUpon>Liste.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Modules\Rezervasyonlar\Liste.aspx.designer.cs">
+      <DependentUpon>Liste.aspx</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Content Include="Modules\Rezervasyonlar\Detay.aspx">
+      <Generator>ASPXCodeGenerator</Generator>
+      <LastGenOutput>Detay.aspx.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="Modules\Rezervasyonlar\Detay.aspx.cs">
+      <DependentUpon>Detay.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Modules\Rezervasyonlar\Detay.aspx.designer.cs">
+      <DependentUpon>Detay.aspx</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:54636/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

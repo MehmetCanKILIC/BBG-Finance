@@ -1,0 +1,27 @@
+# Build output
+BBGFinance/bin/
+BBGFinance/obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs
+*.cache
+
+# NuGet packages
+packages/
+*.nupkg
+
+# Local config (bağlantı bilgisi içerebilir)
+BBGFinance/Web.Debug.config
+BBGFinance/Web.Release.config
+
+# App_Data
+BBGFinance/App_Data/*.mdf
+BBGFinance/App_Data/*.ldf
+
+# Logs
+*.log
+Logs/
+.claude/

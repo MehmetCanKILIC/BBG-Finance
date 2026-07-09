@@ -1,0 +1,170 @@
+<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Site.Master.cs" Inherits="BBGFinance.SiteMaster" %>
+<!DOCTYPE html>
+<html lang="tr">
+<head runat="server">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>
+        <asp:ContentPlaceHolder ID="cphTitle" runat="server">BBG Finance</asp:ContentPlaceHolder>
+        &mdash; BBG Finance Rezervasyon Raporlama Portalı
+    </title>
+
+    <!-- DevExtreme -->
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.material.teal.light.css" />
+    <!-- Feather Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="<%= ResolveUrl("~/Content/css/site.css") %>" />
+
+    <asp:ContentPlaceHolder ID="cphHead" runat="server" />
+</head>
+<body class="dx-viewport">
+<form id="frmMain" runat="server">
+
+    <!-- ======================================================
+         TOP NAVBAR
+    ====================================================== -->
+    <header class="app-header">
+        <div class="header-left">
+            <button type="button" class="sidebar-toggle" id="btnSidebarToggle" onclick="toggleSidebar()" title="Menüyü Aç/Kapat">
+                <span></span><span></span><span></span>
+            </button>
+            <a href="<%= ResolveUrl("~/Default.aspx") %>" class="app-logo">
+                <svg width="32" height="32" viewBox="0 0 60 60" fill="none">
+                    <rect width="60" height="60" rx="12" fill="#00695C"/>
+                    <path d="M14 40 L24 22 L30 32 L36 20 L46 40" stroke="#F9A825" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="46" cy="20" r="4" fill="#F9A825"/>
+                </svg>
+                <span class="app-name">BBG Finance</span>
+            </a>
+        </div>
+
+        <div class="header-right">
+            <!-- Kullanıcı menüsü -->
+            <div class="user-menu-wrapper">
+                <button type="button" class="user-btn" onclick="toggleUserMenu()" id="btnKullanici">
+                    <div class="user-avatar">
+                        <asp:Label ID="lblAvatar" runat="server" />
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name"><asp:Label ID="lblAdSoyad" runat="server" /></span>
+                        <span class="user-role"><asp:Label ID="lblRol" runat="server" /></span>
+                    </div>
+                    <i data-feather="chevron-down" class="caret-icon"></i>
+                </button>
+                <div class="user-dropdown" id="userDropdown">
+                    <asp:LinkButton ID="lnkCikis" runat="server" OnClick="lnkCikis_Click">
+                        <i data-feather="log-out"></i> Çıkış Yap
+                    </asp:LinkButton>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ======================================================
+         SIDEBAR NAV
+    ====================================================== -->
+    <nav class="app-sidebar" id="appSidebar">
+        <div class="sidebar-section">
+            <span class="section-label">ANA MENÜ</span>
+            <a href="<%= ResolveUrl("~/Default.aspx") %>" class="nav-item <%= ActivePage("Default") %>">
+                <i data-feather="home" class="nav-icon"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+
+        <div class="sidebar-section">
+            <span class="section-label">REZERVASYONLAR</span>
+            <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Liste.aspx") %>" class="nav-item <%= ActivePage("Rezervasyonlar") %>">
+                <i data-feather="calendar" class="nav-icon"></i>
+                <span>Tüm Rezervasyonlar</span>
+            </a>
+        </div>
+
+        <div class="sidebar-footer">
+            <small>v1.0.0 &mdash; &copy; <%= DateTime.Now.Year %> BBG Finance</small>
+        </div>
+    </nav>
+
+    <!-- ======================================================
+         ANA İÇERİK
+    ====================================================== -->
+    <main class="app-main" id="appMain">
+
+        <!-- Breadcrumb -->
+        <asp:Panel ID="pnlBreadcrumb" runat="server" CssClass="breadcrumb-bar">
+            <asp:ContentPlaceHolder ID="cphBreadcrumb" runat="server">
+                <a href="<%= ResolveUrl("~/Default.aspx") %>">Dashboard</a>
+            </asp:ContentPlaceHolder>
+        </asp:Panel>
+
+        <!-- Sayfa başlığı -->
+        <div class="page-header">
+            <div>
+                <h1 class="page-title">
+                    <asp:ContentPlaceHolder ID="cphPageTitle" runat="server">Dashboard</asp:ContentPlaceHolder>
+                </h1>
+                <p class="page-subtitle">
+                    <asp:ContentPlaceHolder ID="cphPageSubtitle" runat="server" />
+                </p>
+            </div>
+            <div class="page-actions">
+                <asp:ContentPlaceHolder ID="cphPageActions" runat="server" />
+            </div>
+        </div>
+
+        <!-- Ana içerik alanı -->
+        <div class="page-content">
+            <asp:ContentPlaceHolder ID="cphContent" runat="server" />
+        </div>
+
+    </main>
+
+    <!-- OVERLAY (mobil sidebar) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
+
+    <!-- Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script>
+    <script src="<%= ResolveUrl("~/Scripts/site.js") %>"></script>
+
+    <asp:ContentPlaceHolder ID="cphScripts" runat="server" />
+
+    <script>
+        feather.replace({ width: 16, height: 16, 'stroke-width': 2 });
+
+        function toggleSidebar() {
+            var sidebar = document.getElementById('appSidebar');
+            var main    = document.getElementById('appMain');
+            var overlay = document.getElementById('sidebarOverlay');
+            var isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                var isOpen = sidebar.classList.contains('mobile-open');
+                sidebar.classList.toggle('mobile-open', !isOpen);
+                overlay.classList.toggle('active', !isOpen);
+            } else {
+                sidebar.classList.toggle('collapsed');
+                main.classList.toggle('expanded');
+            }
+        }
+
+        function closeMobileSidebar() {
+            document.getElementById('appSidebar').classList.remove('mobile-open');
+            document.getElementById('sidebarOverlay').classList.remove('active');
+        }
+
+        function toggleUserMenu() {
+            document.getElementById('userDropdown').classList.toggle('open');
+        }
+
+        document.addEventListener('click', function (e) {
+            var wrapper = document.querySelector('.user-menu-wrapper');
+            if (wrapper && !wrapper.contains(e.target))
+                document.getElementById('userDropdown').classList.remove('open');
+        });
+    </script>
+</form>
+</body>
+</html>

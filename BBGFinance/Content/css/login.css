@@ -1,0 +1,256 @@
+/* ============================================================
+   BBG Finance - Login Sayfası CSS
+   ============================================================ */
+
+.login-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background: #F4F6F9;
+    display: flex;
+}
+
+.login-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Sol marka paneli */
+.login-brand-panel {
+    flex: 0 0 45%;
+    background: linear-gradient(145deg, #004D40 0%, #00695C 50%, #26A69A 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-brand-panel::before {
+    content: '';
+    position: absolute;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.06);
+    top: -100px; right: -100px;
+}
+.login-brand-panel::after {
+    content: '';
+    position: absolute;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.04);
+    bottom: -80px; left: -80px;
+}
+
+.brand-content {
+    color: #fff;
+    max-width: 360px;
+    position: relative;
+    z-index: 1;
+}
+
+.brand-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.brand-name {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+
+.brand-title {
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 16px;
+}
+
+.brand-desc {
+    font-size: 14px;
+    opacity: .85;
+    line-height: 1.7;
+    margin-bottom: 32px;
+}
+
+.brand-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.brand-features li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    opacity: .9;
+}
+
+.feature-icon {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* Sağ form paneli */
+.login-form-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    background: #fff;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.login-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #212121;
+    margin-bottom: 6px;
+}
+
+.login-header p {
+    color: #757575;
+    font-size: 14px;
+}
+
+/* Input */
+.input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.input-wrapper .form-control {
+    padding-left: 38px;
+}
+
+.btn-toggle-pass {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #757575;
+    padding: 4px;
+    line-height: 1;
+}
+
+/* Remember */
+.form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    color: #424242;
+}
+
+/* Giriş butonu */
+.btn-login {
+    width: 100%;
+    padding: 12px;
+    background: #00695C;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s, box-shadow .2s;
+    letter-spacing: .3px;
+}
+
+.btn-login:hover {
+    background: #004D40;
+    box-shadow: 0 4px 14px rgba(0,105,92,.35);
+}
+
+.btn-login:active {
+    background: #00332B;
+}
+
+.login-footer-note {
+    text-align: center;
+    margin-top: 20px;
+    color: #9E9E9E;
+}
+
+.login-copyright {
+    margin-top: 40px;
+    color: #BDBDBD;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Alert */
+.alert-error {
+    background: #FFEBEE;
+    border: 1px solid #FFCDD2;
+    color: #C62828;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.alert-info {
+    background: #E0F2F1;
+    border: 1px solid #80CBC4;
+    color: #004D40;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .login-brand-panel { display: none; }
+    .login-form-panel  { background: #F4F6F9; justify-content: center; min-height: 100vh; }
+    .login-card        { background: #fff; padding: 28px 24px; border-radius: 12px;
+                         box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+}
