@@ -8,7 +8,7 @@
     <title>Log In - BBG Finance</title>
 
     <!-- DevExtreme CSS -->
-    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.material.purple.light.css" />
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.material.purple.light.css" />   
     <!-- Site CSS -->
     <link rel="stylesheet" href="Content/css/site.css?v=3" />
     <link rel="stylesheet" href="Content/css/login.css?v=3" />
@@ -22,7 +22,7 @@
     <div class="login-brand-panel">
         <div class="brand-content">
             <div class="brand-logo">
-                <img src="https://static.wixstatic.com/media/3faa7d_2d926c566d544c968bdb716cbba8530d~mv2.png/v1/fill/w_330,h_59,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/bbg%20logo.png" width="160" height="60" />
+                <%--<img src="https://static.wixstatic.com/media/3faa7d_2d926c566d544c968bdb716cbba8530d~mv2.png/v1/fill/w_330,h_59,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/bbg%20logo.png" width="160" height="60" />--%>
                
             </div>
             <h1 class="brand-title">BedBankGlobal<br />Reporting System</h1>
