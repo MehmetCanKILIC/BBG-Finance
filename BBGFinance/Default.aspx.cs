@@ -17,7 +17,7 @@ namespace BBGFinance
         { 
             if (!IsPostBack)
             {
-                lblAdSoyad.Text = SessionManager.AdSoyad;
+                lblAdSoyad.Text = SessionManager.AdSoyad; 
                 lblTarih.Text   = DateTime.Now.ToString("dd MMMM yyyy, dddd",
                                     new System.Globalization.CultureInfo("tr-TR"));
 
