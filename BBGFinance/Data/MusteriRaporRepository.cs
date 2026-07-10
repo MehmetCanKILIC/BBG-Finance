@@ -170,7 +170,7 @@ namespace BBGFinance.Data
         /// uyuşmazlığı) yedek (fallback) olarak kullanılır.
         /// </summary>
         public static Task<DataTable> OdaTipiDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
-        {
+        { 
             string sql = @"
                 SELECT TOP (@TopN)
                     ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''),
