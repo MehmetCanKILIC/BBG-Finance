@@ -1,4 +1,4 @@
-<%@ Page Title="Dashboard" Language="C#" MasterPageFile="~/Site.Master" Async="true" AsyncTimeout="00:02:00"
+<%@ Page Title="Dashboard" Language="C#" MasterPageFile="~/Site.Master" Async="true" AsyncTimeout="120"
          AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="BBGFinance.Default"
          ContentType="text/html" ResponseEncoding="UTF-8" %>
 
