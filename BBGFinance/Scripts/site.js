@@ -3,7 +3,7 @@
 (function () {
     'use strict';
 
-    // window.dxOlustur en başta tanımlanır: aşağıdaki DevExpress çağrılarından biri
+    // window.dxOlustur en başta tanımlanır: aşağıdaki DevExpress çağrılarından biri 
     // hata fırlatırsa bile (örn. tema/CDN kaynaklı), bu script'teki SONRAKİ kod hiç
     // çalışmayabilir - dxOlustur'un her sayfada kesinlikle var olması bu yüzden kritik.
     //
