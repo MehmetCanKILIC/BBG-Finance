@@ -65,7 +65,7 @@ namespace BBGFinance.Modules.Rezervasyonlar
             litCost.Text            = TutarMetin(r, "Cost");
             litCommission.Text      = TutarMetin(r, "Commission");
             litOutstanding.Text     = TutarMetin(r, "OutStandingAmount");
-            litInvoiced.Text        = (r["Invoiced"] != DBNull.Value && Convert.ToBoolean(r["Invoiced"])) ? "Evet" : "Hayır";
+            litInvoiced.Text        = BitMetin(r, "Invoiced") ? "Evet" : "Hayır";
 
             litDescription.Text     = Metin(r, "Description");
             litRemarks.Text         = Metin(r, "Remarks");
@@ -108,6 +108,19 @@ namespace BBGFinance.Modules.Rezervasyonlar
         {
             if (!r.Table.Columns.Contains(kolon) || r[kolon] == DBNull.Value) return "-";
             return Convert.ToDecimal(r[kolon]).ToString("N2");
+        }
+
+        /// <summary>
+        /// JP_ROIBEDS'te bit alanları bazen '0'/'1' metni olarak tutulduğundan
+        /// Convert.ToBoolean (sadece "True"/"False" kabul eder) burada kullanılmaz.
+        /// </summary>
+        private static bool BitMetin(DataRow r, string kolon)
+        {
+            if (!r.Table.Columns.Contains(kolon) || r[kolon] == DBNull.Value) return false;
+            object v = r[kolon];
+            if (v is bool) return (bool)v;
+            string s = v.ToString().Trim();
+            return s == "1" || s.Equals("true", StringComparison.OrdinalIgnoreCase) || s.Equals("Evet", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

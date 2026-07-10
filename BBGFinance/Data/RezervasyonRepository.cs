@@ -17,16 +17,27 @@ namespace BBGFinance.Data
     /// Status kolonunun değer kümesi (kod anlamları) bilinmediğinden iptal tespiti bu katmanda
     /// Status'a değil, kendini açıklayan CancelDate (başlık) ve LineCancelled (kalem) alanlarına
     /// göre yapılır.
+    ///
+    /// JP_ROIBEDS'te sayısal görünümlü alanlar (tutar/adet/gece vb.) VARCHAR olarak tutulur;
+    /// bu yüzden toplama (SUM/AVG) veya sayısal karşılaştırma öncesinde <see cref="Num"/> ile
+    /// FLOAT'a çevrilirler. TRY_CONVERT kullanılır ki boş/boşluk/sayı olmayan bir değer hata
+    /// fırlatmak yerine NULL'a düşsün.
     /// </summary>
     public static class RezervasyonRepository
     {
+        /// <summary>VARCHAR sayısal alanları güvenli biçimde FLOAT'a çeviren SQL ifadesi üretir.</summary>
+        private static string Num(string kolonIfadesi)
+        {
+            return "TRY_CONVERT(FLOAT, NULLIF(LTRIM(RTRIM(" + kolonIfadesi + ")), ''))";
+        }
+
         // ---------------------------------------------------------------
         // GENEL ÖZET (dashboard KPI kartları)
         // ---------------------------------------------------------------
 
         public static DataTable GenelOzet(DateTime bas, DateTime bit)
         {
-            const string sql = @"
+            string sql = @"
                 SELECT
                     COUNT(DISTINCT bd.BookingCode) AS ToplamRezervasyon,
                     SUM(CASE WHEN bd.CancelDate IS NOT NULL THEN 1 ELSE 0 END) AS IptalSayisi,
@@ -34,8 +45,8 @@ namespace BBGFinance.Data
                     ISNULL(SUM(satirlar.ToplamPax), 0)  AS ToplamPax
                 FROM dbo.JP_BookingDetail bd
                 OUTER APPLY (
-                    SELECT SUM(ISNULL(l.NightsNumber, 0)) AS ToplamGece,
-                           SUM(ISNULL(l.PaxNumber, 0))    AS ToplamPax
+                    SELECT SUM(ISNULL(" + Num("l.NightsNumber") + @", 0)) AS ToplamGece,
+                           SUM(ISNULL(" + Num("l.PaxNumber") + @", 0))    AS ToplamPax
                     FROM dbo.JP_BookingDetailLine l
                     WHERE l.BookingCode = bd.BookingCode
                 ) satirlar
@@ -53,14 +64,14 @@ namespace BBGFinance.Data
         /// </summary>
         public static DataTable ParaBirimiBazliTutarlar(DateTime bas, DateTime bit)
         {
-            const string sql = @"
+            string sql = @"
                 ;WITH BookingParaBirimi AS (
                     SELECT
                         bd.BookingCode,
-                        bd.SellingPrice,
-                        bd.Commission,
-                        bd.OutStandingAmount,
-                        bd.Invoiced,
+                        " + Num("bd.SellingPrice") + @"      AS SellingPrice,
+                        " + Num("bd.Commission") + @"        AS Commission,
+                        " + Num("bd.OutStandingAmount") + @" AS OutStandingAmount,
+                        " + Num("bd.Invoiced") + @"          AS Invoiced,
                         (SELECT TOP 1 l.SellCurrency
                          FROM dbo.JP_BookingDetailLine l
                          WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi
@@ -83,10 +94,10 @@ namespace BBGFinance.Data
 
         public static DataTable ParaBirimiBazliKar(DateTime bas, DateTime bit)
         {
-            const string sql = @"
+            string sql = @"
                 SELECT
                     ISNULL(l.SellCurrency, 'Belirtilmemiş') AS ParaBirimi,
-                    SUM(ISNULL(l.Profit, 0)) AS ToplamKar
+                    SUM(ISNULL(" + Num("l.Profit") + @", 0)) AS ToplamKar
                 FROM dbo.JP_BookingDetailLine l
                 INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
                 WHERE bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
@@ -137,11 +148,11 @@ namespace BBGFinance.Data
 
         public static DataTable UrunGrubuDagilimi(DateTime bas, DateTime bit, int topN = 10)
         {
-            const string sql = @"
+            string sql = @"
                 SELECT TOP (@TopN)
                     ISNULL(l.ProductGroupName, ISNULL(l.ProductGroup, 'Belirtilmemiş')) AS UrunGrubu,
                     COUNT(*) AS KalemSayisi,
-                    SUM(ISNULL(l.SellingPrice, 0)) AS ToplamSatis
+                    SUM(ISNULL(" + Num("l.SellingPrice") + @", 0)) AS ToplamSatis
                 FROM dbo.JP_BookingDetailLine l
                 INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
                 WHERE bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
@@ -156,11 +167,11 @@ namespace BBGFinance.Data
 
         public static DataTable PazarDagilimi(DateTime bas, DateTime bit, int topN = 10)
         {
-            const string sql = @"
+            string sql = @"
                 SELECT TOP (@TopN)
                     ISNULL(l.Market, 'Belirtilmemiş') AS Pazar,
                     COUNT(*) AS KalemSayisi,
-                    SUM(ISNULL(l.SellingPrice, 0)) AS ToplamSatis
+                    SUM(ISNULL(" + Num("l.SellingPrice") + @", 0)) AS ToplamSatis
                 FROM dbo.JP_BookingDetailLine l
                 INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
                 WHERE bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
@@ -175,12 +186,12 @@ namespace BBGFinance.Data
 
         public static DataTable TedarikciDagilimi(DateTime bas, DateTime bit, int topN = 10)
         {
-            const string sql = @"
+            string sql = @"
                 SELECT TOP (@TopN)
                     ISNULL(l.SupplierName, 'Belirtilmemiş') AS Tedarikci,
                     COUNT(*) AS KalemSayisi,
-                    SUM(ISNULL(l.SellingPrice, 0)) AS ToplamSatis,
-                    SUM(ISNULL(l.Profit, 0)) AS ToplamKar
+                    SUM(ISNULL(" + Num("l.SellingPrice") + @", 0)) AS ToplamSatis,
+                    SUM(ISNULL(" + Num("l.Profit") + @", 0)) AS ToplamKar
                 FROM dbo.JP_BookingDetailLine l
                 INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
                 WHERE bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
@@ -195,13 +206,13 @@ namespace BBGFinance.Data
 
         public static DataTable SonRezervasyonlar(int topN = 10)
         {
-            const string sql = @"
+            string sql = @"
                 SELECT TOP (@TopN)
                     bd.BookingCode,
                     bd.BookingDate,
                     ISNULL(bd.CustomerName, '') AS CustomerName,
                     ISNULL(bd.Channel, '') AS Channel,
-                    bd.SellingPrice,
+                    " + Num("bd.SellingPrice") + @" AS SellingPrice,
                     (SELECT TOP 1 l.SellCurrency FROM dbo.JP_BookingDetailLine l
                      WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi,
                     CASE WHEN bd.CancelDate IS NOT NULL THEN 1 ELSE 0 END AS IptalMi
@@ -213,15 +224,15 @@ namespace BBGFinance.Data
 
         public static DataTable YaklasanKonaklamalar(int topN = 10)
         {
-            const string sql = @"
+            string sql = @"
                 SELECT TOP (@TopN)
                     l.BookingCode,
                     ISNULL(bd.CustomerName, '') AS CustomerName,
                     ISNULL(l.ServiceName, '') AS ServiceName,
                     l.BeginTravelDate,
                     l.EndTravelDate,
-                    l.NightsNumber,
-                    l.PaxNumber
+                    " + Num("l.NightsNumber") + @" AS NightsNumber,
+                    " + Num("l.PaxNumber") + @"    AS PaxNumber
                 FROM dbo.JP_BookingDetailLine l
                 INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
                 WHERE l.BeginTravelDate >= CAST(GETDATE() AS DATE)
@@ -279,15 +290,15 @@ namespace BBGFinance.Data
                     ISNULL(bd.CustomerName, '') AS CustomerName,
                     ISNULL(bd.AgentName, '')    AS AgentName,
                     ISNULL(bd.Channel, '')      AS Channel,
-                    bd.SellingPrice,
-                    bd.Commission,
-                    bd.OutStandingAmount,
-                    ISNULL(bd.Invoiced, 0) AS Invoiced,
+                    " + Num("bd.SellingPrice") + @"      AS SellingPrice,
+                    " + Num("bd.Commission") + @"        AS Commission,
+                    " + Num("bd.OutStandingAmount") + @" AS OutStandingAmount,
+                    ISNULL(" + Num("bd.Invoiced") + @", 0) AS Invoiced,
                     (SELECT TOP 1 l.SellCurrency FROM dbo.JP_BookingDetailLine l
                      WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi,
-                    (SELECT SUM(ISNULL(l.NightsNumber,0)) FROM dbo.JP_BookingDetailLine l
+                    (SELECT SUM(ISNULL(" + Num("l.NightsNumber") + @",0)) FROM dbo.JP_BookingDetailLine l
                      WHERE l.BookingCode = bd.BookingCode) AS ToplamGece,
-                    (SELECT SUM(ISNULL(l.PaxNumber,0)) FROM dbo.JP_BookingDetailLine l
+                    (SELECT SUM(ISNULL(" + Num("l.PaxNumber") + @",0)) FROM dbo.JP_BookingDetailLine l
                      WHERE l.BookingCode = bd.BookingCode) AS ToplamPax
                 FROM dbo.JP_BookingDetail bd
                 " + where + @"
@@ -313,8 +324,32 @@ namespace BBGFinance.Data
 
         public static DataTable RezervasyonBasligi(string bookingCode)
         {
-            const string sql = @"
-                SELECT bd.*
+            // SELECT * yerine açık kolon listesi: sayısal alanlar FLOAT'a çevrilir,
+            // geri kalan metin/tarih alanları olduğu gibi döner.
+            string sql = @"
+                SELECT
+                    bd.Logicalref, bd.Id, bd.Status, bd.CancelDate,
+                    bd.tcNumber, bd.tcAccountNumber,
+                    " + Num("bd.tcPointsAmount") + @" AS tcPointsAmount,
+                    bd.BookingLabel, bd.InvoiceFinalCustomer,
+                    bd.BookingDate, bd.TimeLimit, bd.BookingCode, bd.Channel, bd.LastModifiedDate,
+                    bd.AgencyRef, bd.FinalCustomerId, bd.timeZone,
+                    " + Num("bd.SellingPrice") + @" AS SellingPrice,
+                    bd.Description,
+                    " + Num("bd.Cost") + @"       AS Cost,
+                    " + Num("bd.Commission") + @" AS Commission,
+                    " + Num("bd.OutStandingAmount") + @" AS OutStandingAmount,
+                    bd.Invoiced, bd.Remarks, bd.InRemarks, bd.FinancialNotes,
+                    bd.BookingAdmin, bd.AccountManager,
+                    bd.CustomerId, bd.Customercodcli, bd.CustomerName,
+                    bd.CustomerPhone1, bd.CustomerPhone2, bd.CustomerMobile, bd.CustomerFax, bd.CustomerEmail,
+                    bd.CustomerAddress, bd.CustomerAddressNumber, bd.CustomerAddressBuilding,
+                    bd.CustomerBranchOffice, bd.CustomerCountry, bd.CustomerCIF, bd.CustomerCity, bd.CustomerClientAccount,
+                    bd.AgentId, bd.AgentName, bd.AgentEmail, bd.AgentEmailAgent, bd.AgentTaxID,
+                    bd.IdTransaction, bd.PaymentTypeCreditCardType, bd.PaymentType,
+                    bd.NameHolder, bd.LastName, bd.HolderCity, bd.HolderCountry, bd.HolderAddress,
+                    bd.HolderPhone1, bd.HolderPhone2, bd.HolderPhone3, bd.HolderFax, bd.HolderEmail,
+                    bd.HolderIdioma, bd.HolderTipoDocumento, bd.HolderDni, bd.HolderNacionalidadISO2, bd.HolderNacionalidad
                 FROM dbo.JP_BookingDetail bd
                 WHERE bd.BookingCode = @BookingCode";
 
@@ -323,8 +358,53 @@ namespace BBGFinance.Data
 
         public static DataTable RezervasyonKalemleri(string bookingCode)
         {
-            const string sql = @"
-                SELECT l.*
+            // SELECT * yerine açık kolon listesi: sayısal alanlar FLOAT'a çevrilir,
+            // geri kalan metin/tarih alanları olduğu gibi döner.
+            string sql = @"
+                SELECT
+                    l.Logicalref, l.IdBookLine, l.BookingCode, l.Status, l.LineDate,
+                    l.LineCancelled, l.LineCancelledDate,
+                    " + Num("l.LineMarkup") + @" AS LineMarkup,
+                    l.Externalreference, l.ExternalClientBookingNo, l.DirectPayment, l.PaymentAtDestination,
+                    l.NumPackage, l.NonRefundable, l.LineCancellationChargesDate, l.SupplierLocator, l.Blocked,
+                    l.RelatedBookingLine, l.ServiceName, l.ProductType, l.ProductTypeName, l.ProductGroup,
+                    l.ProductCodExport, l.ProductGroupAnalyticCode, l.DepartmentGroup, l.DepartmentGroupAnalyticCode,
+                    l.Market, l.AgencyGroupID, l.AgencyGroupName, l.ProductGroupName, l.Productid,
+                    l.SaleCompanyId, l.SaleCompanyCodExt, l.SaleCompanyName, l.SaleCompanyCountry,
+                    l.PuchasingCompanyId, l.PuchasingCompanyCodExt, l.PuchasingCompanyName, l.PuchasingCompanyCountry,
+                    l.SupplierId, l.SupplierName, l.SupplierCodExport,
+                    " + Num("l.SellingPrice") + @"          AS SellingPrice,
+                    " + Num("l.Commission") + @"            AS Commission,
+                    " + Num("l.PerCommission") + @"         AS PerCommission,
+                    l.CostCurrency, l.SellCurrency,
+                    " + Num("l.CostBaseLine") + @"          AS CostBaseLine,
+                    " + Num("l.TaxCostNotIncluded") + @"    AS TaxCostNotIncluded,
+                    " + Num("l.CostCancellationFees") + @"  AS CostCancellationFees,
+                    " + Num("l.NetCostLine") + @"           AS NetCostLine,
+                    " + Num("l.ComissionAmount") + @"       AS ComissionAmount,
+                    " + Num("l.ComissionTaxPercent") + @"   AS ComissionTaxPercent,
+                    " + Num("l.ComissionPercent") + @"      AS ComissionPercent,
+                    " + Num("l.CommisionTaxAmount") + @"    AS CommisionTaxAmount,
+                    " + Num("l.IndirectCommissionPercent") + @" AS IndirectCommissionPercent,
+                    " + Num("l.IndirectCommissionFix") + @"     AS IndirectCommissionFix,
+                    " + Num("l.IndirectCommissionAmount") + @"  AS IndirectCommissionAmount,
+                    l.IndirectCommissionSettled,
+                    " + Num("l.Profit") + @"                AS Profit,
+                    " + Num("l.ProfitTaxtNotIncluded") + @"  AS ProfitTaxtNotIncluded,
+                    l.SerialERP, l.Remarks, l.PromotionCode,
+                    " + Num("l.BasePriceCommission") + @"   AS BasePriceCommission,
+                    " + Num("l.CustomerCommission") + @"    AS CustomerCommission,
+                    " + Num("l.BasePriceWithOutTax") + @"   AS BasePriceWithOutTax,
+                    " + Num("l.BasePrice") + @"             AS BasePrice,
+                    " + Num("l.TaxPriceNotIncluded") + @"   AS TaxPriceNotIncluded,
+                    " + Num("l.CancellationFees") + @"      AS CancellationFees,
+                    " + Num("l.BaseChangeFactor") + @"      AS BaseChangeFactor,
+                    " + Num("l.CostChangeFactor") + @"      AS CostChangeFactor,
+                    l.ZoneId, l.Zonedescription, l.Zonestate, l.Zonecountry,
+                    l.BeginTravelDate, l.EndTravelDate, l.ExternalSupplierConfirmationNumber, l.ProviderAccount,
+                    " + Num("l.PaxNumber") + @"     AS PaxNumber,
+                    " + Num("l.NightsNumber") + @"  AS NightsNumber,
+                    l.FlightDetails, l.Category, l.isExtranet, l.VirtualCreditCardPayment, l.HotelRemarks
                 FROM dbo.JP_BookingDetailLine l
                 WHERE l.BookingCode = @BookingCode
                 ORDER BY l.IdBookLine";
