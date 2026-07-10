@@ -18,7 +18,7 @@
     // Para formatı
     window.formatTutar = function (tutar, doviz) {
         doviz = doviz || '';
-        return new Intl.NumberFormat('tr-TR', {
+        return new Intl.NumberFormat('tr-TR', {  
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         }).format(tutar || 0) + (doviz ? ' ' + doviz : '');
