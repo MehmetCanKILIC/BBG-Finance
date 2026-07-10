@@ -81,89 +81,98 @@
     var initKanal     = '<%=FilterKanal%>';
     var initArama     = '<%=FilterArama%>';
 
-    var dxBaslangic = DevExpress.ui.dxDateBox({
-        displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-        placeholder: 'gg.aa.yyyy', value: initBaslangic || null
-    }, document.getElementById('dxBaslangicTarihi'));
+    var dxBaslangic, dxBitis, dxDurum, dxKanal, dxArama;
 
-    var dxBitis = DevExpress.ui.dxDateBox({
-        displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-        placeholder: 'gg.aa.yyyy', value: initBitis || null
-    }, document.getElementById('dxBitisTarihi'));
+    if (typeof DevExpress === 'undefined' || !DevExpress.ui) {
+        console.error('DevExtreme yüklenemedi - cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net erişimini kontrol edin.');
+        document.getElementById('gridListesi').innerHTML =
+            '<div style="padding:16px;color:#C0392B;font-size:13px;">Liste bileşeni yüklenemedi (DevExtreme CDN erişimi yok).</div>';
+    } else {
+        dxBaslangic = DevExpress.ui.dxDateBox({
+            displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
+            placeholder: 'gg.aa.yyyy', value: initBaslangic || null
+        }, document.getElementById('dxBaslangicTarihi'));
 
-    var dxDurum = DevExpress.ui.dxSelectBox({
-        items: [
-            { text: 'Tümü', value: '' },
-            { text: 'Aktif', value: 'Aktif' },
-            { text: 'İptal', value: 'Iptal' }
-        ],
-        displayExpr: 'text', valueExpr: 'value',
-        value: initDurum || ''
-    }, document.getElementById('dxDurum'));
+        dxBitis = DevExpress.ui.dxDateBox({
+            displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
+            placeholder: 'gg.aa.yyyy', value: initBitis || null
+        }, document.getElementById('dxBitisTarihi'));
 
-    var kanalItems = [{ text: 'Tümü', value: '' }].concat(
-        (kanalListesi || []).map(function (k) { return { text: k.Kanal, value: k.Kanal }; })
-    );
-    var dxKanal = DevExpress.ui.dxSelectBox({
-        items: kanalItems,
-        displayExpr: 'text', valueExpr: 'value',
-        value: initKanal || ''
-    }, document.getElementById('dxKanal'));
+        dxDurum = DevExpress.ui.dxSelectBox({
+            items: [
+                { text: 'Tümü', value: '' },
+                { text: 'Aktif', value: 'Aktif' },
+                { text: 'İptal', value: 'Iptal' }
+            ],
+            displayExpr: 'text', valueExpr: 'value',
+            value: initDurum || ''
+        }, document.getElementById('dxDurum'));
 
-    var dxArama = DevExpress.ui.dxTextBox({
-        placeholder: 'Ara...', value: initArama || ''
-    }, document.getElementById('dxArama'));
+        var kanalItems = [{ text: 'Tümü', value: '' }].concat(
+            (kanalListesi || []).map(function (k) { return { text: k.Kanal, value: k.Kanal }; })
+        );
+        dxKanal = DevExpress.ui.dxSelectBox({
+            items: kanalItems,
+            displayExpr: 'text', valueExpr: 'value',
+            value: initKanal || ''
+        }, document.getElementById('dxKanal'));
 
-    // ---- Grid ----
-    DevExpress.ui.dxDataGrid({
-        dataSource: gridData,
-        showBorders: true,
-        rowAlternationEnabled: true,
-        columnAutoWidth: false,
-        allowColumnResizing: true,
-        allowColumnReordering: true,
-        paging: { pageSize: 20 },
-        pager: { showPageSizeSelector: true, allowedPageSizes: [10, 20, 50, 100], showInfo: true },
-        filterRow: { visible: true },
-        headerFilter: { visible: true },
-        searchPanel: { visible: true, placeholder: 'Ara...' },
-        export: { enabled: true, fileName: 'Rezervasyonlar' },
-        columns: [
-            { dataField: 'Id', visible: false, allowSearch: false, showInColumnChooser: false },
-            { dataField: 'BookingCode',  caption: 'Rezervasyon No', width: 130, fixed: true },
-            { dataField: 'BookingDate',  caption: 'Tarih', width: 110, dataType: 'date', format: 'dd.MM.yyyy' },
-            { dataField: 'Durum',        caption: 'Durum', width: 90,
-              cellTemplate: function (c, o) {
-                  $('<span>').addClass('badge ' + (o.value === 'Iptal' ? 'badge-red' : 'badge-green'))
-                      .text(o.value === 'Iptal' ? 'İptal' : 'Aktif').appendTo(c);
-              }
-            },
-            { dataField: 'CustomerName', caption: 'Müşteri', width: 180 },
-            { dataField: 'AgentName',    caption: 'Acente', width: 150 },
-            { dataField: 'Channel',      caption: 'Kanal', width: 110 },
-            { dataField: 'SellingPrice', caption: 'Satış Tutarı', width: 120, dataType: 'number',
-              format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-            { dataField: 'ParaBirimi',   caption: 'P.B.', width: 60 },
-            { dataField: 'Commission',   caption: 'Komisyon', width: 110, dataType: 'number',
-              format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-            { dataField: 'OutStandingAmount', caption: 'Bekleyen Tahsilat', width: 130, dataType: 'number',
-              format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-            { dataField: 'ToplamGece',  caption: 'Gece', width: 70, dataType: 'number' },
-            { dataField: 'ToplamPax',   caption: 'Pax', width: 70, dataType: 'number' },
-            {
-                caption: 'İşlemler', width: 90, fixed: true, fixedPosition: 'right',
-                allowFiltering: false, allowSorting: false,
-                cellTemplate: function (container, options) {
-                    var kod = options.data.BookingCode;
-                    $('<a>').addClass('action-btn').attr({ href: 'Detay.aspx?kod=' + encodeURIComponent(kod), title: 'Detay' })
-                        .html('<span style="color:#00695C;font-size:15px;">&#128065;</span>')
-                        .appendTo(container);
+        dxArama = DevExpress.ui.dxTextBox({
+            placeholder: 'Ara...', value: initArama || ''
+        }, document.getElementById('dxArama'));
+
+        // ---- Grid ----
+        DevExpress.ui.dxDataGrid({
+            dataSource: gridData,
+            showBorders: true,
+            rowAlternationEnabled: true,
+            columnAutoWidth: false,
+            allowColumnResizing: true,
+            allowColumnReordering: true,
+            paging: { pageSize: 20 },
+            pager: { showPageSizeSelector: true, allowedPageSizes: [10, 20, 50, 100], showInfo: true },
+            filterRow: { visible: true },
+            headerFilter: { visible: true },
+            searchPanel: { visible: true, placeholder: 'Ara...' },
+            export: { enabled: true, fileName: 'Rezervasyonlar' },
+            columns: [
+                { dataField: 'Id', visible: false, allowSearch: false, showInColumnChooser: false },
+                { dataField: 'BookingCode',  caption: 'Rezervasyon No', width: 130, fixed: true },
+                { dataField: 'BookingDate',  caption: 'Tarih', width: 110, dataType: 'date', format: 'dd.MM.yyyy' },
+                { dataField: 'Durum',        caption: 'Durum', width: 90,
+                  cellTemplate: function (c, o) {
+                      $('<span>').addClass('badge ' + (o.value === 'Iptal' ? 'badge-red' : 'badge-green'))
+                          .text(o.value === 'Iptal' ? 'İptal' : 'Aktif').appendTo(c);
+                  }
+                },
+                { dataField: 'CustomerName', caption: 'Müşteri', width: 180 },
+                { dataField: 'AgentName',    caption: 'Acente', width: 150 },
+                { dataField: 'Channel',      caption: 'Kanal', width: 110 },
+                { dataField: 'SellingPrice', caption: 'Satış Tutarı', width: 120, dataType: 'number',
+                  format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'ParaBirimi',   caption: 'P.B.', width: 60 },
+                { dataField: 'Commission',   caption: 'Komisyon', width: 110, dataType: 'number',
+                  format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'OutStandingAmount', caption: 'Bekleyen Tahsilat', width: 130, dataType: 'number',
+                  format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'ToplamGece',  caption: 'Gece', width: 70, dataType: 'number' },
+                { dataField: 'ToplamPax',   caption: 'Pax', width: 70, dataType: 'number' },
+                {
+                    caption: 'İşlemler', width: 90, fixed: true, fixedPosition: 'right',
+                    allowFiltering: false, allowSorting: false,
+                    cellTemplate: function (container, options) {
+                        var kod = options.data.BookingCode;
+                        $('<a>').addClass('action-btn').attr({ href: 'Detay.aspx?kod=' + encodeURIComponent(kod), title: 'Detay' })
+                            .html('<span style="color:#00695C;font-size:15px;">&#128065;</span>')
+                            .appendTo(container);
+                    }
                 }
-            }
-        ]
-    }, document.getElementById('gridListesi'));
+            ]
+        }, document.getElementById('gridListesi'));
+    }
 
     function aramayiUygula() {
+        if (!dxBaslangic) { window.location.href = 'Liste.aspx'; return; }
         var bas = dxBaslangic.option('value');
         var bit = dxBitis.option('value');
         var durum = dxDurum.option('value');

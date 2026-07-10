@@ -113,39 +113,45 @@
 <script>
     var kalemler = <%=KalemlerJson%>;
 
-    DevExpress.ui.dxDataGrid({
-        dataSource: kalemler,
-        showBorders: true,
-        rowAlternationEnabled: true,
-        columnAutoWidth: true,
-        allowColumnResizing: true,
-        paging: { pageSize: 10 },
-        columns: [
-            { dataField: 'ServiceName',      caption: 'Hizmet' },
-            { dataField: 'ProductGroupName', caption: 'Ürün Grubu' },
-            { dataField: 'SupplierName',     caption: 'Tedarikçi' },
-            { dataField: 'Market',           caption: 'Pazar', width: 100 },
-            { dataField: 'BeginTravelDate',  caption: 'Başlangıç', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-            { dataField: 'EndTravelDate',    caption: 'Bitiş', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-            { dataField: 'NightsNumber',     caption: 'Gece', width: 70, dataType: 'number' },
-            { dataField: 'PaxNumber',        caption: 'Pax', width: 70, dataType: 'number' },
-            { dataField: 'SellingPrice',     caption: 'Satış', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-            { dataField: 'SellCurrency',     caption: 'P.B.', width: 60 },
-            { dataField: 'Cost',             caption: 'Maliyet', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-            { dataField: 'Commission',       caption: 'Komisyon', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-            { dataField: 'Profit',           caption: 'Kâr', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-            { dataField: 'LineCancelled',    caption: 'Durum', width: 80,
-              cellTemplate: function (c, o) {
-                  $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'İptal' : 'Aktif').appendTo(c);
-              }
+    if (typeof DevExpress === 'undefined' || !DevExpress.ui) {
+        console.error('DevExtreme yüklenemedi - cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net erişimini kontrol edin.');
+        document.getElementById('gridKalemler').innerHTML =
+            '<div style="padding:16px;color:#C0392B;font-size:13px;">Kalem tablosu yüklenemedi (DevExtreme CDN erişimi yok).</div>';
+    } else {
+        DevExpress.ui.dxDataGrid({
+            dataSource: kalemler,
+            showBorders: true,
+            rowAlternationEnabled: true,
+            columnAutoWidth: true,
+            allowColumnResizing: true,
+            paging: { pageSize: 10 },
+            columns: [
+                { dataField: 'ServiceName',      caption: 'Hizmet' },
+                { dataField: 'ProductGroupName', caption: 'Ürün Grubu' },
+                { dataField: 'SupplierName',     caption: 'Tedarikçi' },
+                { dataField: 'Market',           caption: 'Pazar', width: 100 },
+                { dataField: 'BeginTravelDate',  caption: 'Başlangıç', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'EndTravelDate',    caption: 'Bitiş', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'NightsNumber',     caption: 'Gece', width: 70, dataType: 'number' },
+                { dataField: 'PaxNumber',        caption: 'Pax', width: 70, dataType: 'number' },
+                { dataField: 'SellingPrice',     caption: 'Satış', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'SellCurrency',     caption: 'P.B.', width: 60 },
+                { dataField: 'Cost',             caption: 'Maliyet', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'Commission',       caption: 'Komisyon', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'Profit',           caption: 'Kâr', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'LineCancelled',    caption: 'Durum', width: 80,
+                  cellTemplate: function (c, o) {
+                      $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'İptal' : 'Aktif').appendTo(c);
+                  }
+                }
+            ],
+            summary: {
+                totalItems: [
+                    { column: 'SellingPrice', summaryType: 'sum', valueFormat: { type: 'fixedPoint', precision: 2 }, displayFormat: 'Toplam: {0}' },
+                    { column: 'Profit', summaryType: 'sum', valueFormat: { type: 'fixedPoint', precision: 2 }, displayFormat: 'Toplam: {0}' }
+                ]
             }
-        ],
-        summary: {
-            totalItems: [
-                { column: 'SellingPrice', summaryType: 'sum', valueFormat: { type: 'fixedPoint', precision: 2 }, displayFormat: 'Toplam: {0}' },
-                { column: 'Profit', summaryType: 'sum', valueFormat: { type: 'fixedPoint', precision: 2 }, displayFormat: 'Toplam: {0}' }
-            ]
-        }
-    }, document.getElementById('gridKalemler'));
+        }, document.getElementById('gridKalemler'));
+    }
 </script>
 </asp:Content>

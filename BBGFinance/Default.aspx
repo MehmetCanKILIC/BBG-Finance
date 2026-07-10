@@ -163,30 +163,6 @@
     var initBaslangic  = '<%=FilterBaslangic%>';
     var initBitis      = '<%=FilterBitis%>';
 
-    // ---- Tarih filtreleri ----
-    var dxBaslangic = DevExpress.ui.dxDateBox({
-        displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-        placeholder: 'gg.aa.yyyy', value: initBaslangic || null
-    }, document.getElementById('dxBaslangicTarihi'));
-
-    var dxBitis = DevExpress.ui.dxDateBox({
-        displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-        placeholder: 'gg.aa.yyyy', value: initBitis || null
-    }, document.getElementById('dxBitisTarihi'));
-
-    function filtreyiUygula() {
-        var bas = dxBaslangic.option('value');
-        var bit = dxBitis.option('value');
-        var params = [];
-        if (bas) params.push('bas=' + formatDateISO(bas));
-        if (bit) params.push('bit=' + formatDateISO(bit));
-        window.location.href = 'Default.aspx' + (params.length ? '?' + params.join('&') : '');
-    }
-
-    function filtreyiTemizle() {
-        window.location.href = 'Default.aspx';
-    }
-
     function formatDateISO(d) {
         var dt = new Date(d);
         var y = dt.getFullYear(), m = dt.getMonth() + 1, day = dt.getDate();
@@ -201,14 +177,15 @@
         return (n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (doviz || '');
     }
 
-    // ---- Özet kartları ----
+    // ---- Özet kartları: düz DOM, DevExtreme'e ihtiyaç duymaz ----
+    // (DevExtreme CDN'den yüklenemese bile bu kartlar dolmaya devam eder.)
     var ozet = dashboardData.ozet || {};
     document.getElementById('valToplamRezervasyon').textContent = formatSayi(ozet.ToplamRezervasyon);
     document.getElementById('valIptalOrani').textContent        = '%' + (ozet.IptalOrani || 0).toString().replace('.', ',');
     document.getElementById('valToplamGece').textContent        = formatSayi(ozet.ToplamGece);
     document.getElementById('valToplamPax').textContent          = formatSayi(ozet.ToplamPax);
 
-    // ---- Finansal tablo (para birimi bazlı) ----
+    // ---- Finansal tablo (para birimi bazlı): düz DOM ----
     function finansalTabloOlustur(elId, satirlar, alanlar) {
         var el = document.getElementById(elId);
         if (!satirlar || satirlar.length === 0) {
@@ -236,87 +213,129 @@
         { field: 'ToplamKar', label: 'Toplam Kâr' }
     ]);
 
-    // ---- Aylık trend grafiği ----
-    DevExpress.viz.dxChart({
-        dataSource: dashboardData.aylikTrend,
-        series: [
-            { valueField: 'RezervasyonSayisi', name: 'Rezervasyon', type: 'bar', color: '#00695C' },
-            { valueField: 'IptalSayisi', name: 'İptal', type: 'bar', color: '#C0392B' }
-        ],
-        argumentField: 'Ay',
-        argumentAxis: { argumentType: 'string' },
-        legend: { visible: true, verticalAlignment: 'bottom', horizontalAlignment: 'center' },
-        tooltip: { enabled: true }
-    }, document.getElementById('chartTrend'));
+    // ---- DevExtreme'e bağlı bileşenler (tarih filtresi, grafikler, grid'ler) ----
+    // CDN'den (cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net) DevExtreme
+    // yüklenemezse burada patlayıp script'in tamamını durdurmak yerine, yukarıdaki KPI
+    // kartları ve finansal tablolar zaten dolmuş halde kalır; bu bölüm sadece kendi
+    // alanlarında bir uyarı gösterir.
+    var dxBaslangic, dxBitis;
 
-    // ---- Kanal dağılımı ----
-    DevExpress.viz.dxPieChart({
-        dataSource: dashboardData.kanalDagilim,
-        series: [{ argumentField: 'Kanal', valueField: 'Adet', label: { visible: true, connector: { visible: true } } }],
-        palette: ['#00695C', '#F9A825', '#26A69A', '#8E44AD', '#546E7A'],
-        legend: { visible: true },
-        tooltip: { enabled: true }
-    }, document.getElementById('chartKanal'));
+    if (typeof DevExpress === 'undefined' || !DevExpress.ui || !DevExpress.viz) {
+        console.error('DevExtreme yüklenemedi - cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net erişimini kontrol edin.');
+        var uyariHtml = '<div style="padding:16px;color:#C0392B;font-size:13px;">Bileşen yüklenemedi (DevExtreme CDN erişimi yok).</div>';
+        ['dxBaslangicTarihi', 'dxBitisTarihi', 'chartTrend', 'chartKanal', 'chartUrunGrubu', 'chartPazar',
+         'gridTedarikci', 'gridSonRezervasyonlar', 'gridYaklasanKonaklamalar'].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) el.innerHTML = uyariHtml;
+        });
+    } else {
+        // ---- Tarih filtreleri ----
+        dxBaslangic = DevExpress.ui.dxDateBox({
+            displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
+            placeholder: 'gg.aa.yyyy', value: initBaslangic || null
+        }, document.getElementById('dxBaslangicTarihi'));
 
-    // ---- Ürün grubu dağılımı ----
-    DevExpress.viz.dxBarChart({
-        dataSource: dashboardData.urunGrubu,
-        series: [{ argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Satış', color: '#00695C' }],
-        rotated: true,
-        tooltip: { enabled: true }
-    }, document.getElementById('chartUrunGrubu'));
+        dxBitis = DevExpress.ui.dxDateBox({
+            displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
+            placeholder: 'gg.aa.yyyy', value: initBitis || null
+        }, document.getElementById('dxBitisTarihi'));
 
-    // ---- Pazar dağılımı ----
-    DevExpress.viz.dxBarChart({
-        dataSource: dashboardData.pazarDagilim,
-        series: [{ argumentField: 'Pazar', valueField: 'ToplamSatis', name: 'Satış', color: '#F9A825' }],
-        rotated: true,
-        tooltip: { enabled: true }
-    }, document.getElementById('chartPazar'));
+        // ---- Aylık trend grafiği ----
+        DevExpress.viz.dxChart({
+            dataSource: dashboardData.aylikTrend,
+            series: [
+                { valueField: 'RezervasyonSayisi', name: 'Rezervasyon', type: 'bar', color: '#00695C' },
+                { valueField: 'IptalSayisi', name: 'İptal', type: 'bar', color: '#C0392B' }
+            ],
+            argumentField: 'Ay',
+            argumentAxis: { argumentType: 'string' },
+            legend: { visible: true, verticalAlignment: 'bottom', horizontalAlignment: 'center' },
+            tooltip: { enabled: true }
+        }, document.getElementById('chartTrend'));
 
-    // ---- Tedarikçi tablosu ----
-    DevExpress.ui.dxDataGrid({
-        dataSource: dashboardData.tedarikci,
-        showBorders: true, rowAlternationEnabled: true,
-        paging: { pageSize: 10 },
-        columns: [
-            { dataField: 'Tedarikci', caption: 'Tedarikçi' },
-            { dataField: 'KalemSayisi', caption: 'Kalem Sayısı', width: 120, dataType: 'number' },
-            { dataField: 'ToplamSatis', caption: 'Toplam Satış', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-            { dataField: 'ToplamKar', caption: 'Toplam Kâr', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' }
-        ]
-    }, document.getElementById('gridTedarikci'));
+        // ---- Kanal dağılımı ----
+        DevExpress.viz.dxPieChart({
+            dataSource: dashboardData.kanalDagilim,
+            series: [{ argumentField: 'Kanal', valueField: 'Adet', label: { visible: true, connector: { visible: true } } }],
+            palette: ['#00695C', '#F9A825', '#26A69A', '#8E44AD', '#546E7A'],
+            legend: { visible: true },
+            tooltip: { enabled: true }
+        }, document.getElementById('chartKanal'));
 
-    // ---- Son rezervasyonlar ----
-    DevExpress.ui.dxDataGrid({
-        dataSource: dashboardData.sonRezervasyonlar,
-        showBorders: true, rowAlternationEnabled: true,
-        paging: { pageSize: 5 },
-        columns: [
-            { dataField: 'BookingCode', caption: 'Rezervasyon No', width: 130 },
-            { dataField: 'CustomerName', caption: 'Müşteri' },
-            { dataField: 'SellingPrice', caption: 'Tutar', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right', width: 110 },
-            { dataField: 'BookingDate', caption: 'Tarih', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-            { dataField: 'IptalMi', caption: 'Durum', width: 80,
-              cellTemplate: function (c, o) {
-                  $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'İptal' : 'Aktif').appendTo(c);
-              }
-            }
-        ]
-    }, document.getElementById('gridSonRezervasyonlar'));
+        // ---- Ürün grubu dağılımı ----
+        DevExpress.viz.dxBarChart({
+            dataSource: dashboardData.urunGrubu,
+            series: [{ argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Satış', color: '#00695C' }],
+            rotated: true,
+            tooltip: { enabled: true }
+        }, document.getElementById('chartUrunGrubu'));
 
-    // ---- Yaklaşan konaklamalar ----
-    DevExpress.ui.dxDataGrid({
-        dataSource: dashboardData.yaklasanKonaklamalar,
-        showBorders: true, rowAlternationEnabled: true,
-        paging: { pageSize: 5 },
-        columns: [
-            { dataField: 'BookingCode', caption: 'Rezervasyon No', width: 130 },
-            { dataField: 'CustomerName', caption: 'Müşteri' },
-            { dataField: 'BeginTravelDate', caption: 'Giriş', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-            { dataField: 'NightsNumber', caption: 'Gece', width: 70, dataType: 'number' },
-            { dataField: 'PaxNumber', caption: 'Pax', width: 70, dataType: 'number' }
-        ]
-    }, document.getElementById('gridYaklasanKonaklamalar'));
+        // ---- Pazar dağılımı ----
+        DevExpress.viz.dxBarChart({
+            dataSource: dashboardData.pazarDagilim,
+            series: [{ argumentField: 'Pazar', valueField: 'ToplamSatis', name: 'Satış', color: '#F9A825' }],
+            rotated: true,
+            tooltip: { enabled: true }
+        }, document.getElementById('chartPazar'));
+
+        // ---- Tedarikçi tablosu ----
+        DevExpress.ui.dxDataGrid({
+            dataSource: dashboardData.tedarikci,
+            showBorders: true, rowAlternationEnabled: true,
+            paging: { pageSize: 10 },
+            columns: [
+                { dataField: 'Tedarikci', caption: 'Tedarikçi' },
+                { dataField: 'KalemSayisi', caption: 'Kalem Sayısı', width: 120, dataType: 'number' },
+                { dataField: 'ToplamSatis', caption: 'Toplam Satış', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'ToplamKar', caption: 'Toplam Kâr', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' }
+            ]
+        }, document.getElementById('gridTedarikci'));
+
+        // ---- Son rezervasyonlar ----
+        DevExpress.ui.dxDataGrid({
+            dataSource: dashboardData.sonRezervasyonlar,
+            showBorders: true, rowAlternationEnabled: true,
+            paging: { pageSize: 5 },
+            columns: [
+                { dataField: 'BookingCode', caption: 'Rezervasyon No', width: 130 },
+                { dataField: 'CustomerName', caption: 'Müşteri' },
+                { dataField: 'SellingPrice', caption: 'Tutar', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right', width: 110 },
+                { dataField: 'BookingDate', caption: 'Tarih', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'IptalMi', caption: 'Durum', width: 80,
+                  cellTemplate: function (c, o) {
+                      $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'İptal' : 'Aktif').appendTo(c);
+                  }
+                }
+            ]
+        }, document.getElementById('gridSonRezervasyonlar'));
+
+        // ---- Yaklaşan konaklamalar ----
+        DevExpress.ui.dxDataGrid({
+            dataSource: dashboardData.yaklasanKonaklamalar,
+            showBorders: true, rowAlternationEnabled: true,
+            paging: { pageSize: 5 },
+            columns: [
+                { dataField: 'BookingCode', caption: 'Rezervasyon No', width: 130 },
+                { dataField: 'CustomerName', caption: 'Müşteri' },
+                { dataField: 'BeginTravelDate', caption: 'Giriş', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'NightsNumber', caption: 'Gece', width: 70, dataType: 'number' },
+                { dataField: 'PaxNumber', caption: 'Pax', width: 70, dataType: 'number' }
+            ]
+        }, document.getElementById('gridYaklasanKonaklamalar'));
+    }
+
+    function filtreyiUygula() {
+        if (!dxBaslangic || !dxBitis) { window.location.href = 'Default.aspx'; return; }
+        var bas = dxBaslangic.option('value');
+        var bit = dxBitis.option('value');
+        var params = [];
+        if (bas) params.push('bas=' + formatDateISO(bas));
+        if (bit) params.push('bit=' + formatDateISO(bit));
+        window.location.href = 'Default.aspx' + (params.length ? '?' + params.join('&') : '');
+    }
+
+    function filtreyiTemizle() {
+        window.location.href = 'Default.aspx';
+    }
 </script>
 </asp:Content>
