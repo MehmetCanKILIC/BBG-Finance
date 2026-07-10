@@ -6,7 +6,7 @@ using BBGFinance.Data;
 using Newtonsoft.Json;
 
 namespace BBGFinance
-{
+{ 
     /// <summary>
     /// Simplified dashboard for the Customer (agency) role. Cost/Profit/Commission/Supplier
     /// information is NEVER present on this page or in the MusteriRaporRepository queries behind it.
