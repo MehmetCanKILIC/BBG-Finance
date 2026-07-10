@@ -221,7 +221,7 @@
         try {
             dxBaslangic = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-                placeholder: 'gg.aa.yyyy', value: initBaslangic || null
+                placeholder: 'gg.aa.yyyy', value: initBaslangic || null 
             }, document.getElementById('dxBaslangicTarihi'));
 
             dxBitis = dxOlustur(DevExpress.ui.dxDateBox, {
