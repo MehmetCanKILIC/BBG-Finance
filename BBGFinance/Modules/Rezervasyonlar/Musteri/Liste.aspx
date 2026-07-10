@@ -25,9 +25,7 @@
     <span>My Reservations</span>
 </asp:Content>
 
-<asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server">
-    My Reservations
-</asp:Content>
+<asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server"></asp:Content>
 
 <asp:Content ID="cPageSubtitle" ContentPlaceHolderID="cphPageSubtitle" runat="server">
     Full list of your reservations - hotel, dates, guests and pricing (read-only).

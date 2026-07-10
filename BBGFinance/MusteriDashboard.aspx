@@ -51,7 +51,7 @@
             </div>
             <div class="filter-actions">
                 <button type="button" class="btn-search" onclick="filtreyiUygula()">Apply</button>
-                <button type="button" class="btn-clear"  onclick="filtreyiTemizle()">Last 2 Months</button>
+                <button type="button" class="btn-clear"  onclick="filtreyiTemizle()">Reset</button>
             </div>
         </div>
     </div>

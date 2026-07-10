@@ -47,6 +47,10 @@ namespace BBGFinance
             }
         }
 
+        /// <summary>Varsayılan başlangıç tarihi 01.07.2026 olarak sabitlenmiştir (bağıl bir
+        /// "son N ay" hesabı değil).</summary>
+        private static readonly DateTime VarsayilanBaslangic = new DateTime(2026, 7, 1);
+
         private void CozFiltreTarihleri(out DateTime bas, out DateTime bit)
         {
             string basStr = Request.QueryString["bas"];
@@ -56,7 +60,7 @@ namespace BBGFinance
             bool basVar = DateTime.TryParse(basStr, out basParsed);
             bool bitVar = DateTime.TryParse(bitStr, out bitParsed);
 
-            bas = basVar ? basParsed.Date : DateTime.Today.AddMonths(-2).Date;
+            bas = basVar ? basParsed.Date : VarsayilanBaslangic;
             bit = bitVar ? bitParsed.Date.AddDays(1) : DateTime.Today.AddDays(1);
         }
 
