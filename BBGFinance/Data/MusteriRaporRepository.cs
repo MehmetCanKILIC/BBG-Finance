@@ -165,7 +165,7 @@ namespace BBGFinance.Data
 
         /// <summary>
         /// Oda tipi dağılımı - sadece satış fiyatı, maliyet YOK. Gerçek oda tipi
-        /// JP_BookingDetailLineRoomList.roomname alanında tutulur; JP_BookingDetailLine.ProductTypeName
+        /// JP_BookingDetailLineRoomList.typeroomname alanında tutulur; JP_BookingDetailLine.ProductTypeName
         /// (ürün/hizmet tipi, oda tipi değil) sadece RoomList eşleşmediğinde (BookingCode/IdBookLine
         /// uyuşmazlığı) yedek (fallback) olarak kullanılır.
         /// </summary>
@@ -173,7 +173,7 @@ namespace BBGFinance.Data
         {
             string sql = @"
                 SELECT TOP (@TopN)
-                    ISNULL(NULLIF(LTRIM(RTRIM(rl.roomname)), ''),
+                    ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''),
                         ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''), 'Belirtilmemiş')) AS OdaTipi,
                     COUNT(*) AS OdaSayisi,
                     SUM(ISNULL(" + SqlSafe.Num("l.SellingPrice") + @", ISNULL(" + SqlSafe.Num("rl.priceroom") + @", 0))) AS ToplamSatis
@@ -185,7 +185,7 @@ namespace BBGFinance.Data
                    AND " + SqlSafe.JoinEq("rl.IdBookLine", "l.IdBookLine") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
                   AND l.BeginTravelDate >= @Bas AND l.BeginTravelDate < @Bit
-                GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(rl.roomname)), ''),
+                GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''),
                         ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''), 'Belirtilmemiş'))
                 ORDER BY ToplamSatis DESC";
 
@@ -267,7 +267,7 @@ namespace BBGFinance.Data
         /// <summary>
         /// Girişi henüz gelmemiş (bekleyen) odalar - otel/oda tipi/giriş tarihi ile. Otel adı
         /// öncelikle JP_BookingDetailLine.ServiceName'den (her zaman dolu), oda tipi ise gerçek
-        /// oda tipini tutan JP_BookingDetailLineRoomList.roomname'den alınır; ProductTypeName sadece
+        /// oda tipini tutan JP_BookingDetailLineRoomList.typeroomname'den alınır; ProductTypeName sadece
         /// RoomList eşleşmediğinde (BookingCode/IdBookLine uyuşmazlığı) yedek (fallback) olarak kullanılır.
         /// Dashboard'daki tarih filtresi CHECK-IN (BeginTravelDate) aralığıdır; ayrıca "henüz
         /// gelmemiş" anlamına uyması için check-in bugünden önce olamaz (GETDATE() koşulu korunur).
@@ -279,7 +279,7 @@ namespace BBGFinance.Data
                     bd.BookingCode,
                     ISNULL(NULLIF(LTRIM(RTRIM(l.ServiceName)), ''),
                         ISNULL(NULLIF(LTRIM(RTRIM(rl.namehotel)), ''), '')) AS OtelAdi,
-                    ISNULL(NULLIF(LTRIM(RTRIM(rl.roomname)), ''),
+                    ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''),
                         ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''), '')) AS OdaTipi,
                     LTRIM(RTRIM(ISNULL(rl.name, '') + ' ' + ISNULL(rl.lastname, ''))) AS MisafirAdi,
                     l.BeginTravelDate,
