@@ -230,17 +230,35 @@
         });
     } else {
         // ---- Tarih filtreleri ----
-        dxBaslangic = DevExpress.ui.dxDateBox({
-            displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-            placeholder: 'gg.aa.yyyy', value: initBaslangic || null
-        }, document.getElementById('dxBaslangicTarihi'));
+        try {
+            dxBaslangic = DevExpress.ui.dxDateBox({
+                displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
+                placeholder: 'gg.aa.yyyy', value: initBaslangic || null
+            }, document.getElementById('dxBaslangicTarihi'));
 
-        dxBitis = DevExpress.ui.dxDateBox({
-            displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-            placeholder: 'gg.aa.yyyy', value: initBitis || null
-        }, document.getElementById('dxBitisTarihi'));
+            dxBitis = DevExpress.ui.dxDateBox({
+                displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
+                placeholder: 'gg.aa.yyyy', value: initBitis || null
+            }, document.getElementById('dxBitisTarihi'));
+        } catch (ex) {
+            console.error('Tarih filtresi render edilemedi:', ex);
+        }
+    }
 
-        // ---- Aylık trend grafiği ----
+    // Her bileşen kendi try/catch'i içinde kuruluyor: biri veri/konfigürasyon
+    // hatası yüzünden patlarsa diğerleri (ve KPI kartları) yine de render olur.
+    function guvenliKur(elementId, fn) {
+        if (typeof DevExpress === 'undefined' || !DevExpress.ui || !DevExpress.viz) return;
+        try {
+            fn();
+        } catch (ex) {
+            console.error(elementId + ' render edilemedi:', ex);
+            var el = document.getElementById(elementId);
+            if (el) el.innerHTML = '<div style="padding:16px;color:#C0392B;font-size:13px;">Bu bileşen render edilirken hata oluştu (konsola bakın).</div>';
+        }
+    }
+
+    guvenliKur('chartTrend', function () {
         DevExpress.viz.dxChart({
             dataSource: dashboardData.aylikTrend,
             series: [
@@ -252,8 +270,9 @@
             legend: { visible: true, verticalAlignment: 'bottom', horizontalAlignment: 'center' },
             tooltip: { enabled: true }
         }, document.getElementById('chartTrend'));
+    });
 
-        // ---- Kanal dağılımı ----
+    guvenliKur('chartKanal', function () {
         DevExpress.viz.dxPieChart({
             dataSource: dashboardData.kanalDagilim,
             series: [{ argumentField: 'Kanal', valueField: 'Adet', label: { visible: true, connector: { visible: true } } }],
@@ -261,24 +280,27 @@
             legend: { visible: true },
             tooltip: { enabled: true }
         }, document.getElementById('chartKanal'));
+    });
 
-        // ---- Ürün grubu dağılımı ----
+    guvenliKur('chartUrunGrubu', function () {
         DevExpress.viz.dxBarChart({
             dataSource: dashboardData.urunGrubu,
             series: [{ argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Satış', color: '#00695C' }],
             rotated: true,
             tooltip: { enabled: true }
         }, document.getElementById('chartUrunGrubu'));
+    });
 
-        // ---- Pazar dağılımı ----
+    guvenliKur('chartPazar', function () {
         DevExpress.viz.dxBarChart({
             dataSource: dashboardData.pazarDagilim,
             series: [{ argumentField: 'Pazar', valueField: 'ToplamSatis', name: 'Satış', color: '#F9A825' }],
             rotated: true,
             tooltip: { enabled: true }
         }, document.getElementById('chartPazar'));
+    });
 
-        // ---- Tedarikçi tablosu ----
+    guvenliKur('gridTedarikci', function () {
         DevExpress.ui.dxDataGrid({
             dataSource: dashboardData.tedarikci,
             showBorders: true, rowAlternationEnabled: true,
@@ -290,8 +312,9 @@
                 { dataField: 'ToplamKar', caption: 'Toplam Kâr', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' }
             ]
         }, document.getElementById('gridTedarikci'));
+    });
 
-        // ---- Son rezervasyonlar ----
+    guvenliKur('gridSonRezervasyonlar', function () {
         DevExpress.ui.dxDataGrid({
             dataSource: dashboardData.sonRezervasyonlar,
             showBorders: true, rowAlternationEnabled: true,
@@ -308,8 +331,9 @@
                 }
             ]
         }, document.getElementById('gridSonRezervasyonlar'));
+    });
 
-        // ---- Yaklaşan konaklamalar ----
+    guvenliKur('gridYaklasanKonaklamalar', function () {
         DevExpress.ui.dxDataGrid({
             dataSource: dashboardData.yaklasanKonaklamalar,
             showBorders: true, rowAlternationEnabled: true,
@@ -322,7 +346,7 @@
                 { dataField: 'PaxNumber', caption: 'Pax', width: 70, dataType: 'number' }
             ]
         }, document.getElementById('gridYaklasanKonaklamalar'));
-    }
+    });
 
     function filtreyiUygula() {
         if (!dxBaslangic || !dxBitis) { window.location.href = 'Default.aspx'; return; }

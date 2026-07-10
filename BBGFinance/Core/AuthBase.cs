@@ -20,5 +20,18 @@ namespace BBGFinance.Core
         {
             get { return SessionManager.Rol == AppConstants.Roller.Admin; }
         }
+
+        /// <summary>Müşteri (acente) girişi mi? True ise veri katmanı CustomerGroupId ile
+        /// filtrelenmeli ve maliyet/kâr/tedarikçi alanları hiçbir sorguya/JSON'a dahil edilmemeli.</summary>
+        protected bool MusteriMi
+        {
+            get { return SessionManager.Rol == AppConstants.Roller.Musteri; }
+        }
+
+        /// <summary>Admin için NULL (filtresiz); Musteri için oturumdaki CustomerGroupId.</summary>
+        protected int? CustomerGroupId
+        {
+            get { return AdminMi ? null : SessionManager.CustomerGroupId; }
+        }
     }
 }

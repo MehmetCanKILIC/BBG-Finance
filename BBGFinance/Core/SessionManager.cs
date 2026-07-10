@@ -48,6 +48,20 @@ namespace BBGFinance.Core
             set { HttpContext.Current.Session[AppConstants.SessionKeys.Rol] = value; }
         }
 
+        /// <summary>
+        /// Musteri rolündeki kullanıcının hangi JP_Customer.customerGroupId'ye ait olduğu.
+        /// Admin için NULL'dur (filtre uygulanmaz, tüm veriyi görür).
+        /// </summary>
+        public static int? CustomerGroupId
+        {
+            get
+            {
+                var v = HttpContext.Current.Session[AppConstants.SessionKeys.CustomerGroupId];
+                return v != null ? (int?)v : null;
+            }
+            set { HttpContext.Current.Session[AppConstants.SessionKeys.CustomerGroupId] = value; }
+        }
+
         public static bool OturumAcikMi
         {
             get { return KullaniciID > 0; }

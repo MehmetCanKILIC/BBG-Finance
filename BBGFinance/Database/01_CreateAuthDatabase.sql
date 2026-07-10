@@ -28,7 +28,10 @@ CREATE TABLE dbo.Kullanici (
     SifreTuz        NVARCHAR(64)  NOT NULL,
     AdSoyad         NVARCHAR(100) NOT NULL,
     Email           NVARCHAR(100) NULL,
-    Rol             NVARCHAR(50)  NOT NULL DEFAULT 'Kullanici', -- Admin, Kullanici
+    Rol             NVARCHAR(50)  NOT NULL DEFAULT 'Kullanici', -- Admin, Kullanici, Musteri
+    -- Rol='Musteri' olan kullanıcılar için JP_ROIBEDS..JP_Customer.customerGroupId eşleşmesi.
+    -- Rol='Admin' için NULL bırakılır (tüm müşteri gruplarını görür, filtre uygulanmaz).
+    CustomerGroupId INT           NULL,
     AktifMi         BIT           NOT NULL DEFAULT 1,
     SonGirisTarihi  DATETIME      NULL,
     BasarisizGiris  INT           NOT NULL DEFAULT 0,
