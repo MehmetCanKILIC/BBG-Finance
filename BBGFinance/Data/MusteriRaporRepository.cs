@@ -164,17 +164,17 @@ namespace BBGFinance.Data
         }
 
         /// <summary>
-        /// Oda tipi dağılımı - sadece satış fiyatı, maliyet YOK. Ana kaynak
-        /// JP_BookingDetailLine.ProductTypeName'dir (her zaman dolu); JP_BookingDetailLineRoomList
-        /// bazı rezervasyonlarda eşleşmediğinden (BookingCode/IdBookLine uyuşmazlığı) sadece
-        /// yedek (fallback) olarak LEFT JOIN ile kullanılır.
+        /// Oda tipi dağılımı - sadece satış fiyatı, maliyet YOK. Gerçek oda tipi
+        /// JP_BookingDetailLineRoomList.roomname alanında tutulur; JP_BookingDetailLine.ProductTypeName
+        /// (ürün/hizmet tipi, oda tipi değil) sadece RoomList eşleşmediğinde (BookingCode/IdBookLine
+        /// uyuşmazlığı) yedek (fallback) olarak kullanılır.
         /// </summary>
         public static Task<DataTable> OdaTipiDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
         {
             string sql = @"
                 SELECT TOP (@TopN)
-                    ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''),
-                        ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş')) AS OdaTipi,
+                    ISNULL(NULLIF(LTRIM(RTRIM(rl.roomname)), ''),
+                        ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''), 'Belirtilmemiş')) AS OdaTipi,
                     COUNT(*) AS OdaSayisi,
                     SUM(ISNULL(" + SqlSafe.Num("l.SellingPrice") + @", ISNULL(" + SqlSafe.Num("rl.priceroom") + @", 0))) AS ToplamSatis
                 FROM dbo.JP_BookingDetailLine l
@@ -185,8 +185,8 @@ namespace BBGFinance.Data
                    AND " + SqlSafe.JoinEq("rl.IdBookLine", "l.IdBookLine") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
                   AND l.BeginTravelDate >= @Bas AND l.BeginTravelDate < @Bit
-                GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''),
-                        ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş'))
+                GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(rl.roomname)), ''),
+                        ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''), 'Belirtilmemiş'))
                 ORDER BY ToplamSatis DESC";
 
             return ReportDbHelper.ExecuteQueryAsync(sql,
@@ -265,10 +265,10 @@ namespace BBGFinance.Data
         }
 
         /// <summary>
-        /// Girişi henüz gelmemiş (bekleyen) odalar - otel/oda tipi/giriş tarihi ile. Otel adı ve
-        /// oda tipi öncelikle JP_BookingDetailLine.ServiceName/ProductTypeName'den alınır (her
-        /// zaman dolu); JP_BookingDetailLineRoomList bazı rezervasyonlarda eşleşmediğinden
-        /// (BookingCode/IdBookLine uyuşmazlığı) sadece yedek (fallback) ve misafir adı için kullanılır.
+        /// Girişi henüz gelmemiş (bekleyen) odalar - otel/oda tipi/giriş tarihi ile. Otel adı
+        /// öncelikle JP_BookingDetailLine.ServiceName'den (her zaman dolu), oda tipi ise gerçek
+        /// oda tipini tutan JP_BookingDetailLineRoomList.roomname'den alınır; ProductTypeName sadece
+        /// RoomList eşleşmediğinde (BookingCode/IdBookLine uyuşmazlığı) yedek (fallback) olarak kullanılır.
         /// Dashboard'daki tarih filtresi CHECK-IN (BeginTravelDate) aralığıdır; ayrıca "henüz
         /// gelmemiş" anlamına uyması için check-in bugünden önce olamaz (GETDATE() koşulu korunur).
         /// </summary>
@@ -279,8 +279,8 @@ namespace BBGFinance.Data
                     bd.BookingCode,
                     ISNULL(NULLIF(LTRIM(RTRIM(l.ServiceName)), ''),
                         ISNULL(NULLIF(LTRIM(RTRIM(rl.namehotel)), ''), '')) AS OtelAdi,
-                    ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''),
-                        ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), '')) AS OdaTipi,
+                    ISNULL(NULLIF(LTRIM(RTRIM(rl.roomname)), ''),
+                        ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''), '')) AS OdaTipi,
                     LTRIM(RTRIM(ISNULL(rl.name, '') + ' ' + ISNULL(rl.lastname, ''))) AS MisafirAdi,
                     l.BeginTravelDate,
                     l.EndTravelDate,
