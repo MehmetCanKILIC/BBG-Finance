@@ -88,17 +88,17 @@
         document.getElementById('gridListesi').innerHTML =
             '<div style="padding:16px;color:#C0392B;font-size:13px;">Liste bileşeni yüklenemedi (DevExtreme CDN erişimi yok).</div>';
     } else {
-        dxBaslangic = DevExpress.ui.dxDateBox({
+        dxBaslangic = dxOlustur(DevExpress.ui.dxDateBox, {
             displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
             placeholder: 'gg.aa.yyyy', value: initBaslangic || null
         }, document.getElementById('dxBaslangicTarihi'));
 
-        dxBitis = DevExpress.ui.dxDateBox({
+        dxBitis = dxOlustur(DevExpress.ui.dxDateBox, {
             displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
             placeholder: 'gg.aa.yyyy', value: initBitis || null
         }, document.getElementById('dxBitisTarihi'));
 
-        dxDurum = DevExpress.ui.dxSelectBox({
+        dxDurum = dxOlustur(DevExpress.ui.dxSelectBox, {
             items: [
                 { text: 'Tümü', value: '' },
                 { text: 'Aktif', value: 'Aktif' },
@@ -111,18 +111,18 @@
         var kanalItems = [{ text: 'Tümü', value: '' }].concat(
             (kanalListesi || []).map(function (k) { return { text: k.Kanal, value: k.Kanal }; })
         );
-        dxKanal = DevExpress.ui.dxSelectBox({
+        dxKanal = dxOlustur(DevExpress.ui.dxSelectBox, {
             items: kanalItems,
             displayExpr: 'text', valueExpr: 'value',
             value: initKanal || ''
         }, document.getElementById('dxKanal'));
 
-        dxArama = DevExpress.ui.dxTextBox({
+        dxArama = dxOlustur(DevExpress.ui.dxTextBox, {
             placeholder: 'Ara...', value: initArama || ''
         }, document.getElementById('dxArama'));
 
         // ---- Grid ----
-        DevExpress.ui.dxDataGrid({
+        dxOlustur(DevExpress.ui.dxDataGrid, {
             dataSource: gridData,
             showBorders: true,
             rowAlternationEnabled: true,

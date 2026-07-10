@@ -219,12 +219,12 @@
         });
     } else {
         try {
-            dxBaslangic = DevExpress.ui.dxDateBox({
+            dxBaslangic = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
                 placeholder: 'gg.aa.yyyy', value: initBaslangic || null
             }, document.getElementById('dxBaslangicTarihi'));
 
-            dxBitis = DevExpress.ui.dxDateBox({
+            dxBitis = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
                 placeholder: 'gg.aa.yyyy', value: initBitis || null
             }, document.getElementById('dxBitisTarihi'));
@@ -234,7 +234,7 @@
     }
 
     guvenliKur('chartTrend', function () {
-        DevExpress.viz.dxChart({
+        dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.aylikTrend,
             series: [{ valueField: 'RezervasyonSayisi', name: 'Rezervasyon', type: 'bar', color: '#00695C' }],
             argumentField: 'Ay',
@@ -245,7 +245,7 @@
     });
 
     guvenliKur('chartBolge', function () {
-        DevExpress.viz.dxPieChart({
+        dxOlustur(DevExpress.viz.dxPieChart, {
             dataSource: dashboardData.bolgeDagilim,
             series: [{ argumentField: 'Bolge', valueField: 'ToplamSatis', label: { visible: true, connector: { visible: true } } }],
             palette: ['#00695C', '#F9A825', '#26A69A', '#8E44AD', '#546E7A'],
@@ -255,7 +255,7 @@
     });
 
     guvenliKur('chartOdaTipi', function () {
-        DevExpress.viz.dxChart({
+        dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.odaTipiDagilim,
             series: [{ type: 'bar', argumentField: 'OdaTipi', valueField: 'OdaSayisi', name: 'Oda Sayısı', color: '#00695C' }],
             rotated: true,
@@ -265,7 +265,7 @@
     });
 
     guvenliKur('chartYasGrubu', function () {
-        DevExpress.viz.dxPieChart({
+        dxOlustur(DevExpress.viz.dxPieChart, {
             dataSource: dashboardData.yasGrubuDagilim,
             series: [{ argumentField: 'YasGrubu', valueField: 'Adet', label: { visible: true, connector: { visible: true } } }],
             palette: ['#00695C', '#F9A825', '#8E44AD'],
@@ -275,7 +275,7 @@
     });
 
     guvenliKur('chartMilliyet', function () {
-        DevExpress.viz.dxChart({
+        dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.milliyetDagilim,
             series: [{ type: 'bar', argumentField: 'Milliyet', valueField: 'Adet', name: 'Yolcu Sayısı', color: '#F9A825' }],
             rotated: true,
@@ -285,7 +285,7 @@
     });
 
     guvenliKur('gridBekleyenGirisler', function () {
-        DevExpress.ui.dxDataGrid({
+        dxOlustur(DevExpress.ui.dxDataGrid, {
             dataSource: dashboardData.bekleyenGirisler,
             showBorders: true, rowAlternationEnabled: true,
             paging: { pageSize: 10 },

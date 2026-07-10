@@ -118,7 +118,7 @@
         document.getElementById('gridKalemler').innerHTML =
             '<div style="padding:16px;color:#C0392B;font-size:13px;">Kalem tablosu yüklenemedi (DevExtreme CDN erişimi yok).</div>';
     } else {
-        DevExpress.ui.dxDataGrid({
+        dxOlustur(DevExpress.ui.dxDataGrid, {
             dataSource: kalemler,
             showBorders: true,
             rowAlternationEnabled: true,

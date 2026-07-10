@@ -26,6 +26,14 @@
         });
     }
 
+    // DevExtreme'in çerçevesiz (framework'süz) API'sinde widget constructor imzası
+    // (element, options)'tır - (options, element) DEĞİL. Bu yardımcı, çağıran kodda
+    // options bloğunu ve element'i yazma sırasını değiştirmeden doğru sırayla
+    // "new Ctor(element, options)" çağrısı yapar.
+    window.dxOlustur = function (Ctor, options, element) {
+        return new Ctor(element, options);
+    };
+
     // Para formatı
     window.formatTutar = function (tutar, doviz) {
         doviz = doviz || '';

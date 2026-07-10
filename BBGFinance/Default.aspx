@@ -231,12 +231,12 @@
     } else {
         // ---- Tarih filtreleri ----
         try {
-            dxBaslangic = DevExpress.ui.dxDateBox({
+            dxBaslangic = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
                 placeholder: 'gg.aa.yyyy', value: initBaslangic || null
             }, document.getElementById('dxBaslangicTarihi'));
 
-            dxBitis = DevExpress.ui.dxDateBox({
+            dxBitis = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
                 placeholder: 'gg.aa.yyyy', value: initBitis || null
             }, document.getElementById('dxBitisTarihi'));
@@ -259,7 +259,7 @@
     }
 
     guvenliKur('chartTrend', function () {
-        DevExpress.viz.dxChart({
+        dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.aylikTrend,
             series: [
                 { valueField: 'RezervasyonSayisi', name: 'Rezervasyon', type: 'bar', color: '#00695C' },
@@ -273,7 +273,7 @@
     });
 
     guvenliKur('chartKanal', function () {
-        DevExpress.viz.dxPieChart({
+        dxOlustur(DevExpress.viz.dxPieChart, {
             dataSource: dashboardData.kanalDagilim,
             series: [{ argumentField: 'Kanal', valueField: 'Adet', label: { visible: true, connector: { visible: true } } }],
             palette: ['#00695C', '#F9A825', '#26A69A', '#8E44AD', '#546E7A'],
@@ -283,7 +283,7 @@
     });
 
     guvenliKur('chartUrunGrubu', function () {
-        DevExpress.viz.dxChart({
+        dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.urunGrubu,
             series: [{ type: 'bar', argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Satış', color: '#00695C' }],
             rotated: true,
@@ -293,7 +293,7 @@
     });
 
     guvenliKur('chartPazar', function () {
-        DevExpress.viz.dxChart({
+        dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.pazarDagilim,
             series: [{ type: 'bar', argumentField: 'Pazar', valueField: 'ToplamSatis', name: 'Satış', color: '#F9A825' }],
             rotated: true,
@@ -303,7 +303,7 @@
     });
 
     guvenliKur('gridTedarikci', function () {
-        DevExpress.ui.dxDataGrid({
+        dxOlustur(DevExpress.ui.dxDataGrid, {
             dataSource: dashboardData.tedarikci,
             showBorders: true, rowAlternationEnabled: true,
             paging: { pageSize: 10 },
@@ -317,7 +317,7 @@
     });
 
     guvenliKur('gridSonRezervasyonlar', function () {
-        DevExpress.ui.dxDataGrid({
+        dxOlustur(DevExpress.ui.dxDataGrid, {
             dataSource: dashboardData.sonRezervasyonlar,
             showBorders: true, rowAlternationEnabled: true,
             paging: { pageSize: 5 },
@@ -336,7 +336,7 @@
     });
 
     guvenliKur('gridYaklasanKonaklamalar', function () {
-        DevExpress.ui.dxDataGrid({
+        dxOlustur(DevExpress.ui.dxDataGrid, {
             dataSource: dashboardData.yaklasanKonaklamalar,
             showBorders: true, rowAlternationEnabled: true,
             paging: { pageSize: 5 },
