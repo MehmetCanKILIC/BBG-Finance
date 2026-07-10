@@ -134,6 +134,10 @@
          errors. -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script>
+    <!-- dxDataGrid'in "Export to Excel" düğmesi kendi başına çalışmaz - .xlsx dosyasını
+         gerçekten oluşturan/indiren bu iki üçüncü parti kütüphaneye ihtiyaç duyar. -->
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <script src="<%= ResolveUrl("~/Scripts/site.js") %>?v=2"></script>
 
     <script>

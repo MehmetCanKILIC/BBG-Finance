@@ -116,6 +116,20 @@
             headerFilter: { visible: true },
             searchPanel: { visible: true, placeholder: 'Search...' },
             export: { enabled: true, fileName: 'MyReservations' },
+            onExporting: function (e) {
+                var workbook = new ExcelJS.Workbook();
+                var worksheet = workbook.addWorksheet('My Reservations');
+                DevExpress.excelExporter.exportDataGrid({
+                    component: e.component,
+                    worksheet: worksheet,
+                    autoFilterEnabled: true
+                }).then(function () {
+                    workbook.xlsx.writeBuffer().then(function (buffer) {
+                        saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'MyReservations.xlsx');
+                    });
+                });
+                e.cancel = true;
+            },
             columns: [
                 { dataField: 'BookingCode', caption: 'Booking No', width: 130, fixed: true },
                 { dataField: 'SaleDate',    caption: 'Sale Date', width: 100, dataType: 'date', format: 'dd.MM.yyyy' },

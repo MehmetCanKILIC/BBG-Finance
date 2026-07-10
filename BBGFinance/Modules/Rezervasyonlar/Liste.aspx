@@ -135,6 +135,20 @@
             headerFilter: { visible: true },
             searchPanel: { visible: true, placeholder: 'Search...' },
             export: { enabled: true, fileName: 'Reservations' },
+            onExporting: function (e) {
+                var workbook = new ExcelJS.Workbook();
+                var worksheet = workbook.addWorksheet('Reservations');
+                DevExpress.excelExporter.exportDataGrid({
+                    component: e.component,
+                    worksheet: worksheet,
+                    autoFilterEnabled: true
+                }).then(function () {
+                    workbook.xlsx.writeBuffer().then(function (buffer) {
+                        saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'Reservations.xlsx');
+                    });
+                });
+                e.cancel = true;
+            },
             columns: [
                 { dataField: 'Id', visible: false, allowSearch: false, showInColumnChooser: false },
                 { dataField: 'BookingCode',  caption: 'Booking No', width: 130, fixed: true },
