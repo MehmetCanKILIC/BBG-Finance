@@ -88,8 +88,8 @@ namespace BBGFinance
             var urunGrubuTask           = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.UrunGrubuDagilimi(bas, bit)), new object[0], "urunGrubu", hatalar);
             var pazarDagilimTask        = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.PazarDagilimi(bas, bit)), new object[0], "pazarDagilim", hatalar);
             var tedarikciTask           = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.TedarikciDagilimi(bas, bit)), new object[0], "tedarikci", hatalar);
-            var sonRezervasyonlarTask   = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.SonRezervasyonlar(10)), new object[0], "sonRezervasyonlar", hatalar);
-            var yaklasanKonaklamalarTask = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.YaklasanKonaklamalar(10)), new object[0], "yaklasanKonaklamalar", hatalar);
+            var sonRezervasyonlarTask   = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.SonRezervasyonlar(bas, bit, 10)), new object[0], "sonRezervasyonlar", hatalar);
+            var yaklasanKonaklamalarTask = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.YaklasanKonaklamalar(bas, bit, 10)), new object[0], "yaklasanKonaklamalar", hatalar);
 
             Task.WaitAll(ozetTask, finansalTask, karTask, aylikTrendTask, kanalDagilimTask,
                 urunGrubuTask, pazarDagilimTask, tedarikciTask, sonRezervasyonlarTask, yaklasanKonaklamalarTask);

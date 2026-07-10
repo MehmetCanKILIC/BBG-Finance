@@ -207,7 +207,9 @@ namespace BBGFinance.Data
                 ReportDbHelper.Param("@Bit", bit));
         }
 
-        public static DataTable SonRezervasyonlar(int topN = 10)
+        /// <summary>Dashboard'ın tarih filtresine göre bd.BookingDate aralığıyla sınırlanır -
+        /// aksi halde bu panel tarih filtresi değiştirildiğinde güncellenmezdi.</summary>
+        public static DataTable SonRezervasyonlar(DateTime bas, DateTime bit, int topN = 10)
         {
             string sql = @"
                 SELECT TOP (@TopN)
@@ -220,12 +222,18 @@ namespace BBGFinance.Data
                      WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi,
                     CASE WHEN " + SqlSafe.RezervasyonAktifMi("bd.BookingCode") + @" THEN 0 ELSE 1 END AS IptalMi
                 FROM dbo.JP_BookingDetail bd
+                WHERE bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
                 ORDER BY bd.BookingDate DESC";
 
-            return ReportDbHelper.ExecuteQuery(sql, ReportDbHelper.Param("@TopN", topN));
+            return ReportDbHelper.ExecuteQuery(sql,
+                ReportDbHelper.Param("@Bas", bas),
+                ReportDbHelper.Param("@Bit", bit),
+                ReportDbHelper.Param("@TopN", topN));
         }
 
-        public static DataTable YaklasanKonaklamalar(int topN = 10)
+        /// <summary>Dashboard'ın tarih filtresine göre bd.BookingDate (satış tarihi) aralığıyla da
+        /// sınırlanır - aksi halde bu panel tarih filtresi değiştirildiğinde güncellenmezdi.</summary>
+        public static DataTable YaklasanKonaklamalar(DateTime bas, DateTime bit, int topN = 10)
         {
             string sql = @"
                 SELECT TOP (@TopN)
@@ -238,11 +246,15 @@ namespace BBGFinance.Data
                     " + Num("l.PaxNumber") + @"    AS PaxNumber
                 FROM dbo.JP_BookingDetailLine l
                 INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
-                WHERE l.BeginTravelDate >= CAST(GETDATE() AS DATE)
+                WHERE bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
+                  AND l.BeginTravelDate >= CAST(GETDATE() AS DATE)
                   AND " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @"
                 ORDER BY l.BeginTravelDate ASC";
 
-            return ReportDbHelper.ExecuteQuery(sql, ReportDbHelper.Param("@TopN", topN));
+            return ReportDbHelper.ExecuteQuery(sql,
+                ReportDbHelper.Param("@Bas", bas),
+                ReportDbHelper.Param("@Bit", bit),
+                ReportDbHelper.Param("@TopN", topN));
         }
 
         // ---------------------------------------------------------------

@@ -99,7 +99,7 @@ namespace BBGFinance
             var odaTipiDagilimTask  = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.OdaTipiDagilimi(customerGroupId, bas, bit)), new object[0], "odaTipiDagilim", hatalar);
             var yasGrubuDagilimTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.YasGrubuDagilimi(customerGroupId, bas, bit)), new object[0], "yasGrubuDagilim", hatalar);
             var milliyetDagilimTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.MilliyetDagilimi(customerGroupId, bas, bit)), new object[0], "milliyetDagilim", hatalar);
-            var bekleyenGirislerTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.BekleyenGirisler(customerGroupId, 20)), new object[0], "bekleyenGirisler", hatalar);
+            var bekleyenGirislerTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.BekleyenGirisler(customerGroupId, bas, bit, 20)), new object[0], "bekleyenGirisler", hatalar);
 
             Task.WaitAll(ozetTask, satisTask, aylikTrendTask, bolgeDagilimTask, odaTipiDagilimTask,
                 yasGrubuDagilimTask, milliyetDagilimTask, bekleyenGirislerTask);

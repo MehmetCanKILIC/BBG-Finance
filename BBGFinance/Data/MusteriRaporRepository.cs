@@ -231,8 +231,10 @@ namespace BBGFinance.Data
         /// oda tipi öncelikle JP_BookingDetailLine.ServiceName/ProductTypeName'den alınır (her
         /// zaman dolu); JP_BookingDetailLineRoomList bazı rezervasyonlarda eşleşmediğinden
         /// (BookingCode/IdBookLine uyuşmazlığı) sadece yedek (fallback) ve misafir adı için kullanılır.
+        /// Dashboard'daki tarih filtresine göre bd.BookingDate (satış tarihi) aralığıyla da
+        /// sınırlanır - bu sayede tarih filtresi değiştirildiğinde bu tablo da güncellenir.
         /// </summary>
-        public static DataTable BekleyenGirisler(int customerGroupId, int topN = 20)
+        public static DataTable BekleyenGirisler(int customerGroupId, DateTime bas, DateTime bit, int topN = 20)
         {
             string sql = @"
                 SELECT TOP (@TopN)
@@ -253,11 +255,14 @@ namespace BBGFinance.Data
                     ON " + SqlSafe.JoinEq("rl.BookingCode", "l.BookingCode") + @"
                    AND " + SqlSafe.JoinEq("rl.IdBookLine", "l.IdBookLine") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
+                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
                   AND l.BeginTravelDate >= CAST(GETDATE() AS DATE)
                   AND " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @"
                 ORDER BY l.BeginTravelDate ASC";
 
             return ReportDbHelper.ExecuteQuery(sql,
+                ReportDbHelper.Param("@Bas", bas),
+                ReportDbHelper.Param("@Bit", bit),
                 ReportDbHelper.Param("@TopN", topN),
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId));
         }
