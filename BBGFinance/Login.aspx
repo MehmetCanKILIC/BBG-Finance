@@ -22,11 +22,8 @@
     <div class="login-brand-panel">
         <div class="brand-content">
             <div class="brand-logo">
-                <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-                    <rect width="60" height="60" rx="14" fill="white" fill-opacity="0.15"/>
-                    <path d="M14 40 L24 22 L30 32 L36 20 L46 40" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="46" cy="20" r="4" fill="white" fill-opacity="0.9"/>
-                </svg>
+                <img src="https://static.wixstatic.com/media/3faa7d_2d926c566d544c968bdb716cbba8530d~mv2.png/v1/fill/w_330,h_59,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/bbg%20logo.png" width="160" height="60" />
+               
             </div>
             <h1 class="brand-title">BedBankGlobal<br />Reporting System</h1>
         </div>
