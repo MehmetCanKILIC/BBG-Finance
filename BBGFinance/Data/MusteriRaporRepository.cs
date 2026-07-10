@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
+using System.Text;
 using BBGFinance.Core;
 
 namespace BBGFinance.Data
@@ -90,13 +93,16 @@ namespace BBGFinance.Data
 
         public static DataTable AylikTrend(int customerGroupId, DateTime bas, DateTime bit)
         {
+            // NOT: BookingDate bazı ortamlarda VARCHAR olarak saklanabildiğinden FORMAT()
+            // doğrudan çağrılırsa tip hatası fırlatabilir - önce TRY_CONVERT ile DATETIME'a
+            // çevriliyor (geçersiz değerler NULL olur, FORMAT hataya düşmez).
             string sql = @"
                 SELECT
-                    FORMAT(bd.BookingDate, 'yyyy-MM') AS Ay,
+                    ISNULL(FORMAT(TRY_CONVERT(DATETIME, bd.BookingDate), 'yyyy-MM'), 'Belirtilmemiş') AS Ay,
                     COUNT(DISTINCT bd.BookingCode) AS RezervasyonSayisi
                 " + BuildJoin() + @"
                   AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
-                GROUP BY FORMAT(bd.BookingDate, 'yyyy-MM')
+                GROUP BY ISNULL(FORMAT(TRY_CONVERT(DATETIME, bd.BookingDate), 'yyyy-MM'), 'Belirtilmemiş')
                 ORDER BY 1";
 
             return ReportDbHelper.ExecuteQuery(sql,
@@ -132,20 +138,30 @@ namespace BBGFinance.Data
                 ReportDbHelper.Param("@Bit", bit));
         }
 
-        /// <summary>Oda tipi dağılımı - sadece satış fiyatı (priceroom), maliyet (costroom) YOK.</summary>
+        /// <summary>
+        /// Oda tipi dağılımı - sadece satış fiyatı, maliyet YOK. Ana kaynak
+        /// JP_BookingDetailLine.ProductTypeName'dir (her zaman dolu); JP_BookingDetailLineRoomList
+        /// bazı rezervasyonlarda eşleşmediğinden (BookingCode/IdBookLine uyuşmazlığı) sadece
+        /// yedek (fallback) olarak LEFT JOIN ile kullanılır.
+        /// </summary>
         public static DataTable OdaTipiDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
         {
             string sql = @"
                 SELECT TOP (@TopN)
-                    ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş') AS OdaTipi,
+                    ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''),
+                        ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş')) AS OdaTipi,
                     COUNT(*) AS OdaSayisi,
-                    SUM(ISNULL(" + SqlSafe.Num("rl.priceroom") + @", 0)) AS ToplamSatis
-                FROM dbo.JP_BookingDetailLineRoomList rl
-                INNER JOIN dbo.JP_BookingDetail bd ON " + SqlSafe.JoinEq("bd.BookingCode", "rl.BookingCode") + @"
+                    SUM(ISNULL(" + SqlSafe.Num("l.SellingPrice") + @", ISNULL(" + SqlSafe.Num("rl.priceroom") + @", 0))) AS ToplamSatis
+                FROM dbo.JP_BookingDetailLine l
+                INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
                 INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
+                LEFT JOIN dbo.JP_BookingDetailLineRoomList rl
+                    ON " + SqlSafe.JoinEq("rl.BookingCode", "l.BookingCode") + @"
+                   AND " + SqlSafe.JoinEq("rl.IdBookLine", "l.IdBookLine") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
                   AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
-                GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş')
+                GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''),
+                        ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş'))
                 ORDER BY ToplamSatis DESC";
 
             return ReportDbHelper.ExecuteQuery(sql,
@@ -210,15 +226,22 @@ namespace BBGFinance.Data
                 ReportDbHelper.Param("@Bit", bit));
         }
 
-        /// <summary>Girişi henüz gelmemiş (bekleyen) odalar - otel/oda tipi/giriş tarihi ile.</summary>
+        /// <summary>
+        /// Girişi henüz gelmemiş (bekleyen) odalar - otel/oda tipi/giriş tarihi ile. Otel adı ve
+        /// oda tipi öncelikle JP_BookingDetailLine.ServiceName/ProductTypeName'den alınır (her
+        /// zaman dolu); JP_BookingDetailLineRoomList bazı rezervasyonlarda eşleşmediğinden
+        /// (BookingCode/IdBookLine uyuşmazlığı) sadece yedek (fallback) ve misafir adı için kullanılır.
+        /// </summary>
         public static DataTable BekleyenGirisler(int customerGroupId, int topN = 20)
         {
             string sql = @"
                 SELECT TOP (@TopN)
                     bd.BookingCode,
-                    ISNULL(rl.namehotel, '') AS OtelAdi,
-                    ISNULL(rl.typeroomname, '') AS OdaTipi,
-                    ISNULL(rl.name, '') + ' ' + ISNULL(rl.lastname, '') AS MisafirAdi,
+                    ISNULL(NULLIF(LTRIM(RTRIM(l.ServiceName)), ''),
+                        ISNULL(NULLIF(LTRIM(RTRIM(rl.namehotel)), ''), '')) AS OtelAdi,
+                    ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''),
+                        ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), '')) AS OdaTipi,
+                    LTRIM(RTRIM(ISNULL(rl.name, '') + ' ' + ISNULL(rl.lastname, ''))) AS MisafirAdi,
                     l.BeginTravelDate,
                     l.EndTravelDate,
                     " + SqlSafe.Num("l.NightsNumber") + @" AS NightsNumber,
@@ -237,6 +260,69 @@ namespace BBGFinance.Data
             return ReportDbHelper.ExecuteQuery(sql,
                 ReportDbHelper.Param("@TopN", topN),
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId));
+        }
+
+        /// <summary>
+        /// "My Reservations" - müşteriye özel, satır (otel/kalem) bazlı liste. Cost/Profit/
+        /// Commission/Tedarikçi burada da YOKTUR - sadece satış tutarı/para birimi vardır.
+        /// Otel adı öncelikle JP_BookingDetailLine.ServiceName'den alınır (bkz. OdaTipiDagilimi/
+        /// BekleyenGirisler'deki aynı gerekçe). Adults sayısı booking bazında JP_BookingDetailLinePaxes
+        /// üzerinden hesaplanır (Paxes tablosu satır bazında değil, booking bazında ilişkilidir).
+        /// </summary>
+        public static DataTable RezervasyonListesi(
+            int customerGroupId, DateTime? bas, DateTime? bit, string durum, string arama, int maxSatir = 2000)
+        {
+            var parametreler = new List<SqlParameter>();
+            var where = new StringBuilder(" WHERE " + SqlSafe.Txt("c.CustomerGroupId") + " = @CustomerGroupId ");
+            parametreler.Add(ReportDbHelper.Param("@CustomerGroupId", customerGroupId));
+
+            if (bas.HasValue)
+            {
+                where.Append(" AND bd.BookingDate >= @Bas ");
+                parametreler.Add(ReportDbHelper.Param("@Bas", bas.Value));
+            }
+            if (bit.HasValue)
+            {
+                where.Append(" AND bd.BookingDate < @Bit ");
+                parametreler.Add(ReportDbHelper.Param("@Bit", bit.Value.AddDays(1)));
+            }
+            if (durum == "Aktif")
+                where.Append(" AND " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + " ");
+            else if (durum == "Iptal")
+                where.Append(" AND NOT " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + " ");
+
+            if (!string.IsNullOrEmpty(arama))
+            {
+                where.Append(@" AND (bd.BookingCode LIKE @Arama OR l.ServiceName LIKE @Arama) ");
+                parametreler.Add(ReportDbHelper.Param("@Arama", "%" + arama + "%"));
+            }
+
+            string sql = @"
+                SELECT TOP (" + maxSatir + @")
+                    bd.BookingCode,
+                    bd.BookingDate AS SaleDate,
+                    CASE WHEN " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @" THEN 'Aktif' ELSE 'Iptal' END AS Status,
+                    ISNULL(NULLIF(LTRIM(RTRIM(l.ServiceName)), ''), 'Belirtilmemiş') AS HotelName,
+                    ISNULL(NULLIF(LTRIM(RTRIM(l.Zonedescription)), ''),
+                        ISNULL(NULLIF(LTRIM(RTRIM(l.Zonestate)), ''),
+                            ISNULL(NULLIF(LTRIM(RTRIM(l.Zonecountry)), ''), 'Belirtilmemiş'))) AS Region,
+                    l.BeginTravelDate AS CheckIn,
+                    l.EndTravelDate AS CheckOut,
+                    " + SqlSafe.Num("l.NightsNumber") + @" AS Nights,
+                    " + SqlSafe.Num("l.PaxNumber") + @"    AS Pax,
+                    ISNULL((SELECT COUNT(*) FROM dbo.JP_BookingDetailLinePaxes px
+                            WHERE px.BookingCode = l.BookingCode
+                              AND LTRIM(RTRIM(CONVERT(NVARCHAR(10), px.TipPax))) = '0'), 0) AS Adults,
+                    ISNULL(NULLIF(LTRIM(RTRIM(bd.HolderNacionalidad)), ''), 'Belirtilmemiş') AS Nationality,
+                    " + SqlSafe.Num("l.SellingPrice") + @" AS SellingPrice,
+                    ISNULL(l.SellCurrency, '') AS Currency
+                FROM dbo.JP_BookingDetailLine l
+                INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
+                INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
+                " + where + @"
+                ORDER BY bd.BookingDate DESC, l.BeginTravelDate DESC";
+
+            return ReportDbHelper.ExecuteQuery(sql, parametreler.ToArray());
         }
     }
 }

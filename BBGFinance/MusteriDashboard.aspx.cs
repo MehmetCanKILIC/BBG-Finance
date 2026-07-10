@@ -8,12 +8,12 @@ using Newtonsoft.Json;
 namespace BBGFinance
 {
     /// <summary>
-    /// Musteri (acente) rolü için sadeleştirilmiş dashboard. Cost/Profit/Commission/Tedarikçi
-    /// bilgisi bu sayfada ve arkasındaki MusteriRaporRepository sorgularında KESİNLİKLE yoktur.
-    /// Admin bu sayfaya erişebilir (kendi CustomerGroupId'si olmadığından veri boş döner);
-    /// Musteri rolü ise Default.aspx / Modules/Rezervasyonlar sayfalarına AdminBase tarafından
-    /// sokulmaz, sadece burayı görür.
-    /// </summary> 
+    /// Simplified dashboard for the Customer (agency) role. Cost/Profit/Commission/Supplier
+    /// information is NEVER present on this page or in the MusteriRaporRepository queries behind it.
+    /// Admin can open this page too (data comes back empty since Admin has no CustomerGroupId);
+    /// the Customer role, in turn, is blocked from Default.aspx / Modules/Rezervasyonlar by
+    /// AdminBase and only ever sees this page.
+    /// </summary>
     public partial class MusteriDashboard : AuthBase
     {
         protected string DashboardJson = "{}";
@@ -25,8 +25,8 @@ namespace BBGFinance
             if (!IsPostBack)
             {
                 lblAdSoyad.Text = SessionManager.AdSoyad;
-                lblTarih.Text   = DateTime.Now.ToString("dd MMMM yyyy, dddd", 
-                                    new System.Globalization.CultureInfo("tr-TR"));
+                lblTarih.Text   = DateTime.Now.ToString("dd MMMM yyyy, dddd",
+                                    new System.Globalization.CultureInfo("en-US"));
 
                 DateTime bas, bit;
                 CozFiltreTarihleri(out bas, out bit);
@@ -54,15 +54,15 @@ namespace BBGFinance
         {
             var data = new Dictionary<string, object>();
 
-            // CustomerGroupId'si olmayan bir kullanıcı (örn. Admin ya da yanlış yapılandırılmış
-            // bir Musteri hesabı) için hiçbir JP_ROIBEDS sorgusu ÇALIŞTIRILMAZ - boş sonuç döner.
+            // A user with no CustomerGroupId (e.g. Admin, or a misconfigured Customer account)
+            // never runs any JP_ROIBEDS query for this page - it simply gets an empty result.
             int? grupId = CustomerGroupId;
             if (!grupId.HasValue)
             {
                 data["yapilandirmaEksik"] = true;
                 data["ozet"] = new { ToplamRezervasyon = 0, ToplamGece = 0, ToplamPax = 0 };
                 data["satis"] = new object[0];
-                data["aylikTrend"] = new object[0]; 
+                data["aylikTrend"] = new object[0];
                 data["bolgeDagilim"] = new object[0];
                 data["odaTipiDagilim"] = new object[0];
                 data["yasGrubuDagilim"] = new object[0];
@@ -72,8 +72,12 @@ namespace BBGFinance
             }
 
             int customerGroupId = grupId.Value;
+            var hatalar = new List<string>();
 
-            try
+            // Each query runs inside its OWN try/catch - if one of them fails (e.g. a legacy
+            // column type mismatch), only that widget stays empty; every other successfully
+            // loaded section (summary, region, nationality, etc.) is preserved.
+            data["ozet"] = Guvenli(() =>
             {
                 var dtOzet = MusteriRaporRepository.GenelOzet(customerGroupId, bas, bit);
                 int toplamRezervasyon = 0, toplamGece = 0, toplamPax = 0;
@@ -84,36 +88,36 @@ namespace BBGFinance
                     toplamGece        = ToInt(r["ToplamGece"]);
                     toplamPax         = ToInt(r["ToplamPax"]);
                 }
+                return (object)new { ToplamRezervasyon = toplamRezervasyon, ToplamGece = toplamGece, ToplamPax = toplamPax };
+            }, new { ToplamRezervasyon = 0, ToplamGece = 0, ToplamPax = 0 }, "ozet", hatalar);
 
-                data["ozet"] = new
-                {
-                    ToplamRezervasyon = toplamRezervasyon,
-                    ToplamGece        = toplamGece,
-                    ToplamPax         = toplamPax
-                };
+            data["satis"]            = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.ParaBirimiBazliSatis(customerGroupId, bas, bit)), new object[0], "satis", hatalar);
+            data["aylikTrend"]       = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.AylikTrend(customerGroupId, bas, bit)), new object[0], "aylikTrend", hatalar);
+            data["bolgeDagilim"]     = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.BolgeDagilimi(customerGroupId, bas, bit)), new object[0], "bolgeDagilim", hatalar);
+            data["odaTipiDagilim"]   = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.OdaTipiDagilimi(customerGroupId, bas, bit)), new object[0], "odaTipiDagilim", hatalar);
+            data["yasGrubuDagilim"]  = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.YasGrubuDagilimi(customerGroupId, bas, bit)), new object[0], "yasGrubuDagilim", hatalar);
+            data["milliyetDagilim"]  = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.MilliyetDagilimi(customerGroupId, bas, bit)), new object[0], "milliyetDagilim", hatalar);
+            data["bekleyenGirisler"] = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.BekleyenGirisler(customerGroupId, 20)), new object[0], "bekleyenGirisler", hatalar);
 
-                data["satis"]            = TabloyaÇevir(MusteriRaporRepository.ParaBirimiBazliSatis(customerGroupId, bas, bit));
-                data["aylikTrend"]       = TabloyaÇevir(MusteriRaporRepository.AylikTrend(customerGroupId, bas, bit));
-                data["bolgeDagilim"]     = TabloyaÇevir(MusteriRaporRepository.BolgeDagilimi(customerGroupId, bas, bit));
-                data["odaTipiDagilim"]   = TabloyaÇevir(MusteriRaporRepository.OdaTipiDagilimi(customerGroupId, bas, bit));
-                data["yasGrubuDagilim"]  = TabloyaÇevir(MusteriRaporRepository.YasGrubuDagilimi(customerGroupId, bas, bit));
-                data["milliyetDagilim"]  = TabloyaÇevir(MusteriRaporRepository.MilliyetDagilimi(customerGroupId, bas, bit));
-                data["bekleyenGirisler"] = TabloyaÇevir(MusteriRaporRepository.BekleyenGirisler(customerGroupId, 20));
-            }
-            catch (Exception ex)
+            if (hatalar.Count > 0)
             {
-                data["hata"] = ex.Message;
-                data["ozet"] = new { ToplamRezervasyon = 0, ToplamGece = 0, ToplamPax = 0 };
-                data["satis"] = new object[0];
-                data["aylikTrend"] = new object[0];
-                data["bolgeDagilim"] = new object[0];
-                data["odaTipiDagilim"] = new object[0];
-                data["yasGrubuDagilim"] = new object[0];
-                data["milliyetDagilim"] = new object[0];
-                data["bekleyenGirisler"] = new object[0];
+                data["hata"] = string.Join(" | ", hatalar);
             }
 
             return JsonConvert.SerializeObject(data);
+        }
+
+        private static object Guvenli(Func<object> sorgu, object varsayilan, string alanAdi, List<string> hatalar)
+        {
+            try
+            {
+                return sorgu();
+            }
+            catch (Exception ex)
+            {
+                hatalar.Add(alanAdi + ": " + ex.Message);
+                return varsayilan;
+            }
         }
 
         private static List<Dictionary<string, object>> TabloyaÇevir(DataTable dt)

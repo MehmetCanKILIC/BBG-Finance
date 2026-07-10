@@ -20,8 +20,9 @@ namespace BBGFinance
                 lblRol.Text     = RolEtiket(SessionManager.Rol);
                 lblAvatar.Text  = AvatarHarf(SessionManager.AdSoyad);
 
-                // Rezervasyonlar menüsü (maliyet/kâr/tedarikçi içerir) sadece Admin'e gösterilir.
+                // Reservations menu (contains cost/profit/supplier) is shown to Admin only.
                 pnlAdminMenu.Visible = SessionManager.Rol == AppConstants.Roller.Admin;
+                pnlMusteriMenu.Visible = SessionManager.Rol == AppConstants.Roller.Musteri;
             }
         }
 
@@ -50,9 +51,9 @@ namespace BBGFinance
         {
             switch (rol)
             {
-                case AppConstants.Roller.Admin:   return "Yönetici";
-                case AppConstants.Roller.Musteri: return "Müşteri";
-                default:                          return "Kullanıcı";
+                case AppConstants.Roller.Admin:   return "Admin";
+                case AppConstants.Roller.Musteri: return "Customer";
+                default:                          return "User";
             }
         }
 

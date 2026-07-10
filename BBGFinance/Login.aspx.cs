@@ -17,13 +17,13 @@ namespace BBGFinance
                 if (Request.QueryString["timeout"] == "1")
                 {
                     pnlBilgi.Visible = true;
-                    lblBilgi.Text = "Oturumunuz zaman aşımına uğradı. Lütfen tekrar giriş yapın.";
+                    lblBilgi.Text = "Your session has expired. Please log in again.";
                 }
 
                 if (Request.QueryString["cikis"] == "1")
                 {
                     pnlBilgi.Visible = true;
-                    lblBilgi.Text = "Başarıyla çıkış yaptınız.";
+                    lblBilgi.Text = "You have been logged out successfully.";
                 }
             }
         }
@@ -46,8 +46,8 @@ namespace BBGFinance
 
                 if (dt.Rows.Count == 0)
                 {
-                    GirisLogYaz(0, false, "Bilinmeyen kullanıcı: " + kullaniciAdi);
-                    GosterHata("Kullanıcı adı veya şifre hatalı.");
+                    GirisLogYaz(0, false, "Unknown user: " + kullaniciAdi);
+                    GosterHata("Invalid username or password.");
                     return;
                 }
 
@@ -56,13 +56,13 @@ namespace BBGFinance
 
                 if (!Convert.ToBoolean(row["AktifMi"]))
                 {
-                    GosterHata("Hesabınız aktif değil. Sistem yöneticinizle iletişime geçin.");
+                    GosterHata("Your account is not active. Please contact your system administrator.");
                     return;
                 }
 
                 if (Convert.ToBoolean(row["HesapKilitliMi"]))
                 {
-                    GosterHata("Hesabınız kilitlenmiştir. Lütfen sistem yöneticinizle iletişime geçin.");
+                    GosterHata("Your account has been locked. Please contact your system administrator.");
                     return;
                 }
 
@@ -72,11 +72,11 @@ namespace BBGFinance
                 if (!SessionManager.SifreDogrula(sifre, hash, tuz))
                 {
                     int basarisiz = Convert.ToInt32(row["BasarisizGiris"]) + 1;
-                    GirisBasarisiz(kullaniciAdi, "Kullanıcı adı veya şifre hatalı.", basarisiz);
+                    GirisBasarisiz(kullaniciAdi, "Invalid username or password.", basarisiz);
                     return;
                 }
 
-                // Başarılı giriş
+                // Successful login
                 SessionManager.KullaniciID     = kullaniciID;
                 SessionManager.KullaniciAdi    = kullaniciAdi;
                 SessionManager.AdSoyad         = row["AdSoyad"].ToString();
@@ -104,7 +104,7 @@ namespace BBGFinance
             }
             catch (Exception ex)
             {
-                GosterHata("Sistem hatası: " + ex.Message);
+                GosterHata("System error: " + ex.Message);
             }
         }
 
@@ -118,7 +118,7 @@ namespace BBGFinance
                     WHERE  KullaniciAdi = @KullaniciAdi",
                     DbHelper.Param("@Sayac", basarisizSayac),
                     DbHelper.Param("@KullaniciAdi", kullaniciAdi));
-                mesaj = "5 başarısız giriş nedeniyle hesabınız kilitlendi.";
+                mesaj = "Your account has been locked due to 5 failed login attempts.";
             }
             else
             {
@@ -153,7 +153,7 @@ namespace BBGFinance
                     DbHelper.Param("@Basari", basari),
                     DbHelper.Param("@Hata",   hata ?? (object)DBNull.Value));
             }
-            catch { /* log hatası girişi durdurmasın */ }
+            catch { /* a logging failure must not block login */ }
         }
 
         private bool IsLocalUrl(string url)
@@ -161,7 +161,7 @@ namespace BBGFinance
             return !string.IsNullOrEmpty(url) && (url.StartsWith("/") || url.StartsWith("~/"));
         }
 
-        /// <summary>Admin -> iç Dashboard; Musteri -> kendi (sadeleştirilmiş) Dashboard.</summary>
+        /// <summary>Admin -> internal Dashboard; Musteri -> their own (simplified) Dashboard.</summary>
         private string VarsayilanSayfa()
         {
             return SessionManager.Rol == AppConstants.Roller.Admin

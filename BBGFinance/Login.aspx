@@ -1,11 +1,11 @@
 <%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="BBGFinance.Login"
     ContentType="text/html" ResponseEncoding="UTF-8" %>
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Giriş Yap - BBG Finance</title>
+    <title>Log In - BBG Finance</title>
 
     <!-- DevExtreme CSS -->
     <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.material.teal.light.css" />
@@ -18,7 +18,7 @@
 <form id="frmLogin" runat="server">
 <div class="login-wrapper">
 
-    <!-- Sol panel - Marka bilgisi -->
+    <!-- Left panel - Brand info -->
     <div class="login-brand-panel">
         <div class="brand-content">
             <div class="brand-logo">
@@ -29,24 +29,24 @@
                 </svg>
                 <span class="brand-name">BBG Finance</span>
             </div>
-            <h1 class="brand-title">Rezervasyon Raporlama Portalı</h1>
-            <p class="brand-desc">JP_ROIBEDS rezervasyon verilerini KPI'lar ve tablolarla tek ekranda izleyin.</p>
+            <h1 class="brand-title">Reservation Reporting Portal</h1>
+            <p class="brand-desc">Track JP_ROIBEDS reservation data with KPIs and tables on a single screen.</p>
             <ul class="brand-features">
-                <li><span class="feature-icon">&#10003;</span> Rezervasyon &amp; İptal KPI'ları</li>
-                <li><span class="feature-icon">&#10003;</span> Ciro, Komisyon ve Kâr Özetleri</li>
-                <li><span class="feature-icon">&#10003;</span> Kanal / Pazar / Tedarikçi Dağılımları</li>
-                <li><span class="feature-icon">&#10003;</span> Detaylı Rezervasyon Listesi ve Kalemleri</li>
+                <li><span class="feature-icon">&#10003;</span> Reservation &amp; Cancellation KPIs</li>
+                <li><span class="feature-icon">&#10003;</span> Revenue, Commission and Profit Summaries</li>
+                <li><span class="feature-icon">&#10003;</span> Channel / Market / Supplier Breakdowns</li>
+                <li><span class="feature-icon">&#10003;</span> Detailed Reservation List and Line Items</li>
             </ul>
         </div>
     </div>
 
-    <!-- Sağ panel - Login formu -->
+    <!-- Right panel - Login form -->
     <div class="login-form-panel">
         <div class="login-card">
 
             <div class="login-header">
-                <h2>Hoş Geldiniz</h2>
-                <p>Hesabınıza giriş yapın</p>
+                <h2>Welcome</h2>
+                <p>Log in to your account</p>
             </div>
 
             <asp:Panel ID="pnlHata" runat="server" CssClass="alert-error" Visible="false">
@@ -58,12 +58,12 @@
             </asp:Panel>
 
             <div class="form-group" id="txtKullaniciAdiContainer">
-                <label for="txtKullaniciAdi">Kullanıcı Adı</label>
+                <label for="txtKullaniciAdi">Username</label>
                 <div class="input-wrapper">
                     <span class="input-icon">&#128100;</span>
                     <asp:TextBox ID="txtKullaniciAdi" runat="server"
                         CssClass="form-control"
-                        placeholder="Kullanıcı adınızı girin"
+                        placeholder="Enter your username"
                         MaxLength="50"
                         autocomplete="username" />
                 </div>
@@ -71,49 +71,49 @@
                     ControlToValidate="txtKullaniciAdi"
                     Display="Dynamic"
                     CssClass="field-error"
-                    ErrorMessage="Kullanıcı adı zorunludur." />
+                    ErrorMessage="Username is required." />
             </div>
 
             <div class="form-group">
-                <label for="txtSifre">Şifre</label>
+                <label for="txtSifre">Password</label>
                 <div class="input-wrapper">
                     <span class="input-icon">&#128274;</span>
                     <asp:TextBox ID="txtSifre" runat="server"
                         TextMode="Password"
                         CssClass="form-control"
-                        placeholder="Şifrenizi girin"
+                        placeholder="Enter your password"
                         MaxLength="100"
                         autocomplete="current-password" />
-                    <button type="button" class="btn-toggle-pass" onclick="togglePassword(this)" title="Şifreyi göster">&#128065;</button>
+                    <button type="button" class="btn-toggle-pass" onclick="togglePassword(this)" title="Show password">&#128065;</button>
                 </div>
                 <asp:RequiredFieldValidator ID="rfvSifre" runat="server"
                     ControlToValidate="txtSifre"
                     Display="Dynamic"
                     CssClass="field-error"
-                    ErrorMessage="Şifre zorunludur." />
+                    ErrorMessage="Password is required." />
             </div>
 
             <div class="form-row">
                 <label class="checkbox-label">
                     <asp:CheckBox ID="chkBeniHatirla" runat="server" />
-                    <span>Beni hatırla</span>
+                    <span>Remember me</span>
                 </label>
             </div>
 
             <asp:Button ID="btnGiris" runat="server"
-                Text="Giriş Yap"
+                Text="Log In"
                 CssClass="btn-login"
                 OnClick="btnGiris_Click"
                 UseSubmitBehavior="true" />
 
             <div class="login-footer-note">
-                <small>Hesabınız yoksa sistem yöneticinizle iletişime geçin.</small>
+                <small>If you don't have an account, please contact your system administrator.</small>
             </div>
 
         </div>
 
         <div class="login-copyright">
-            &copy; <%= DateTime.Now.Year %> BBG Finance &mdash; Tüm hakları saklıdır.
+            &copy; <%= DateTime.Now.Year %> BBG Finance &mdash; All rights reserved.
         </div>
     </div>
 

@@ -29,128 +29,128 @@
 </asp:Content>
 
 <asp:Content ID="cPageSubtitle" ContentPlaceHolderID="cphPageSubtitle" runat="server">
-    Hoş geldiniz, <asp:Label ID="lblAdSoyad" runat="server" /> &mdash;
+    Welcome, <asp:Label ID="lblAdSoyad" runat="server" /> &mdash;
     <asp:Label ID="lblTarih" runat="server" />
 </asp:Content>
 
 <asp:Content ID="cContent" ContentPlaceHolderID="cphContent" runat="server">
 
     <!-- ======================================================
-         TARİH FİLTRESİ
+         DATE FILTER
     ====================================================== -->
     <div class="filter-bar">
         <div class="filter-row">
             <div class="filter-item">
-                <label>Başlangıç Tarihi</label>
+                <label>Start Date</label>
                 <div id="dxBaslangicTarihi"></div>
             </div>
             <div class="filter-item">
-                <label>Bitiş Tarihi</label>
+                <label>End Date</label>
                 <div id="dxBitisTarihi"></div>
             </div>
             <div class="filter-actions">
-                <button type="button" class="btn-search" onclick="filtreyiUygula()">Uygula</button>
-                <button type="button" class="btn-clear"  onclick="filtreyiTemizle()">Son 6 Ay</button>
+                <button type="button" class="btn-search" onclick="filtreyiUygula()">Apply</button>
+                <button type="button" class="btn-clear"  onclick="filtreyiTemizle()">Last 6 Months</button>
             </div>
         </div>
     </div>
 
     <!-- ======================================================
-         ÖZET KARTLARI
+         SUMMARY CARDS
     ====================================================== -->
     <div class="summary-cards">
         <div class="summary-card card-green">
             <div class="card-body">
                 <div class="card-value" id="valToplamRezervasyon">0</div>
-                <div class="card-label">Toplam Rezervasyon</div>
+                <div class="card-label">Total Reservations</div>
             </div>
-            <a href="Modules/Rezervasyonlar/Liste.aspx" class="card-link">Görüntüle &rarr;</a>
+            <a href="Modules/Rezervasyonlar/Liste.aspx" class="card-link">View &rarr;</a>
         </div>
         <div class="summary-card card-red">
             <div class="card-body">
                 <div class="card-value" id="valIptalOrani">%0</div>
-                <div class="card-label">İptal Oranı</div>
+                <div class="card-label">Cancellation Rate</div>
             </div>
         </div>
         <div class="summary-card card-orange">
             <div class="card-body">
                 <div class="card-value" id="valToplamGece">0</div>
-                <div class="card-label">Toplam Gece</div>
+                <div class="card-label">Total Nights</div>
             </div>
         </div>
         <div class="summary-card card-maroon">
             <div class="card-body">
                 <div class="card-value" id="valToplamPax">0</div>
-                <div class="card-label">Toplam Pax</div>
+                <div class="card-label">Total Pax</div>
             </div>
         </div>
     </div>
 
     <!-- ======================================================
-         FİNANSAL ÖZET (para birimi bazlı)
+         FINANCIAL SUMMARY (by currency)
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-half">
-            <div class="panel-header"><h3>Satış / Komisyon / Bekleyen Tahsilat</h3></div>
+            <div class="panel-header"><h3>Sales / Commission / Outstanding Amount</h3></div>
             <div style="padding:16px 18px;" id="finansalTablo"></div>
         </div>
         <div class="dashboard-panel panel-half">
-            <div class="panel-header"><h3>Kâr</h3></div>
+            <div class="panel-header"><h3>Profit</h3></div>
             <div style="padding:16px 18px;" id="karTablo"></div>
         </div>
     </div>
 
     <!-- ======================================================
-         TREND + KANAL
+         TREND + CHANNEL
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-wide">
             <div class="panel-header">
-                <h3>Aylık Rezervasyon Trendi</h3>
-                <span class="panel-subtitle">Rezervasyon &amp; İptal</span>
+                <h3>Monthly Reservation Trend</h3>
+                <span class="panel-subtitle">Reservations &amp; Cancellations</span>
             </div>
             <div id="chartTrend" style="height:280px;"></div>
         </div>
         <div class="dashboard-panel panel-narrow">
-            <div class="panel-header"><h3>Kanal Dağılımı</h3></div>
+            <div class="panel-header"><h3>Channel Breakdown</h3></div>
             <div id="chartKanal" style="height:280px;"></div>
         </div>
     </div>
 
     <!-- ======================================================
-         ÜRÜN GRUBU / PAZAR / TEDARİKÇİ
+         PRODUCT GROUP / MARKET / SUPPLIER
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-half">
-            <div class="panel-header"><h3>Ürün Grubu Dağılımı (Satış)</h3></div>
+            <div class="panel-header"><h3>Product Group Breakdown (Sales)</h3></div>
             <div id="chartUrunGrubu" style="height:280px;"></div>
         </div>
         <div class="dashboard-panel panel-half">
-            <div class="panel-header"><h3>Pazar Dağılımı (Satış)</h3></div>
+            <div class="panel-header"><h3>Market Breakdown (Sales)</h3></div>
             <div id="chartPazar" style="height:280px;"></div>
         </div>
     </div>
 
     <div class="dashboard-row">
         <div class="dashboard-panel panel-wide">
-            <div class="panel-header"><h3>Tedarikçi Dağılımı (Top 10)</h3></div>
+            <div class="panel-header"><h3>Supplier Breakdown (Top 10)</h3></div>
             <div id="gridTedarikci"></div>
         </div>
     </div>
 
     <!-- ======================================================
-         SON REZERVASYONLAR + YAKLAŞAN KONAKLAMALAR
+         RECENT RESERVATIONS + UPCOMING STAYS
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-half">
             <div class="panel-header">
-                <h3>Son Rezervasyonlar</h3>
-                <a href="Modules/Rezervasyonlar/Liste.aspx" class="panel-link">Tümü &rarr;</a>
+                <h3>Recent Reservations</h3>
+                <a href="Modules/Rezervasyonlar/Liste.aspx" class="panel-link">All &rarr;</a>
             </div>
             <div id="gridSonRezervasyonlar"></div>
         </div>
         <div class="dashboard-panel panel-half">
-            <div class="panel-header"><h3>Yaklaşan Konaklamalar</h3></div>
+            <div class="panel-header"><h3>Upcoming Stays</h3></div>
             <div id="gridYaklasanKonaklamalar"></div>
         </div>
     </div>
@@ -170,26 +170,26 @@
     }
 
     function formatSayi(n) {
-        return (n || 0).toLocaleString('tr-TR');
+        return (n || 0).toLocaleString('en-US');
     }
 
     function formatTutar(n, doviz) {
-        return (n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (doviz || '');
+        return (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (doviz || '');
     }
 
-    // ---- Özet kartları: düz DOM, DevExtreme'e ihtiyaç duymaz ----
-    // (DevExtreme CDN'den yüklenemese bile bu kartlar dolmaya devam eder.)
+    // ---- Summary cards: plain DOM, no DevExtreme needed ----
+    // (These cards keep working even if the DevExtreme CDN fails to load.)
     var ozet = dashboardData.ozet || {};
     document.getElementById('valToplamRezervasyon').textContent = formatSayi(ozet.ToplamRezervasyon);
-    document.getElementById('valIptalOrani').textContent        = '%' + (ozet.IptalOrani || 0).toString().replace('.', ',');
+    document.getElementById('valIptalOrani').textContent        = '%' + (ozet.IptalOrani || 0).toString();
     document.getElementById('valToplamGece').textContent        = formatSayi(ozet.ToplamGece);
     document.getElementById('valToplamPax').textContent          = formatSayi(ozet.ToplamPax);
 
-    // ---- Finansal tablo (para birimi bazlı): düz DOM ----
+    // ---- Financial table (by currency): plain DOM ----
     function finansalTabloOlustur(elId, satirlar, alanlar) {
         var el = document.getElementById(elId);
         if (!satirlar || satirlar.length === 0) {
-            el.innerHTML = '<span style="color:#999;font-size:13px;">Kayıt yok</span>';
+            el.innerHTML = '<span style="color:#999;font-size:13px;">No records</span>';
             return;
         }
         var html = '<table class="finans-tablo">';
@@ -204,57 +204,57 @@
     }
 
     finansalTabloOlustur('finansalTablo', dashboardData.finansal, [
-        { field: 'ToplamSatis', label: 'Toplam Satış' },
-        { field: 'ToplamKomisyon', label: 'Toplam Komisyon' },
-        { field: 'BekleyenTahsilat', label: 'Bekleyen Tahsilat' }
+        { field: 'ToplamSatis', label: 'Total Sales' },
+        { field: 'ToplamKomisyon', label: 'Total Commission' },
+        { field: 'BekleyenTahsilat', label: 'Outstanding Amount' }
     ]);
 
     finansalTabloOlustur('karTablo', dashboardData.kar, [
-        { field: 'ToplamKar', label: 'Toplam Kâr' }
+        { field: 'ToplamKar', label: 'Total Profit' }
     ]);
 
-    // ---- DevExtreme'e bağlı bileşenler (tarih filtresi, grafikler, grid'ler) ----
-    // CDN'den (cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net) DevExtreme
-    // yüklenemezse burada patlayıp script'in tamamını durdurmak yerine, yukarıdaki KPI
-    // kartları ve finansal tablolar zaten dolmuş halde kalır; bu bölüm sadece kendi
-    // alanlarında bir uyarı gösterir.
+    // ---- DevExtreme-dependent widgets (date filter, charts, grids) ----
+    // If DevExtreme fails to load from the CDN (cdn3.devexpress.com / ajax.googleapis.com /
+    // cdn.jsdelivr.net), rather than blowing up here and halting the whole script, the KPI
+    // cards and financial tables above stay populated; this section only shows a warning
+    // in its own areas.
     var dxBaslangic, dxBitis;
 
     if (typeof DevExpress === 'undefined' || !DevExpress.ui || !DevExpress.viz) {
-        console.error('DevExtreme yüklenemedi - cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net erişimini kontrol edin.');
-        var uyariHtml = '<div style="padding:16px;color:#C0392B;font-size:13px;">Bileşen yüklenemedi (DevExtreme CDN erişimi yok).</div>';
+        console.error('DevExtreme failed to load - check access to cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net.');
+        var uyariHtml = '<div style="padding:16px;color:#C0392B;font-size:13px;">Widget could not load (no DevExtreme CDN access).</div>';
         ['dxBaslangicTarihi', 'dxBitisTarihi', 'chartTrend', 'chartKanal', 'chartUrunGrubu', 'chartPazar',
          'gridTedarikci', 'gridSonRezervasyonlar', 'gridYaklasanKonaklamalar'].forEach(function (id) {
             var el = document.getElementById(id);
             if (el) el.innerHTML = uyariHtml;
         });
     } else {
-        // ---- Tarih filtreleri ----
+        // ---- Date filters ----
         try {
             dxBaslangic = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-                placeholder: 'gg.aa.yyyy', value: initBaslangic || null
+                placeholder: 'dd.mm.yyyy', value: initBaslangic || null
             }, document.getElementById('dxBaslangicTarihi'));
 
             dxBitis = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-                placeholder: 'gg.aa.yyyy', value: initBitis || null
+                placeholder: 'dd.mm.yyyy', value: initBitis || null
             }, document.getElementById('dxBitisTarihi'));
         } catch (ex) {
-            console.error('Tarih filtresi render edilemedi:', ex);
+            console.error('Date filter could not be rendered:', ex);
         }
     }
 
-    // Her bileşen kendi try/catch'i içinde kuruluyor: biri veri/konfigürasyon
-    // hatası yüzünden patlarsa diğerleri (ve KPI kartları) yine de render olur.
+    // Each widget is set up inside its own try/catch: if one fails due to a data or
+    // configuration error, the others (and the KPI cards) still render.
     function guvenliKur(elementId, fn) {
         if (typeof DevExpress === 'undefined' || !DevExpress.ui || !DevExpress.viz) return;
         try {
             fn();
         } catch (ex) {
-            console.error(elementId + ' render edilemedi:', ex);
+            console.error(elementId + ' could not be rendered:', ex);
             var el = document.getElementById(elementId);
-            if (el) el.innerHTML = '<div style="padding:16px;color:#C0392B;font-size:13px;">Bu bileşen render edilirken hata oluştu (konsola bakın).</div>';
+            if (el) el.innerHTML = '<div style="padding:16px;color:#C0392B;font-size:13px;">This widget could not be rendered (see console).</div>';
         }
     }
 
@@ -262,8 +262,8 @@
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.aylikTrend,
             series: [
-                { valueField: 'RezervasyonSayisi', name: 'Rezervasyon', type: 'bar', color: '#00695C' },
-                { valueField: 'IptalSayisi', name: 'İptal', type: 'bar', color: '#C0392B' }
+                { valueField: 'RezervasyonSayisi', name: 'Reservations', type: 'bar', color: '#00695C' },
+                { valueField: 'IptalSayisi', name: 'Cancellations', type: 'bar', color: '#C0392B' }
             ],
             argumentField: 'Ay',
             argumentAxis: { argumentType: 'string' },
@@ -273,8 +273,8 @@
     });
 
     guvenliKur('chartKanal', function () {
-        // Çok sayıda küçük dilim olduğunda bağlantı çizgili etiketler üst üste biniyordu;
-        // etiketleri kapatıp legend + tooltip'e (üzerine gelince) taşındı.
+        // With many small slices the connector-line labels used to overlap; labels are
+        // disabled here and the info moved to the legend + a custom tooltip on hover.
         dxOlustur(DevExpress.viz.dxPieChart, {
             dataSource: dashboardData.kanalDagilim,
             series: [{ argumentField: 'Kanal', valueField: 'Adet', label: { visible: false } }],
@@ -292,7 +292,7 @@
     guvenliKur('chartUrunGrubu', function () {
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.urunGrubu,
-            series: [{ type: 'bar', argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Satış', color: '#00695C' }],
+            series: [{ type: 'bar', argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Sales', color: '#00695C' }],
             rotated: true,
             legend: { visible: false },
             tooltip: { enabled: true }
@@ -302,7 +302,7 @@
     guvenliKur('chartPazar', function () {
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.pazarDagilim,
-            series: [{ type: 'bar', argumentField: 'Pazar', valueField: 'ToplamSatis', name: 'Satış', color: '#F9A825' }],
+            series: [{ type: 'bar', argumentField: 'Pazar', valueField: 'ToplamSatis', name: 'Sales', color: '#F9A825' }],
             rotated: true,
             legend: { visible: false },
             tooltip: { enabled: true }
@@ -315,10 +315,10 @@
             showBorders: true, rowAlternationEnabled: true,
             paging: { pageSize: 10 },
             columns: [
-                { dataField: 'Tedarikci', caption: 'Tedarikçi' },
-                { dataField: 'KalemSayisi', caption: 'Kalem Sayısı', width: 120, dataType: 'number' },
-                { dataField: 'ToplamSatis', caption: 'Toplam Satış', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-                { dataField: 'ToplamKar', caption: 'Toplam Kâr', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' }
+                { dataField: 'Tedarikci', caption: 'Supplier' },
+                { dataField: 'KalemSayisi', caption: 'Line Count', width: 120, dataType: 'number' },
+                { dataField: 'ToplamSatis', caption: 'Total Sales', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'ToplamKar', caption: 'Total Profit', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' }
             ]
         }, document.getElementById('gridTedarikci'));
     });
@@ -329,13 +329,13 @@
             showBorders: true, rowAlternationEnabled: true,
             paging: { pageSize: 5 },
             columns: [
-                { dataField: 'BookingCode', caption: 'Rezervasyon No', width: 130 },
-                { dataField: 'CustomerName', caption: 'Müşteri' },
-                { dataField: 'SellingPrice', caption: 'Tutar', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right', width: 110 },
-                { dataField: 'BookingDate', caption: 'Tarih', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-                { dataField: 'IptalMi', caption: 'Durum', width: 80,
+                { dataField: 'BookingCode', caption: 'Booking No', width: 130 },
+                { dataField: 'CustomerName', caption: 'Customer' },
+                { dataField: 'SellingPrice', caption: 'Amount', dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right', width: 110 },
+                { dataField: 'BookingDate', caption: 'Date', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'IptalMi', caption: 'Status', width: 80,
                   cellTemplate: function (c, o) {
-                      $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'İptal' : 'Aktif').appendTo(c);
+                      $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'Cancelled' : 'Active').appendTo(c);
                   }
                 }
             ]
@@ -348,10 +348,10 @@
             showBorders: true, rowAlternationEnabled: true,
             paging: { pageSize: 5 },
             columns: [
-                { dataField: 'BookingCode', caption: 'Rezervasyon No', width: 130 },
-                { dataField: 'CustomerName', caption: 'Müşteri' },
-                { dataField: 'BeginTravelDate', caption: 'Giriş', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-                { dataField: 'NightsNumber', caption: 'Gece', width: 70, dataType: 'number' },
+                { dataField: 'BookingCode', caption: 'Booking No', width: 130 },
+                { dataField: 'CustomerName', caption: 'Customer' },
+                { dataField: 'BeginTravelDate', caption: 'Check-in', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'NightsNumber', caption: 'Nights', width: 70, dataType: 'number' },
                 { dataField: 'PaxNumber', caption: 'Pax', width: 70, dataType: 'number' }
             ]
         }, document.getElementById('gridYaklasanKonaklamalar'));

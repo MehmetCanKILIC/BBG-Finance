@@ -29,113 +29,117 @@
 </asp:Content>
 
 <asp:Content ID="cPageSubtitle" ContentPlaceHolderID="cphPageSubtitle" runat="server">
-    Hoş geldiniz, <asp:Label ID="lblAdSoyad" runat="server" /> &mdash;
+    Welcome, <asp:Label ID="lblAdSoyad" runat="server" /> &mdash;
     <asp:Label ID="lblTarih" runat="server" />
+</asp:Content>
+
+<asp:Content ID="cPageActions" ContentPlaceHolderID="cphPageActions" runat="server">
+    <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Musteri/Liste.aspx") %>" class="btn-search" style="text-decoration:none;display:inline-block;">My Reservations</a>
 </asp:Content>
 
 <asp:Content ID="cContent" ContentPlaceHolderID="cphContent" runat="server">
 
     <div id="pnlYapilandirmaUyarisi" style="display:none;padding:14px 18px;background:#FFF3E0;border:1px solid #FFCC80;border-radius:6px;color:#E65100;font-size:13px;margin-bottom:18px;">
-        Hesabınıza bir müşteri grubu atanmamış. Lütfen sistem yöneticinizle iletişime geçin.
+        No customer group has been assigned to your account. Please contact your system administrator.
     </div>
 
     <!-- ======================================================
-         TARİH FİLTRESİ
+         DATE FILTER
     ====================================================== -->
     <div class="filter-bar">
         <div class="filter-row">
             <div class="filter-item">
-                <label>Başlangıç Tarihi</label>
+                <label>Start Date</label>
                 <div id="dxBaslangicTarihi"></div>
             </div>
             <div class="filter-item">
-                <label>Bitiş Tarihi</label>
+                <label>End Date</label>
                 <div id="dxBitisTarihi"></div>
             </div>
             <div class="filter-actions">
-                <button type="button" class="btn-search" onclick="filtreyiUygula()">Uygula</button>
-                <button type="button" class="btn-clear"  onclick="filtreyiTemizle()">Son 6 Ay</button>
+                <button type="button" class="btn-search" onclick="filtreyiUygula()">Apply</button>
+                <button type="button" class="btn-clear"  onclick="filtreyiTemizle()">Last 6 Months</button>
             </div>
         </div>
     </div>
 
     <!-- ======================================================
-         ÖZET KARTLARI
+         SUMMARY CARDS
     ====================================================== -->
     <div class="summary-cards">
         <div class="summary-card card-green">
             <div class="card-body">
                 <div class="card-value" id="valToplamRezervasyon">0</div>
-                <div class="card-label">Toplam Rezervasyon</div>
+                <div class="card-label">Total Reservations</div>
             </div>
         </div>
         <div class="summary-card card-orange">
             <div class="card-body">
                 <div class="card-value" id="valToplamGece">0</div>
-                <div class="card-label">Toplam Gece</div>
+                <div class="card-label">Total Nights</div>
             </div>
         </div>
         <div class="summary-card card-maroon">
             <div class="card-body">
                 <div class="card-value" id="valToplamPax">0</div>
-                <div class="card-label">Toplam Pax</div>
+                <div class="card-label">Total Pax</div>
             </div>
         </div>
     </div>
 
     <!-- ======================================================
-         SATIŞ ÖZETİ (para birimi bazlı)
+         SALES SUMMARY (by currency)
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-wide">
-            <div class="panel-header"><h3>Satış / Bekleyen Tahsilat</h3></div>
+            <div class="panel-header"><h3>Sales / Outstanding Amount</h3></div>
             <div style="padding:16px 18px;" id="satisTablo"></div>
         </div>
     </div>
 
     <!-- ======================================================
-         TREND + BÖLGE
+         TREND + REGION
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-wide">
             <div class="panel-header">
-                <h3>Aylık Rezervasyon Trendi</h3>
+                <h3>Monthly Reservation Trend</h3>
             </div>
             <div id="chartTrend" style="height:280px;"></div>
         </div>
         <div class="dashboard-panel panel-narrow">
-            <div class="panel-header"><h3>Bölge Dağılımı (Satış)</h3></div>
+            <div class="panel-header"><h3>Region Breakdown (Sales)</h3></div>
             <div id="chartBolge" style="height:280px;"></div>
         </div>
     </div>
 
     <!-- ======================================================
-         ODA TİPİ / YAŞ GRUBU / MİLLİYET
+         ROOM TYPE / AGE GROUP / NATIONALITY
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-half">
-            <div class="panel-header"><h3>Oda Tipi Dağılımı</h3></div>
+            <div class="panel-header"><h3>Room Type Breakdown</h3></div>
             <div id="chartOdaTipi" style="height:280px;"></div>
         </div>
         <div class="dashboard-panel panel-half">
-            <div class="panel-header"><h3>Yetişkin / Çocuk / Bebek</h3></div>
+            <div class="panel-header"><h3>Adult / Child / Baby</h3></div>
             <div id="chartYasGrubu" style="height:280px;"></div>
         </div>
     </div>
 
     <div class="dashboard-row">
         <div class="dashboard-panel panel-wide">
-            <div class="panel-header"><h3>Milliyet Dağılımı (Top 10)</h3></div>
+            <div class="panel-header"><h3>Nationality Breakdown (Top 10)</h3></div>
             <div id="chartMilliyet" style="height:280px;"></div>
         </div>
     </div>
 
     <!-- ======================================================
-         BEKLEYEN GİRİŞLER
+         PENDING ARRIVALS
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-wide">
-            <div class="panel-header"><h3>Girişi Henüz Gelmemiş Odalar</h3></div>
+            <div class="panel-header"><h3>Rooms Not Yet Checked In</h3></div>
             <div id="gridBekleyenGirisler"></div>
         </div>
     </div>
@@ -148,6 +152,11 @@
     var initBaslangic  = '<%=FilterBaslangic%>';
     var initBitis      = '<%=FilterBitis%>';
 
+    console.log('dashboardData:', dashboardData);
+    if (dashboardData.hata) {
+        console.error('Dashboard query error(s):', dashboardData.hata);
+    }
+
     if (dashboardData.yapilandirmaEksik) {
         document.getElementById('pnlYapilandirmaUyarisi').style.display = 'block';
     }
@@ -159,24 +168,24 @@
     }
 
     function formatSayi(n) {
-        return (n || 0).toLocaleString('tr-TR');
+        return (n || 0).toLocaleString('en-US');
     }
 
     function formatTutar(n, doviz) {
-        return (n || 0).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (doviz || '');
+        return (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (doviz || '');
     }
 
-    // ---- Özet kartları: düz DOM, DevExtreme'e ihtiyaç duymaz ----
+    // ---- Summary cards: plain DOM, no DevExtreme needed ----
     var ozet = dashboardData.ozet || {};
     document.getElementById('valToplamRezervasyon').textContent = formatSayi(ozet.ToplamRezervasyon);
     document.getElementById('valToplamGece').textContent        = formatSayi(ozet.ToplamGece);
     document.getElementById('valToplamPax').textContent          = formatSayi(ozet.ToplamPax);
 
-    // ---- Satış tablosu (para birimi bazlı): düz DOM ----
+    // ---- Sales table (by currency): plain DOM ----
     function finansalTabloOlustur(elId, satirlar, alanlar) {
         var el = document.getElementById(elId);
         if (!satirlar || satirlar.length === 0) {
-            el.innerHTML = '<span style="color:#999;font-size:13px;">Kayıt yok</span>';
+            el.innerHTML = '<span style="color:#999;font-size:13px;">No records</span>';
             return;
         }
         var html = '<table class="finans-tablo">';
@@ -191,11 +200,11 @@
     }
 
     finansalTabloOlustur('satisTablo', dashboardData.satis, [
-        { field: 'ToplamSatis', label: 'Toplam Satış' },
-        { field: 'BekleyenTahsilat', label: 'Bekleyen Tahsilat' }
+        { field: 'ToplamSatis', label: 'Total Sales' },
+        { field: 'BekleyenTahsilat', label: 'Outstanding Amount' }
     ]);
 
-    // ---- DevExtreme'e bağlı bileşenler ----
+    // ---- DevExtreme-dependent widgets ----
     var dxBaslangic, dxBitis;
 
     function guvenliKur(elementId, fn) {
@@ -203,15 +212,15 @@
         try {
             fn();
         } catch (ex) {
-            console.error(elementId + ' render edilemedi:', ex);
+            console.error(elementId + ' could not be rendered:', ex);
             var el = document.getElementById(elementId);
-            if (el) el.innerHTML = '<div style="padding:16px;color:#C0392B;font-size:13px;">Bu bileşen render edilirken hata oluştu (konsola bakın).</div>';
+            if (el) el.innerHTML = '<div style="padding:16px;color:#C0392B;font-size:13px;">This widget could not be rendered (see console).</div>';
         }
     }
 
     if (typeof DevExpress === 'undefined' || !DevExpress.ui || !DevExpress.viz) {
-        console.error('DevExtreme yüklenemedi - cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net erişimini kontrol edin.');
-        var uyariHtml = '<div style="padding:16px;color:#C0392B;font-size:13px;">Bileşen yüklenemedi (DevExtreme CDN erişimi yok).</div>';
+        console.error('DevExtreme failed to load - check access to cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net.');
+        var uyariHtml = '<div style="padding:16px;color:#C0392B;font-size:13px;">Widget could not load (no DevExtreme CDN access).</div>';
         ['dxBaslangicTarihi', 'dxBitisTarihi', 'chartTrend', 'chartBolge', 'chartOdaTipi',
          'chartYasGrubu', 'chartMilliyet', 'gridBekleyenGirisler'].forEach(function (id) {
             var el = document.getElementById(id);
@@ -221,23 +230,23 @@
         try {
             dxBaslangic = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-                placeholder: 'gg.aa.yyyy', value: initBaslangic || null 
+                placeholder: 'dd.mm.yyyy', value: initBaslangic || null
             }, document.getElementById('dxBaslangicTarihi'));
 
             dxBitis = dxOlustur(DevExpress.ui.dxDateBox, {
                 displayFormat: 'dd.MM.yyyy', type: 'date', showClearButton: true,
-                placeholder: 'gg.aa.yyyy', value: initBitis || null
+                placeholder: 'dd.mm.yyyy', value: initBitis || null
             }, document.getElementById('dxBitisTarihi'));
         } catch (ex) {
             console.log(typeof jQuery, jQuery && jQuery.fn && jQuery.fn.jquery, DevExpress.VERSION)
-            console.error('Tarih filtresi render edilemedi:', ex);
+            console.error('Date filter could not be rendered:', ex);
         }
     }
 
     guvenliKur('chartTrend', function () {
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.aylikTrend,
-            series: [{ valueField: 'RezervasyonSayisi', name: 'Rezervasyon', type: 'bar', color: '#00695C' }],
+            series: [{ valueField: 'RezervasyonSayisi', name: 'Reservations', type: 'bar', color: '#00695C' }],
             argumentField: 'Ay',
             argumentAxis: { argumentType: 'string' },
             legend: { visible: false },
@@ -246,8 +255,8 @@
     });
 
     guvenliKur('chartBolge', function () {
-        // Çok sayıda küçük dilim olduğunda bağlantı çizgili etiketler üst üste biniyordu;
-        // etiketleri kapatıp legend + tooltip'e (üzerine gelince) taşındı.
+        // With many small slices the connector-line labels used to overlap; labels are
+        // disabled here and the info moved to the legend + a custom tooltip on hover.
         dxOlustur(DevExpress.viz.dxPieChart, {
             dataSource: dashboardData.bolgeDagilim,
             series: [{ argumentField: 'Bolge', valueField: 'ToplamSatis', label: { visible: false } }],
@@ -265,7 +274,7 @@
     guvenliKur('chartOdaTipi', function () {
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.odaTipiDagilim,
-            series: [{ type: 'bar', argumentField: 'OdaTipi', valueField: 'OdaSayisi', name: 'Oda Sayısı', color: '#00695C' }],
+            series: [{ type: 'bar', argumentField: 'OdaTipi', valueField: 'OdaSayisi', name: 'Room Count', color: '#00695C' }],
             rotated: true,
             legend: { visible: false },
             tooltip: { enabled: true }
@@ -290,7 +299,7 @@
     guvenliKur('chartMilliyet', function () {
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.milliyetDagilim,
-            series: [{ type: 'bar', argumentField: 'Milliyet', valueField: 'Adet', name: 'Rezervasyon Sayısı', color: '#F9A825' }],
+            series: [{ type: 'bar', argumentField: 'Milliyet', valueField: 'Adet', name: 'Reservation Count', color: '#F9A825' }],
             rotated: true,
             legend: { visible: false },
             tooltip: { enabled: true }
@@ -303,13 +312,13 @@
             showBorders: true, rowAlternationEnabled: true,
             paging: { pageSize: 10 },
             columns: [
-                { dataField: 'BookingCode', caption: 'Rezervasyon No', width: 130 },
-                { dataField: 'OtelAdi', caption: 'Otel' },
-                { dataField: 'OdaTipi', caption: 'Oda Tipi', width: 150 },
-                { dataField: 'MisafirAdi', caption: 'Misafir', width: 160 },
-                { dataField: 'BeginTravelDate', caption: 'Giriş', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-                { dataField: 'EndTravelDate', caption: 'Çıkış', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-                { dataField: 'NightsNumber', caption: 'Gece', width: 70, dataType: 'number' },
+                { dataField: 'BookingCode', caption: 'Booking No', width: 130 },
+                { dataField: 'OtelAdi', caption: 'Hotel' },
+                { dataField: 'OdaTipi', caption: 'Room Type', width: 150 },
+                { dataField: 'MisafirAdi', caption: 'Guest', width: 160 },
+                { dataField: 'BeginTravelDate', caption: 'Check-in', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'EndTravelDate', caption: 'Check-out', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'NightsNumber', caption: 'Nights', width: 70, dataType: 'number' },
                 { dataField: 'PaxNumber', caption: 'Pax', width: 70, dataType: 'number' }
             ]
         }, document.getElementById('gridBekleyenGirisler'));

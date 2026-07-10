@@ -1,9 +1,9 @@
-<%@ Page Title="Rezervasyon Detay" Language="C#" MasterPageFile="~/Site.Master"
+<%@ Page Title="Reservation Details" Language="C#" MasterPageFile="~/Site.Master"
          AutoEventWireup="true" CodeBehind="Detay.aspx.cs"
          Inherits="BBGFinance.Modules.Rezervasyonlar.Detay"
          ContentType="text/html" ResponseEncoding="UTF-8" %>
 
-<asp:Content ID="cTitle" ContentPlaceHolderID="cphTitle" runat="server">Rezervasyon Detay</asp:Content>
+<asp:Content ID="cTitle" ContentPlaceHolderID="cphTitle" runat="server">Reservation Details</asp:Content>
 
 <asp:Content ID="cHead" ContentPlaceHolderID="cphHead" runat="server">
 <style>
@@ -24,86 +24,86 @@
 <asp:Content ID="cBreadcrumb" ContentPlaceHolderID="cphBreadcrumb" runat="server">
     <a href="<%= ResolveUrl("~/Default.aspx") %>">Dashboard</a>
     <span> / </span>
-    <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Liste.aspx") %>">Rezervasyonlar</a>
+    <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Liste.aspx") %>">Reservations</a>
     <span> / </span>
     <span><asp:Literal ID="litBookingCode" runat="server" /></span>
 </asp:Content>
 
 <asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server">
-    Rezervasyon <asp:Literal ID="litBaslik" runat="server" />
+    Reservation <asp:Literal ID="litBaslik" runat="server" />
     <asp:Label ID="litDurum" runat="server" />
 </asp:Content>
 
 <asp:Content ID="cPageSubtitle" ContentPlaceHolderID="cphPageSubtitle" runat="server">
-    Rezervasyon başlığı ve kalem detayları (salt okunur).
+    Reservation header and line item details (read-only).
 </asp:Content>
 
 <asp:Content ID="cPageActions" ContentPlaceHolderID="cphPageActions" runat="server">
-    <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Liste.aspx") %>" class="btn-geri">&#8592; Listeye Dön</a>
+    <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Liste.aspx") %>" class="btn-geri">&#8592; Back to List</a>
 </asp:Content>
 
 <asp:Content ID="cContent" ContentPlaceHolderID="cphContent" runat="server">
 
-    <!-- Genel Bilgiler -->
+    <!-- General Info -->
     <div class="info-card">
-        <h3>Genel Bilgiler</h3>
+        <h3>General Info</h3>
         <div class="info-grid">
-            <div class="info-item"><label>Rezervasyon Tarihi</label><span><asp:Literal ID="litBookingDate" runat="server" /></span></div>
-            <div class="info-item"><label>Son Güncelleme</label><span><asp:Literal ID="litLastModified" runat="server" /></span></div>
-            <div class="info-item"><label>İptal Tarihi</label><span><asp:Literal ID="litCancelDate" runat="server" /></span></div>
-            <div class="info-item"><label>Kanal</label><span><asp:Literal ID="litChannel" runat="server" /></span></div>
-            <div class="info-item"><label>Acente Referansı</label><span><asp:Literal ID="litAgencyRef" runat="server" /></span></div>
-            <div class="info-item"><label>Rezervasyon Etiketi</label><span><asp:Literal ID="litBookingLabel" runat="server" /></span></div>
+            <div class="info-item"><label>Booking Date</label><span><asp:Literal ID="litBookingDate" runat="server" /></span></div>
+            <div class="info-item"><label>Last Modified</label><span><asp:Literal ID="litLastModified" runat="server" /></span></div>
+            <div class="info-item"><label>Cancel Date</label><span><asp:Literal ID="litCancelDate" runat="server" /></span></div>
+            <div class="info-item"><label>Channel</label><span><asp:Literal ID="litChannel" runat="server" /></span></div>
+            <div class="info-item"><label>Agency Reference</label><span><asp:Literal ID="litAgencyRef" runat="server" /></span></div>
+            <div class="info-item"><label>Booking Label</label><span><asp:Literal ID="litBookingLabel" runat="server" /></span></div>
         </div>
     </div>
 
-    <!-- Müşteri Bilgileri -->
+    <!-- Customer Info -->
     <div class="info-card">
-        <h3>Müşteri Bilgileri</h3>
+        <h3>Customer Info</h3>
         <div class="info-grid">
-            <div class="info-item"><label>Ad Soyad</label><span><asp:Literal ID="litCustomerName" runat="server" /></span></div>
-            <div class="info-item"><label>E-posta</label><span><asp:Literal ID="litCustomerEmail" runat="server" /></span></div>
-            <div class="info-item"><label>Telefon</label><span><asp:Literal ID="litCustomerPhone" runat="server" /></span></div>
-            <div class="info-item"><label>Ülke / Şehir</label><span><asp:Literal ID="litCustomerCountry" runat="server" /> / <asp:Literal ID="litCustomerCity" runat="server" /></span></div>
+            <div class="info-item"><label>Full Name</label><span><asp:Literal ID="litCustomerName" runat="server" /></span></div>
+            <div class="info-item"><label>Email</label><span><asp:Literal ID="litCustomerEmail" runat="server" /></span></div>
+            <div class="info-item"><label>Phone</label><span><asp:Literal ID="litCustomerPhone" runat="server" /></span></div>
+            <div class="info-item"><label>Country / City</label><span><asp:Literal ID="litCustomerCountry" runat="server" /> / <asp:Literal ID="litCustomerCity" runat="server" /></span></div>
         </div>
     </div>
 
-    <!-- Acente / Yönetici -->
+    <!-- Agent / Manager -->
     <div class="info-card">
-        <h3>Acente / Yönetici</h3>
+        <h3>Agent / Manager</h3>
         <div class="info-grid">
-            <div class="info-item"><label>Acente / Ajan</label><span><asp:Literal ID="litAgentName" runat="server" /></span></div>
-            <div class="info-item"><label>Ajan E-posta</label><span><asp:Literal ID="litAgentEmail" runat="server" /></span></div>
-            <div class="info-item"><label>Rezervasyon Yetkilisi</label><span><asp:Literal ID="litBookingAdmin" runat="server" /></span></div>
-            <div class="info-item"><label>Hesap Yöneticisi</label><span><asp:Literal ID="litAccountManager" runat="server" /></span></div>
+            <div class="info-item"><label>Agency / Agent</label><span><asp:Literal ID="litAgentName" runat="server" /></span></div>
+            <div class="info-item"><label>Agent Email</label><span><asp:Literal ID="litAgentEmail" runat="server" /></span></div>
+            <div class="info-item"><label>Booking Admin</label><span><asp:Literal ID="litBookingAdmin" runat="server" /></span></div>
+            <div class="info-item"><label>Account Manager</label><span><asp:Literal ID="litAccountManager" runat="server" /></span></div>
         </div>
     </div>
 
-    <!-- Finansal Özet -->
+    <!-- Financial Summary -->
     <div class="info-card">
-        <h3>Finansal Özet</h3>
+        <h3>Financial Summary</h3>
         <div class="info-grid">
-            <div class="info-item"><label>Satış Tutarı</label><span><asp:Literal ID="litSellingPrice" runat="server" /></span></div>
-            <div class="info-item"><label>Maliyet</label><span><asp:Literal ID="litCost" runat="server" /></span></div>
-            <div class="info-item"><label>Komisyon</label><span><asp:Literal ID="litCommission" runat="server" /></span></div>
-            <div class="info-item"><label>Bekleyen Tahsilat</label><span><asp:Literal ID="litOutstanding" runat="server" /></span></div>
-            <div class="info-item"><label>Faturalandı mı</label><span><asp:Literal ID="litInvoiced" runat="server" /></span></div>
+            <div class="info-item"><label>Selling Price</label><span><asp:Literal ID="litSellingPrice" runat="server" /></span></div>
+            <div class="info-item"><label>Cost</label><span><asp:Literal ID="litCost" runat="server" /></span></div>
+            <div class="info-item"><label>Commission</label><span><asp:Literal ID="litCommission" runat="server" /></span></div>
+            <div class="info-item"><label>Outstanding Amount</label><span><asp:Literal ID="litOutstanding" runat="server" /></span></div>
+            <div class="info-item"><label>Invoiced</label><span><asp:Literal ID="litInvoiced" runat="server" /></span></div>
         </div>
     </div>
 
-    <!-- Notlar -->
+    <!-- Notes -->
     <div class="info-card">
-        <h3>Notlar</h3>
+        <h3>Notes</h3>
         <div class="info-grid" style="grid-template-columns:1fr;">
-            <div class="info-item"><label>Açıklama</label><span><asp:Literal ID="litDescription" runat="server" /></span></div>
-            <div class="info-item"><label>Notlar</label><span><asp:Literal ID="litRemarks" runat="server" /></span></div>
-            <div class="info-item"><label>Finansal Notlar</label><span><asp:Literal ID="litFinancialNotes" runat="server" /></span></div>
+            <div class="info-item"><label>Description</label><span><asp:Literal ID="litDescription" runat="server" /></span></div>
+            <div class="info-item"><label>Remarks</label><span><asp:Literal ID="litRemarks" runat="server" /></span></div>
+            <div class="info-item"><label>Financial Notes</label><span><asp:Literal ID="litFinancialNotes" runat="server" /></span></div>
         </div>
     </div>
 
-    <!-- Kalemler -->
+    <!-- Line Items -->
     <div class="info-card">
-        <h3>Rezervasyon Kalemleri</h3>
+        <h3>Reservation Line Items</h3>
         <div id="gridKalemler"></div>
     </div>
 
@@ -114,9 +114,9 @@
     var kalemler = <%=KalemlerJson%>;
 
     if (typeof DevExpress === 'undefined' || !DevExpress.ui) {
-        console.error('DevExtreme yüklenemedi - cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net erişimini kontrol edin.');
+        console.error('DevExtreme failed to load - check access to cdn3.devexpress.com / ajax.googleapis.com / cdn.jsdelivr.net.');
         document.getElementById('gridKalemler').innerHTML =
-            '<div style="padding:16px;color:#C0392B;font-size:13px;">Kalem tablosu yüklenemedi (DevExtreme CDN erişimi yok).</div>';
+            '<div style="padding:16px;color:#C0392B;font-size:13px;">The line item table could not load (no DevExtreme CDN access).</div>';
     } else {
         dxOlustur(DevExpress.ui.dxDataGrid, {
             dataSource: kalemler,
@@ -126,29 +126,29 @@
             allowColumnResizing: true,
             paging: { pageSize: 10 },
             columns: [
-                { dataField: 'ServiceName',      caption: 'Hizmet' },
-                { dataField: 'ProductGroupName', caption: 'Ürün Grubu' },
-                { dataField: 'SupplierName',     caption: 'Tedarikçi' },
-                { dataField: 'Market',           caption: 'Pazar', width: 100 },
-                { dataField: 'BeginTravelDate',  caption: 'Başlangıç', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-                { dataField: 'EndTravelDate',    caption: 'Bitiş', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
-                { dataField: 'NightsNumber',     caption: 'Gece', width: 70, dataType: 'number' },
+                { dataField: 'ServiceName',      caption: 'Service' },
+                { dataField: 'ProductGroupName', caption: 'Product Group' },
+                { dataField: 'SupplierName',     caption: 'Supplier' },
+                { dataField: 'Market',           caption: 'Market', width: 100 },
+                { dataField: 'BeginTravelDate',  caption: 'Check-in', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'EndTravelDate',    caption: 'Check-out', dataType: 'date', format: 'dd.MM.yyyy', width: 100 },
+                { dataField: 'NightsNumber',     caption: 'Nights', width: 70, dataType: 'number' },
                 { dataField: 'PaxNumber',        caption: 'Pax', width: 70, dataType: 'number' },
-                { dataField: 'SellingPrice',     caption: 'Satış', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-                { dataField: 'SellCurrency',     caption: 'P.B.', width: 60 },
-                { dataField: 'Cost',             caption: 'Maliyet', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-                { dataField: 'Commission',       caption: 'Komisyon', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-                { dataField: 'Profit',           caption: 'Kâr', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-                { dataField: 'LineIptalMi',      caption: 'Durum', width: 80,
+                { dataField: 'SellingPrice',     caption: 'Selling Price', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'SellCurrency',     caption: 'Cur.', width: 60 },
+                { dataField: 'Cost',             caption: 'Cost', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'Commission',       caption: 'Commission', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'Profit',           caption: 'Profit', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
+                { dataField: 'LineIptalMi',      caption: 'Status', width: 80,
                   cellTemplate: function (c, o) {
-                      $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'İptal' : 'Aktif').appendTo(c);
+                      $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'Cancelled' : 'Active').appendTo(c);
                   }
                 }
             ],
             summary: {
                 totalItems: [
-                    { column: 'SellingPrice', summaryType: 'sum', valueFormat: { type: 'fixedPoint', precision: 2 }, displayFormat: 'Toplam: {0}' },
-                    { column: 'Profit', summaryType: 'sum', valueFormat: { type: 'fixedPoint', precision: 2 }, displayFormat: 'Toplam: {0}' }
+                    { column: 'SellingPrice', summaryType: 'sum', valueFormat: { type: 'fixedPoint', precision: 2 }, displayFormat: 'Total: {0}' },
+                    { column: 'Profit', summaryType: 'sum', valueFormat: { type: 'fixedPoint', precision: 2 }, displayFormat: 'Total: {0}' }
                 ]
             }
         }, document.getElementById('gridKalemler'));

@@ -6,7 +6,7 @@ namespace BBGFinance
     public partial class ErrorPage : Page
     {
         protected string HataKodu   = "500";
-        protected string HataMesaji = "Beklenmeyen bir hata oluştu.";
+        protected string HataMesaji = "An unexpected error occurred.";
 
         protected void Page_Load(object sender, EventArgs e)
         {
@@ -14,7 +14,7 @@ namespace BBGFinance
             if (kod == "404")
             {
                 HataKodu   = "404";
-                HataMesaji = "Aradığınız sayfa bulunamadı.";
+                HataMesaji = "The page you are looking for could not be found.";
             }
         }
     }

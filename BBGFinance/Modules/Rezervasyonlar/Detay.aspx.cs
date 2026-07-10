@@ -40,7 +40,7 @@ namespace BBGFinance.Modules.Rezervasyonlar
             litBaslik.Text      = Metin(r, "BookingCode");
 
             bool iptalMi = BitMetin(r, "TumSatirlarIptal");
-            litDurum.Text        = iptalMi ? "İptal" : "Aktif";
+            litDurum.Text        = iptalMi ? "Cancelled" : "Active";
             litDurum.CssClass    = "badge " + (iptalMi ? "badge-red" : "badge-green");
 
             litBookingDate.Text     = TarihMetin(r, "BookingDate");
@@ -65,7 +65,7 @@ namespace BBGFinance.Modules.Rezervasyonlar
             litCost.Text            = TutarMetin(r, "Cost");
             litCommission.Text      = TutarMetin(r, "Commission");
             litOutstanding.Text     = TutarMetin(r, "OutStandingAmount");
-            litInvoiced.Text        = BitMetin(r, "Invoiced") ? "Evet" : "Hayır";
+            litInvoiced.Text        = BitMetin(r, "Invoiced") ? "Yes" : "No";
 
             litDescription.Text     = Metin(r, "Description");
             litRemarks.Text         = Metin(r, "Remarks");

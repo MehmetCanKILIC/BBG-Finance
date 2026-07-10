@@ -181,6 +181,22 @@
       <AutoGen>True</AutoGen>
     </Compile>
   </ItemGroup>
+  <!-- Modules/Rezervasyonlar/Musteri (customer-facing "My Reservations") -->
+  <ItemGroup>
+    <Folder Include="Modules\Rezervasyonlar\Musteri\" />
+    <Content Include="Modules\Rezervasyonlar\Musteri\Liste.aspx">
+      <Generator>ASPXCodeGenerator</Generator>
+      <LastGenOutput>Liste.aspx.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="Modules\Rezervasyonlar\Musteri\Liste.aspx.cs">
+      <DependentUpon>Liste.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Modules\Rezervasyonlar\Musteri\Liste.aspx.designer.cs">
+      <DependentUpon>Liste.aspx</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <ProjectExtensions>
