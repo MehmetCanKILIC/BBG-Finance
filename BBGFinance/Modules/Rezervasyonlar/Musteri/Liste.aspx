@@ -12,7 +12,7 @@
     .filter-item { display:flex; flex-direction:column; min-width:160px; }
     .filter-item label { font-size:12px; font-weight:600; color:#555; margin-bottom:4px; }
     .filter-actions { display:flex; gap:8px; margin-top:20px; }
-    .btn-search { background:#00695C; color:#fff; border:none; border-radius:4px; padding:7px 18px; cursor:pointer; font-size:13px; }
+    .btn-search { background:#C2185B; color:#fff; border:none; border-radius:4px; padding:7px 18px; cursor:pointer; font-size:13px; }
     .btn-clear  { background:#757575; color:#fff; border:none; border-radius:4px; padding:7px 14px; cursor:pointer; font-size:13px; }
     .badge-green  { background:#e8f5e9; color:#2e7d32; }
     .badge-red    { background:#ffebee; color:#c62828; }

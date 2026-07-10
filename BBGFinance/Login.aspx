@@ -8,7 +8,7 @@
     <title>Log In - BBG Finance</title>
 
     <!-- DevExtreme CSS -->
-    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.material.teal.light.css" />
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.material.purple.light.css" />
     <!-- Site CSS -->
     <link rel="stylesheet" href="Content/css/site.css" />
     <link rel="stylesheet" href="Content/css/login.css" />
@@ -27,16 +27,8 @@
                     <path d="M14 40 L24 22 L30 32 L36 20 L46 40" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
                     <circle cx="46" cy="20" r="4" fill="white" fill-opacity="0.9"/>
                 </svg>
-                <span class="brand-name">BBG Finance</span>
             </div>
-            <h1 class="brand-title">Reservation Reporting Portal</h1>
-            <p class="brand-desc">Track JP_ROIBEDS reservation data with KPIs and tables on a single screen.</p>
-            <ul class="brand-features">
-                <li><span class="feature-icon">&#10003;</span> Reservation &amp; Cancellation KPIs</li>
-                <li><span class="feature-icon">&#10003;</span> Revenue, Commission and Profit Summaries</li>
-                <li><span class="feature-icon">&#10003;</span> Channel / Market / Supplier Breakdowns</li>
-                <li><span class="feature-icon">&#10003;</span> Detailed Reservation List and Line Items</li>
-            </ul>
+            <h1 class="brand-title">BedBankGlobal<br />Reporting System</h1>
         </div>
     </div>
 

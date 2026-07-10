@@ -12,7 +12,7 @@
     .filter-item { display:flex; flex-direction:column; min-width:160px; }
     .filter-item label { font-size:12px; font-weight:600; color:#555; margin-bottom:4px; }
     .filter-actions { display:flex; gap:8px; margin-top:20px; }
-    .btn-search { background:#00695C; color:#fff; border:none; border-radius:4px; padding:7px 18px; cursor:pointer; font-size:13px; }
+    .btn-search { background:#C2185B; color:#fff; border:none; border-radius:4px; padding:7px 18px; cursor:pointer; font-size:13px; }
     .btn-clear  { background:#757575; color:#fff; border:none; border-radius:4px; padding:7px 14px; cursor:pointer; font-size:13px; }
     .action-btn { background:none; border:none; cursor:pointer; padding:3px 6px; border-radius:3px; font-size:13px; }
     .action-btn:hover { background:#f5f5f5; }
@@ -163,7 +163,7 @@
                     cellTemplate: function (container, options) {
                         var kod = options.data.BookingCode;
                         $('<a>').addClass('action-btn').attr({ href: 'Detay.aspx?kod=' + encodeURIComponent(kod), title: 'Details' })
-                            .html('<span style="color:#00695C;font-size:15px;">&#128065;</span>')
+                            .html('<span style="color:#C2185B;font-size:15px;">&#128065;</span>')
                             .appendTo(container);
                     }
                 }

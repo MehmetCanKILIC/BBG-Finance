@@ -11,7 +11,7 @@
     .filter-item { display:flex; flex-direction:column; min-width:160px; }
     .filter-item label { font-size:12px; font-weight:600; color:#555; margin-bottom:4px; }
     .filter-actions { display:flex; gap:8px; margin-top:20px; }
-    .btn-search { background:#00695C; color:#fff; border:none; border-radius:4px; padding:7px 18px; cursor:pointer; font-size:13px; }
+    .btn-search { background:#C2185B; color:#fff; border:none; border-radius:4px; padding:7px 18px; cursor:pointer; font-size:13px; }
     .btn-clear  { background:#757575; color:#fff; border:none; border-radius:4px; padding:7px 14px; cursor:pointer; font-size:13px; }
     .finans-tablo { width:100%; font-size:13px; border-collapse:collapse; }
     .finans-tablo td { padding:4px 0; }
@@ -25,11 +25,10 @@
 </asp:Content>
 
 <asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server">
-    Dashboard
+    Welcome, <asp:Label ID="lblAdSoyad" runat="server" />
 </asp:Content>
 
 <asp:Content ID="cPageSubtitle" ContentPlaceHolderID="cphPageSubtitle" runat="server">
-    Welcome, <asp:Label ID="lblAdSoyad" runat="server" /> &mdash;
     <asp:Label ID="lblTarih" runat="server" />
 </asp:Content>
 
@@ -262,7 +261,7 @@
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.aylikTrend,
             series: [
-                { valueField: 'RezervasyonSayisi', name: 'Reservations', type: 'bar', color: '#00695C' },
+                { valueField: 'RezervasyonSayisi', name: 'Reservations', type: 'bar', color: '#C2185B' },
                 { valueField: 'IptalSayisi', name: 'Cancellations', type: 'bar', color: '#C0392B' }
             ],
             argumentField: 'Ay',
@@ -278,7 +277,7 @@
         dxOlustur(DevExpress.viz.dxPieChart, {
             dataSource: dashboardData.kanalDagilim,
             series: [{ argumentField: 'Kanal', valueField: 'Adet', label: { visible: false } }],
-            palette: ['#00695C', '#F9A825', '#26A69A', '#8E44AD', '#546E7A', '#1976D2', '#C0392B', '#7F8C8D', '#16A085', '#D35400'],
+            palette: ['#C2185B', '#F9A825', '#F06292', '#8E44AD', '#546E7A', '#1976D2', '#D35400', '#7F8C8D', '#AD1457', '#16A085'],
             legend: { visible: true, horizontalAlignment: 'center', verticalAlignment: 'bottom', margin: { top: 10 } },
             tooltip: {
                 enabled: true,
@@ -292,7 +291,7 @@
     guvenliKur('chartUrunGrubu', function () {
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.urunGrubu,
-            series: [{ type: 'bar', argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Sales', color: '#00695C' }],
+            series: [{ type: 'bar', argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Sales', color: '#C2185B' }],
             rotated: true,
             legend: { visible: false },
             tooltip: { enabled: true }

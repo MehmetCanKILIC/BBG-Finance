@@ -8,7 +8,7 @@
 <asp:Content ID="cHead" ContentPlaceHolderID="cphHead" runat="server">
 <style>
     .info-card   { background:#fff; border:1px solid #e0e0e0; border-radius:6px; padding:24px; margin-bottom:20px; }
-    .info-card h3{ font-size:15px; font-weight:700; color:#333; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #00695C; }
+    .info-card h3{ font-size:15px; font-weight:700; color:#333; margin:0 0 16px; padding-bottom:8px; border-bottom:2px solid #C2185B; }
     .info-grid   { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
     .info-item label { display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:3px; }
     .info-item span  { font-size:13px; color:#222; }
