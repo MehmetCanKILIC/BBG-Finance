@@ -21,8 +21,14 @@ namespace BBGFinance
                 lblAvatar.Text  = AvatarHarf(SessionManager.AdSoyad);
 
                 // Reservations menu (contains cost/profit/supplier) is shown to Admin only.
-                pnlAdminMenu.Visible = SessionManager.Rol == AppConstants.Roller.Admin;
-                pnlMusteriMenu.Visible = SessionManager.Rol == AppConstants.Roller.Musteri;
+                // The customer menu is shown to everyone who is NOT Admin (matches AdminBase /
+                // CustomerGroupId elsewhere in the app) rather than requiring an exact "Musteri"
+                // role match - a role value that doesn't match either constant exactly (typo,
+                // different casing, etc.) must still fall on the customer side, not disappear
+                // from the sidebar entirely.
+                bool adminMi = SessionManager.Rol == AppConstants.Roller.Admin;
+                pnlAdminMenu.Visible   = adminMi;
+                pnlMusteriMenu.Visible = !adminMi;
             }
         }
 
@@ -49,12 +55,9 @@ namespace BBGFinance
 
         private static string RolEtiket(string rol)
         {
-            switch (rol)
-            {
-                case AppConstants.Roller.Admin:   return "Admin";
-                case AppConstants.Roller.Musteri: return "Customer";
-                default:                          return "User";
-            }
+            // Aynı "Admin değilse müşteridir" mantığı burada da geçerli - rol değeri "Musteri"
+            // sabitiyle birebir eşleşmese bile (ve Admin de değilse) rozet "Customer" göstermeli.
+            return rol == AppConstants.Roller.Admin ? "Admin" : "Customer";
         }
 
         private static string AvatarHarf(string adSoyad)
