@@ -1,6 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <!-- Visual Studio normalde her Web Application Project şablonuna bu fallback'i otomatik ekler.
+       Bu proje elle oluşturulduğundan eksikti - $(VSToolsPath) bazı build/publish bağlamlarında
+       (özellikle Publish sırasında) önceden ayarlanmamış olabilir; boş kalırsa alttaki
+       Microsoft.WebApplication.targets import'u (Condition="'$(VSToolsPath)' != ''") sessizce
+       atlanır ve bu da "GatherAllFilesToPublish" gibi publish hedeflerinin tanımsız kalmasına,
+       yani "target does not exist in the project" hatasına yol açar. -->
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">15.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
