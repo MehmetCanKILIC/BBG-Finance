@@ -33,6 +33,14 @@ namespace BBGFinance.Data
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)";
         }
 
+        /// <summary>
+        /// Dashboard'daki tarih filtresi CHECK-IN (BeginTravelDate) aralığıdır, satış/rezervasyon
+        /// tarihi (BookingDate) DEĞİL - bu yüzden hem OUTER APPLY'ın içindeki toplamlar (gece/pax/
+        /// iptal durumu) hem de EXISTS koşulu bd.BookingDate yerine l.BeginTravelDate'e göre filtrelenir.
+        /// EXISTS koşulu olmadan OUTER APPLY tek başına yeterli olmazdı: agregasyon alt sorgusu
+        /// GROUP BY içermediğinden eşleşen satır olmasa bile her zaman 1 satır (NULL değerlerle)
+        /// döner, dolayısıyla ToplamRezervasyon aralık dışındaki rezervasyonları da sayardı.
+        /// </summary>
         public static Task<DataTable> GenelOzet(int customerGroupId, DateTime bas, DateTime bit)
         {
             // NOT: OUTER APPLY bir tablo kaynağıdır (FROM/JOIN ile aynı grupta), WHERE'den
@@ -52,9 +60,14 @@ namespace BBGFinance.Data
                            SUM(CASE WHEN " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @" THEN 1 ELSE 0 END) AS AktifSatirSayisi
                     FROM dbo.JP_BookingDetailLine l
                     WHERE l.BookingCode = bd.BookingCode
+                      AND l.BeginTravelDate >= @Bas AND l.BeginTravelDate < @Bit
                 ) satirlar
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
-                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit";
+                  AND EXISTS (
+                      SELECT 1 FROM dbo.JP_BookingDetailLine lx
+                      WHERE lx.BookingCode = bd.BookingCode
+                        AND lx.BeginTravelDate >= @Bas AND lx.BeginTravelDate < @Bit
+                  )";
 
             return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
@@ -63,7 +76,9 @@ namespace BBGFinance.Data
         }
 
         /// <summary>Para birimi bazında sadece SATIŞ ve BEKLEYEN TAHSİLAT (kendi ödeme
-        /// yükümlülüğü) - komisyon/maliyet/kâr burada YOKTUR.</summary>
+        /// yükümlülüğü) - komisyon/maliyet/kâr burada YOKTUR. Tarih filtresi CHECK-IN aralığıdır;
+        /// SellingPrice/OutStandingAmount booking (başlık) seviyesinde tutulduğundan, bu tutarlar
+        /// aralıkta check-in'i OLAN rezervasyonların tamamı için sayılır (satır bazında bölünmez).</summary>
         public static Task<DataTable> ParaBirimiBazliSatis(int customerGroupId, DateTime bas, DateTime bit)
         {
             string sql = @"
@@ -76,7 +91,11 @@ namespace BBGFinance.Data
                          FROM dbo.JP_BookingDetailLine l
                          WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi
                     " + BuildJoin() + @"
-                      AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
+                      AND EXISTS (
+                          SELECT 1 FROM dbo.JP_BookingDetailLine lx
+                          WHERE lx.BookingCode = bd.BookingCode
+                            AND lx.BeginTravelDate >= @Bas AND lx.BeginTravelDate < @Bit
+                      )
                 )
                 SELECT
                     ISNULL(ParaBirimi, 'Belirtilmemiş') AS ParaBirimi,
@@ -92,18 +111,23 @@ namespace BBGFinance.Data
                 ReportDbHelper.Param("@Bit", bit));
         }
 
+        /// <summary>Aylık trend artık CHECK-IN (BeginTravelDate) ayına göre gruplanır - bu yüzden
+        /// booking (başlık) değil satır (JP_BookingDetailLine) esas alınır.</summary>
         public static Task<DataTable> AylikTrend(int customerGroupId, DateTime bas, DateTime bit)
         {
-            // NOT: BookingDate bazı ortamlarda VARCHAR olarak saklanabildiğinden FORMAT()
-            // doğrudan çağrılırsa tip hatası fırlatabilir - önce TRY_CONVERT ile DATETIME'a
-            // çevriliyor (geçersiz değerler NULL olur, FORMAT hataya düşmez).
+            // NOT: BeginTravelDate, GETDATE() ile doğrudan karşılaştırılabilen gerçek bir
+            // tarih/datetime kolonu (bkz. BekleyenGirisler) - bu yüzden BookingDate'in aksine
+            // TRY_CONVERT sarmalamasına ihtiyaç yoktur.
             string sql = @"
                 SELECT
-                    ISNULL(FORMAT(TRY_CONVERT(DATETIME, bd.BookingDate), 'yyyy-MM'), 'Belirtilmemiş') AS Ay,
+                    ISNULL(FORMAT(l.BeginTravelDate, 'yyyy-MM'), 'Belirtilmemiş') AS Ay,
                     COUNT(DISTINCT bd.BookingCode) AS RezervasyonSayisi
-                " + BuildJoin() + @"
-                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
-                GROUP BY ISNULL(FORMAT(TRY_CONVERT(DATETIME, bd.BookingDate), 'yyyy-MM'), 'Belirtilmemiş')
+                FROM dbo.JP_BookingDetailLine l
+                INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
+                INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
+                WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
+                  AND l.BeginTravelDate >= @Bas AND l.BeginTravelDate < @Bit
+                GROUP BY ISNULL(FORMAT(l.BeginTravelDate, 'yyyy-MM'), 'Belirtilmemiş')
                 ORDER BY 1";
 
             return ReportDbHelper.ExecuteQueryAsync(sql,
@@ -126,7 +150,7 @@ namespace BBGFinance.Data
                 INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
                 INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
-                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
+                  AND l.BeginTravelDate >= @Bas AND l.BeginTravelDate < @Bit
                 GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(l.Zonedescription)), ''),
                         ISNULL(NULLIF(LTRIM(RTRIM(l.Zonestate)), ''),
                             ISNULL(NULLIF(LTRIM(RTRIM(l.Zonecountry)), ''), 'Belirtilmemiş')))
@@ -160,7 +184,7 @@ namespace BBGFinance.Data
                     ON " + SqlSafe.JoinEq("rl.BookingCode", "l.BookingCode") + @"
                    AND " + SqlSafe.JoinEq("rl.IdBookLine", "l.IdBookLine") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
-                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
+                  AND l.BeginTravelDate >= @Bas AND l.BeginTravelDate < @Bit
                 GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''),
                         ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş'))
                 ORDER BY ToplamSatis DESC";
@@ -172,7 +196,10 @@ namespace BBGFinance.Data
                 ReportDbHelper.Param("@Bit", bit));
         }
 
-        /// <summary>Yetişkin/Çocuk/Bebek dağılımı. TipPax: 0=Adult, 1=Child, 2=Baby.</summary>
+        /// <summary>Yetişkin/Çocuk/Bebek dağılımı. TipPax: 0=Adult, 1=Child, 2=Baby. Paxes tablosu
+        /// satır (oda/kalem) bazında değil booking bazında ilişkili olduğundan, check-in tarih
+        /// filtresi bir EXISTS ile (booking'in bu aralıkta check-in'i olan en az bir kalemi var mı)
+        /// uygulanır.</summary>
         public static Task<DataTable> YasGrubuDagilimi(int customerGroupId, DateTime bas, DateTime bit)
         {
             string sql = @"
@@ -188,7 +215,11 @@ namespace BBGFinance.Data
                 INNER JOIN dbo.JP_BookingDetail bd ON " + SqlSafe.JoinEq("bd.BookingCode", "px.BookingCode") + @"
                 INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
-                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
+                  AND EXISTS (
+                      SELECT 1 FROM dbo.JP_BookingDetailLine lx
+                      WHERE lx.BookingCode = bd.BookingCode
+                        AND lx.BeginTravelDate >= @Bas AND lx.BeginTravelDate < @Bit
+                  )
                 GROUP BY CASE LTRIM(RTRIM(CONVERT(NVARCHAR(10), px.TipPax)))
                         WHEN '0' THEN 'Yetişkin'
                         WHEN '1' THEN 'Çocuk'
@@ -206,6 +237,8 @@ namespace BBGFinance.Data
         /// <summary>
         /// Milliyet dağılımı - JP_BookingDetail.HolderNacionalidad'a göre (rezervasyon/tutan kişi
         /// bazında). JP_BookingDetailLinePaxes.Country pratikte boş çıktığından kullanılmıyor.
+        /// Check-in tarih filtresi bir EXISTS ile (booking'in bu aralıkta check-in'i olan en az
+        /// bir kalemi var mı) uygulanır.
         /// </summary>
         public static Task<DataTable> MilliyetDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
         {
@@ -216,7 +249,11 @@ namespace BBGFinance.Data
                 FROM dbo.JP_BookingDetail bd
                 INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
-                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
+                  AND EXISTS (
+                      SELECT 1 FROM dbo.JP_BookingDetailLine lx
+                      WHERE lx.BookingCode = bd.BookingCode
+                        AND lx.BeginTravelDate >= @Bas AND lx.BeginTravelDate < @Bit
+                  )
                 GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(bd.HolderNacionalidad)), ''), 'Belirtilmemiş')
                 ORDER BY Adet DESC";
 
@@ -232,8 +269,8 @@ namespace BBGFinance.Data
         /// oda tipi öncelikle JP_BookingDetailLine.ServiceName/ProductTypeName'den alınır (her
         /// zaman dolu); JP_BookingDetailLineRoomList bazı rezervasyonlarda eşleşmediğinden
         /// (BookingCode/IdBookLine uyuşmazlığı) sadece yedek (fallback) ve misafir adı için kullanılır.
-        /// Dashboard'daki tarih filtresine göre bd.BookingDate (satış tarihi) aralığıyla da
-        /// sınırlanır - bu sayede tarih filtresi değiştirildiğinde bu tablo da güncellenir.
+        /// Dashboard'daki tarih filtresi CHECK-IN (BeginTravelDate) aralığıdır; ayrıca "henüz
+        /// gelmemiş" anlamına uyması için check-in bugünden önce olamaz (GETDATE() koşulu korunur).
         /// </summary>
         public static Task<DataTable> BekleyenGirisler(int customerGroupId, DateTime bas, DateTime bit, int topN = 20)
         {
@@ -256,7 +293,7 @@ namespace BBGFinance.Data
                     ON " + SqlSafe.JoinEq("rl.BookingCode", "l.BookingCode") + @"
                    AND " + SqlSafe.JoinEq("rl.IdBookLine", "l.IdBookLine") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
-                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
+                  AND l.BeginTravelDate >= @Bas AND l.BeginTravelDate < @Bit
                   AND l.BeginTravelDate >= CAST(GETDATE() AS DATE)
                   AND " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @"
                 ORDER BY l.BeginTravelDate ASC";

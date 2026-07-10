@@ -31,7 +31,7 @@
                 <span></span><span></span><span></span>
             </button>
             <a href="<%= ResolveUrl(AnaSayfaUrl()) %>" class="app-logo">
-                <img src="bbg.png"  width ="160"/>
+                <img src="<%= ResolveUrl("~/bbg.png") %>" width="160" />
             </a>
         </div>
 

@@ -42,11 +42,11 @@
     <div class="filter-bar">
         <div class="filter-row">
             <div class="filter-item">
-                <label>Start Date</label>
+                <label>Check-in From</label>
                 <div id="dxBaslangicTarihi"></div>
             </div>
             <div class="filter-item">
-                <label>End Date</label>
+                <label>Check-in To</label>
                 <div id="dxBitisTarihi"></div>
             </div>
             <div class="filter-actions">
