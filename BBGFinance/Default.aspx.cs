@@ -14,7 +14,7 @@ namespace BBGFinance
         protected string FilterBitis     = "";
 
         protected void Page_Load(object sender, EventArgs e)
-        {
+        { 
             if (!IsPostBack)
             {
                 lblAdSoyad.Text = SessionManager.AdSoyad;
