@@ -340,19 +340,23 @@ a:hover { text-decoration: underline; }
     overflow: hidden;
     transition: box-shadow .2s, transform .2s;
 }
-.summary-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.summary-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 
 .card-red    { border-top-color: #C0392B; }
 .card-orange { border-top-color: #F9A825; }
 .card-green  { border-top-color: #C2185B; }
-.card-maroon { border-top-color: #8E44AD; }
+.card-maroon { border-top-color: #AD1457; }
 
 .card-icon {
     position: absolute;
-    right: 16px; top: 16px;
-    opacity: .08;
+    right: 18px; top: 18px;
+    opacity: .1;
 }
-.card-icon svg { width: 40px; height: 40px; }
+.card-icon svg { width: 42px; height: 42px; stroke-width: 1.75px; }
+.card-red    .card-icon { color: #C0392B; }
+.card-orange .card-icon { color: #F57F17; }
+.card-green  .card-icon { color: #C2185B; }
+.card-maroon .card-icon { color: #AD1457; }
 
 .card-value {
     font-size: 34px;
@@ -362,7 +366,7 @@ a:hover { text-decoration: underline; }
 .card-red    .card-value { color: #C0392B; }
 .card-orange .card-value { color: #F57F17; }
 .card-green  .card-value { color: #C2185B; }
-.card-maroon .card-value { color: #8E44AD; }
+.card-maroon .card-value { color: #AD1457; }
 
 .card-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
 
@@ -419,9 +423,9 @@ span.badge {
     min-width: auto;
     height: auto;
 }
-.badge-red    { background: #C0392B; color: #fff; }
-.badge-orange { background: #F9A825; color: #212121; }
-.badge-green  { background: #C2185B; color: #fff; }
+.badge-red    { background: #FFEBEE; color: #C62828; }
+.badge-orange { background: #FFF8E1; color: #E65100; }
+.badge-green  { background: #E8F5E9; color: #2E7D32; }
 
 /* ============================================================
    BUTONLAR

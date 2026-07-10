@@ -10,8 +10,8 @@
     <!-- DevExtreme CSS -->
     <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/21.1.5/css/dx.material.purple.light.css" />
     <!-- Site CSS -->
-    <link rel="stylesheet" href="Content/css/site.css" />
-    <link rel="stylesheet" href="Content/css/login.css" />
+    <link rel="stylesheet" href="Content/css/site.css?v=3" />
+    <link rel="stylesheet" href="Content/css/login.css?v=3" />
 </head>
 <body class="login-body">
 

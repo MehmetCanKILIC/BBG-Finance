@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <title>Error - BBG Finance</title>
-    <link rel="stylesheet" href="Content/css/site.css" />
+    <link rel="stylesheet" href="Content/css/site.css?v=3" />
 </head>
 <body style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#F7F8FA;">
     <div style="text-align:center;">

@@ -67,18 +67,21 @@
     ====================================================== -->
     <div class="summary-cards">
         <div class="summary-card card-green">
+            <div class="card-icon"><i data-feather="calendar"></i></div>
             <div class="card-body">
                 <div class="card-value" id="valToplamRezervasyon">0</div>
                 <div class="card-label">Total Reservations</div>
             </div>
         </div>
         <div class="summary-card card-orange">
+            <div class="card-icon"><i data-feather="moon"></i></div>
             <div class="card-body">
                 <div class="card-value" id="valToplamGece">0</div>
                 <div class="card-label">Total Nights</div>
             </div>
         </div>
         <div class="summary-card card-maroon">
+            <div class="card-icon"><i data-feather="users"></i></div>
             <div class="card-body">
                 <div class="card-value" id="valToplamPax">0</div>
                 <div class="card-label">Total Pax</div>
