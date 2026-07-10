@@ -283,19 +283,21 @@
     });
 
     guvenliKur('chartUrunGrubu', function () {
-        DevExpress.viz.dxBarChart({
+        DevExpress.viz.dxChart({
             dataSource: dashboardData.urunGrubu,
-            series: [{ argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Satış', color: '#00695C' }],
+            series: [{ type: 'bar', argumentField: 'UrunGrubu', valueField: 'ToplamSatis', name: 'Satış', color: '#00695C' }],
             rotated: true,
+            legend: { visible: false },
             tooltip: { enabled: true }
         }, document.getElementById('chartUrunGrubu'));
     });
 
     guvenliKur('chartPazar', function () {
-        DevExpress.viz.dxBarChart({
+        DevExpress.viz.dxChart({
             dataSource: dashboardData.pazarDagilim,
-            series: [{ argumentField: 'Pazar', valueField: 'ToplamSatis', name: 'Satış', color: '#F9A825' }],
+            series: [{ type: 'bar', argumentField: 'Pazar', valueField: 'ToplamSatis', name: 'Satış', color: '#F9A825' }],
             rotated: true,
+            legend: { visible: false },
             tooltip: { enabled: true }
         }, document.getElementById('chartPazar'));
     });

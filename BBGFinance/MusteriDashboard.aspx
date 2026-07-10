@@ -255,10 +255,11 @@
     });
 
     guvenliKur('chartOdaTipi', function () {
-        DevExpress.viz.dxBarChart({
+        DevExpress.viz.dxChart({
             dataSource: dashboardData.odaTipiDagilim,
-            series: [{ argumentField: 'OdaTipi', valueField: 'OdaSayisi', name: 'Oda Sayısı', color: '#00695C' }],
+            series: [{ type: 'bar', argumentField: 'OdaTipi', valueField: 'OdaSayisi', name: 'Oda Sayısı', color: '#00695C' }],
             rotated: true,
+            legend: { visible: false },
             tooltip: { enabled: true }
         }, document.getElementById('chartOdaTipi'));
     });
@@ -274,10 +275,11 @@
     });
 
     guvenliKur('chartMilliyet', function () {
-        DevExpress.viz.dxBarChart({
+        DevExpress.viz.dxChart({
             dataSource: dashboardData.milliyetDagilim,
-            series: [{ argumentField: 'Milliyet', valueField: 'Adet', name: 'Yolcu Sayısı', color: '#F9A825' }],
+            series: [{ type: 'bar', argumentField: 'Milliyet', valueField: 'Adet', name: 'Yolcu Sayısı', color: '#F9A825' }],
             rotated: true,
+            legend: { visible: false },
             tooltip: { enabled: true }
         }, document.getElementById('chartMilliyet'));
     });
