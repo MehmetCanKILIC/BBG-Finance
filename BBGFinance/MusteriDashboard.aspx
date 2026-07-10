@@ -229,6 +229,7 @@
                 placeholder: 'gg.aa.yyyy', value: initBitis || null
             }, document.getElementById('dxBitisTarihi'));
         } catch (ex) {
+            console.log(typeof jQuery, jQuery && jQuery.fn && jQuery.fn.jquery, DevExpress.VERSION)
             console.error('Tarih filtresi render edilemedi:', ex);
         }
     }

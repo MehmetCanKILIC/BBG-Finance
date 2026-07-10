@@ -13,7 +13,7 @@ namespace BBGFinance
     /// Admin bu sayfaya erişebilir (kendi CustomerGroupId'si olmadığından veri boş döner);
     /// Musteri rolü ise Default.aspx / Modules/Rezervasyonlar sayfalarına AdminBase tarafından
     /// sokulmaz, sadece burayı görür.
-    /// </summary>
+    /// </summary> 
     public partial class MusteriDashboard : AuthBase
     {
         protected string DashboardJson = "{}";
