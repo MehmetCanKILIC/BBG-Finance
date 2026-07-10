@@ -24,9 +24,7 @@
     <span>Dashboard</span>
 </asp:Content>
 
-<asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server">
-    Welcome, <asp:Label ID="lblAdSoyad" runat="server" />
-</asp:Content>
+<asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server"></asp:Content>
 
 <asp:Content ID="cPageSubtitle" ContentPlaceHolderID="cphPageSubtitle" runat="server">
     <asp:Label ID="lblTarih" runat="server" />
@@ -265,10 +263,9 @@
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.aylikTrend,
             series: [
-                { valueField: 'RezervasyonSayisi', name: 'Reservations', type: 'bar', color: '#C2185B' },
-                { valueField: 'IptalSayisi', name: 'Cancellations', type: 'bar', color: '#C0392B' }
+                { argumentField: 'Ay', valueField: 'RezervasyonSayisi', name: 'Reservations', type: 'bar', color: '#C2185B' },
+                { argumentField: 'Ay', valueField: 'IptalSayisi', name: 'Cancellations', type: 'bar', color: '#C0392B' }
             ],
-            argumentField: 'Ay',
             argumentAxis: { argumentType: 'string' },
             legend: { visible: true, verticalAlignment: 'bottom', horizontalAlignment: 'center' },
             tooltip: { enabled: true }

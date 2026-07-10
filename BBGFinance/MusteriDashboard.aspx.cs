@@ -1,12 +1,14 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using BBGFinance.Core;
 using BBGFinance.Data;
 using Newtonsoft.Json;
 
 namespace BBGFinance
-{ 
+{
     /// <summary>
     /// Simplified dashboard for the Customer (agency) role. Cost/Profit/Commission/Supplier
     /// information is NEVER present on this page or in the MusteriRaporRepository queries behind it.
@@ -24,8 +26,7 @@ namespace BBGFinance
         {
             if (!IsPostBack)
             {
-                lblAdSoyad.Text = SessionManager.AdSoyad;
-                lblTarih.Text   = DateTime.Now.ToString("dd MMMM yyyy, dddd",
+                lblTarih.Text = DateTime.Now.ToString("dd MMMM yyyy, dddd",
                                     new System.Globalization.CultureInfo("en-US"));
 
                 DateTime bas, bit;
@@ -72,12 +73,13 @@ namespace BBGFinance
             }
 
             int customerGroupId = grupId.Value;
-            var hatalar = new List<string>();
+            var hatalar = new ConcurrentBag<string>();
 
-            // Each query runs inside its OWN try/catch - if one of them fails (e.g. a legacy
-            // column type mismatch), only that widget stays empty; every other successfully
-            // loaded section (summary, region, nationality, etc.) is preserved.
-            data["ozet"] = Guvenli(() =>
+            // Her rapor sorgusu KENDİ SqlConnection'ını açtığından (bkz. ReportDbHelper) birbirinden
+            // bağımsızdır - sırayla değil, paralel olarak çalıştırılır. İlk açılışta sayfanın yavaş
+            // gelmesinin ana nedeni bu 7 sorgunun art arda (toplamları kadar) beklenmesiydi; paralel
+            // çalıştırıldığında toplam süre en yavaş tek sorgu kadar olur.
+            var ozetTask            = GuvenliAsync(() =>
             {
                 var dtOzet = MusteriRaporRepository.GenelOzet(customerGroupId, bas, bit);
                 int toplamRezervasyon = 0, toplamGece = 0, toplamPax = 0;
@@ -91,13 +93,25 @@ namespace BBGFinance
                 return (object)new { ToplamRezervasyon = toplamRezervasyon, ToplamGece = toplamGece, ToplamPax = toplamPax };
             }, new { ToplamRezervasyon = 0, ToplamGece = 0, ToplamPax = 0 }, "ozet", hatalar);
 
-            data["satis"]            = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.ParaBirimiBazliSatis(customerGroupId, bas, bit)), new object[0], "satis", hatalar);
-            data["aylikTrend"]       = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.AylikTrend(customerGroupId, bas, bit)), new object[0], "aylikTrend", hatalar);
-            data["bolgeDagilim"]     = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.BolgeDagilimi(customerGroupId, bas, bit)), new object[0], "bolgeDagilim", hatalar);
-            data["odaTipiDagilim"]   = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.OdaTipiDagilimi(customerGroupId, bas, bit)), new object[0], "odaTipiDagilim", hatalar);
-            data["yasGrubuDagilim"]  = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.YasGrubuDagilimi(customerGroupId, bas, bit)), new object[0], "yasGrubuDagilim", hatalar);
-            data["milliyetDagilim"]  = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.MilliyetDagilimi(customerGroupId, bas, bit)), new object[0], "milliyetDagilim", hatalar);
-            data["bekleyenGirisler"] = Guvenli(() => (object)TabloyaÇevir(MusteriRaporRepository.BekleyenGirisler(customerGroupId, 20)), new object[0], "bekleyenGirisler", hatalar);
+            var satisTask           = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.ParaBirimiBazliSatis(customerGroupId, bas, bit)), new object[0], "satis", hatalar);
+            var aylikTrendTask      = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.AylikTrend(customerGroupId, bas, bit)), new object[0], "aylikTrend", hatalar);
+            var bolgeDagilimTask    = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.BolgeDagilimi(customerGroupId, bas, bit)), new object[0], "bolgeDagilim", hatalar);
+            var odaTipiDagilimTask  = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.OdaTipiDagilimi(customerGroupId, bas, bit)), new object[0], "odaTipiDagilim", hatalar);
+            var yasGrubuDagilimTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.YasGrubuDagilimi(customerGroupId, bas, bit)), new object[0], "yasGrubuDagilim", hatalar);
+            var milliyetDagilimTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.MilliyetDagilimi(customerGroupId, bas, bit)), new object[0], "milliyetDagilim", hatalar);
+            var bekleyenGirislerTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.BekleyenGirisler(customerGroupId, 20)), new object[0], "bekleyenGirisler", hatalar);
+
+            Task.WaitAll(ozetTask, satisTask, aylikTrendTask, bolgeDagilimTask, odaTipiDagilimTask,
+                yasGrubuDagilimTask, milliyetDagilimTask, bekleyenGirislerTask);
+
+            data["ozet"]             = ozetTask.Result;
+            data["satis"]            = satisTask.Result;
+            data["aylikTrend"]       = aylikTrendTask.Result;
+            data["bolgeDagilim"]     = bolgeDagilimTask.Result;
+            data["odaTipiDagilim"]   = odaTipiDagilimTask.Result;
+            data["yasGrubuDagilim"]  = yasGrubuDagilimTask.Result;
+            data["milliyetDagilim"]  = milliyetDagilimTask.Result;
+            data["bekleyenGirisler"] = bekleyenGirislerTask.Result;
 
             if (hatalar.Count > 0)
             {
@@ -107,17 +121,20 @@ namespace BBGFinance
             return JsonConvert.SerializeObject(data);
         }
 
-        private static object Guvenli(Func<object> sorgu, object varsayilan, string alanAdi, List<string> hatalar)
+        private static Task<object> GuvenliAsync(Func<object> sorgu, object varsayilan, string alanAdi, ConcurrentBag<string> hatalar)
         {
-            try
+            return Task.Run(() =>
             {
-                return sorgu();
-            }
-            catch (Exception ex)
-            {
-                hatalar.Add(alanAdi + ": " + ex.Message);
-                return varsayilan;
-            }
+                try
+                {
+                    return sorgu();
+                }
+                catch (Exception ex)
+                {
+                    hatalar.Add(alanAdi + ": " + ex.Message);
+                    return varsayilan;
+                }
+            });
         }
 
         private static List<Dictionary<string, object>> TabloyaÇevir(DataTable dt)

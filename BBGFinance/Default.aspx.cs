@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using BBGFinance.Core;
 using BBGFinance.Data;
 using Newtonsoft.Json;
@@ -14,11 +16,10 @@ namespace BBGFinance
         protected string FilterBitis     = "";
 
         protected void Page_Load(object sender, EventArgs e)
-        { 
+        {
             if (!IsPostBack)
             {
-                lblAdSoyad.Text = SessionManager.AdSoyad;
-                lblTarih.Text   = DateTime.Now.ToString("dd MMMM yyyy, dddd",
+                lblTarih.Text = DateTime.Now.ToString("dd MMMM yyyy, dddd",
                                     new System.Globalization.CultureInfo("en-US"));
 
                 DateTime bas, bit;
@@ -47,8 +48,14 @@ namespace BBGFinance
         private string DashboardVerisiniHazirla(DateTime bas, DateTime bit)
         {
             var data = new Dictionary<string, object>();
+            var hatalar = new ConcurrentBag<string>();
 
-            try
+            // Her rapor sorgusu KENDİ SqlConnection'ını açtığından (bkz. ReportDbHelper) birbirinden
+            // bağımsızdır - sırayla değil, paralel olarak çalıştırılır. İlk açılışta sayfanın yavaş
+            // gelmesinin ana nedeni bu sorguların art arda (toplamları kadar) beklenmesiydi; paralel
+            // çalıştırıldığında toplam süre en yavaş tek sorgu kadar olur. Ayrıca her sorgu KENDİ
+            // try/catch'i içinde çalışır - biri hata verirse sadece o widget boş kalır.
+            var ozetTask = GuvenliAsync(() =>
             {
                 var dtOzet = RezervasyonRepository.GenelOzet(bas, bit);
                 int toplamRezervasyon = 0, iptalSayisi = 0, toplamGece = 0, toplamPax = 0;
@@ -64,7 +71,7 @@ namespace BBGFinance
                     ? Math.Round((decimal)iptalSayisi / toplamRezervasyon * 100, 1)
                     : 0;
 
-                data["ozet"] = new
+                return (object)new
                 {
                     ToplamRezervasyon = toplamRezervasyon,
                     IptalSayisi       = iptalSayisi,
@@ -72,33 +79,54 @@ namespace BBGFinance
                     ToplamGece        = toplamGece,
                     ToplamPax         = toplamPax
                 };
+            }, new { ToplamRezervasyon = 0, IptalSayisi = 0, IptalOrani = (decimal)0, ToplamGece = 0, ToplamPax = 0 }, "ozet", hatalar);
 
-                data["finansal"]      = TabloyaÇevir(RezervasyonRepository.ParaBirimiBazliTutarlar(bas, bit));
-                data["kar"]           = TabloyaÇevir(RezervasyonRepository.ParaBirimiBazliKar(bas, bit));
-                data["aylikTrend"]    = TabloyaÇevir(RezervasyonRepository.AylikTrend(bas, bit));
-                data["kanalDagilim"]  = TabloyaÇevir(RezervasyonRepository.KanalDagilimi(bas, bit));
-                data["urunGrubu"]     = TabloyaÇevir(RezervasyonRepository.UrunGrubuDagilimi(bas, bit));
-                data["pazarDagilim"]  = TabloyaÇevir(RezervasyonRepository.PazarDagilimi(bas, bit));
-                data["tedarikci"]     = TabloyaÇevir(RezervasyonRepository.TedarikciDagilimi(bas, bit));
-                data["sonRezervasyonlar"]    = TabloyaÇevir(RezervasyonRepository.SonRezervasyonlar(10));
-                data["yaklasanKonaklamalar"] = TabloyaÇevir(RezervasyonRepository.YaklasanKonaklamalar(10));
-            }
-            catch (Exception ex)
+            var finansalTask            = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.ParaBirimiBazliTutarlar(bas, bit)), new object[0], "finansal", hatalar);
+            var karTask                 = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.ParaBirimiBazliKar(bas, bit)), new object[0], "kar", hatalar);
+            var aylikTrendTask          = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.AylikTrend(bas, bit)), new object[0], "aylikTrend", hatalar);
+            var kanalDagilimTask        = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.KanalDagilimi(bas, bit)), new object[0], "kanalDagilim", hatalar);
+            var urunGrubuTask           = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.UrunGrubuDagilimi(bas, bit)), new object[0], "urunGrubu", hatalar);
+            var pazarDagilimTask        = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.PazarDagilimi(bas, bit)), new object[0], "pazarDagilim", hatalar);
+            var tedarikciTask           = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.TedarikciDagilimi(bas, bit)), new object[0], "tedarikci", hatalar);
+            var sonRezervasyonlarTask   = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.SonRezervasyonlar(10)), new object[0], "sonRezervasyonlar", hatalar);
+            var yaklasanKonaklamalarTask = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.YaklasanKonaklamalar(10)), new object[0], "yaklasanKonaklamalar", hatalar);
+
+            Task.WaitAll(ozetTask, finansalTask, karTask, aylikTrendTask, kanalDagilimTask,
+                urunGrubuTask, pazarDagilimTask, tedarikciTask, sonRezervasyonlarTask, yaklasanKonaklamalarTask);
+
+            data["ozet"]                 = ozetTask.Result;
+            data["finansal"]             = finansalTask.Result;
+            data["kar"]                  = karTask.Result;
+            data["aylikTrend"]           = aylikTrendTask.Result;
+            data["kanalDagilim"]         = kanalDagilimTask.Result;
+            data["urunGrubu"]            = urunGrubuTask.Result;
+            data["pazarDagilim"]         = pazarDagilimTask.Result;
+            data["tedarikci"]            = tedarikciTask.Result;
+            data["sonRezervasyonlar"]    = sonRezervasyonlarTask.Result;
+            data["yaklasanKonaklamalar"] = yaklasanKonaklamalarTask.Result;
+
+            if (hatalar.Count > 0)
             {
-                data["hata"] = ex.Message;
-                data["ozet"] = new { ToplamRezervasyon = 0, IptalSayisi = 0, IptalOrani = 0, ToplamGece = 0, ToplamPax = 0 };
-                data["finansal"] = new object[0];
-                data["kar"] = new object[0];
-                data["aylikTrend"] = new object[0];
-                data["kanalDagilim"] = new object[0];
-                data["urunGrubu"] = new object[0];
-                data["pazarDagilim"] = new object[0];
-                data["tedarikci"] = new object[0];
-                data["sonRezervasyonlar"] = new object[0];
-                data["yaklasanKonaklamalar"] = new object[0];
+                data["hata"] = string.Join(" | ", hatalar);
             }
 
             return JsonConvert.SerializeObject(data);
+        }
+
+        private static Task<object> GuvenliAsync(Func<object> sorgu, object varsayilan, string alanAdi, ConcurrentBag<string> hatalar)
+        {
+            return Task.Run(() =>
+            {
+                try
+                {
+                    return sorgu();
+                }
+                catch (Exception ex)
+                {
+                    hatalar.Add(alanAdi + ": " + ex.Message);
+                    return varsayilan;
+                }
+            });
         }
 
         private static List<Dictionary<string, object>> TabloyaÇevir(DataTable dt)

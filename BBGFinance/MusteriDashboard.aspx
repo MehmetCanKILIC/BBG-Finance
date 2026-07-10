@@ -24,16 +24,10 @@
     <span>Dashboard</span>
 </asp:Content>
 
-<asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server">
-    Welcome, <asp:Label ID="lblAdSoyad" runat="server" />
-</asp:Content>
+<asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server"></asp:Content>
 
 <asp:Content ID="cPageSubtitle" ContentPlaceHolderID="cphPageSubtitle" runat="server">
     <asp:Label ID="lblTarih" runat="server" />
-</asp:Content>
-
-<asp:Content ID="cPageActions" ContentPlaceHolderID="cphPageActions" runat="server">
-    <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Musteri/Liste.aspx") %>" class="btn-search" style="text-decoration:none;display:inline-block;">My Reservations</a>
 </asp:Content>
 
 <asp:Content ID="cContent" ContentPlaceHolderID="cphContent" runat="server">
@@ -248,8 +242,7 @@
     guvenliKur('chartTrend', function () {
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.aylikTrend,
-            series: [{ valueField: 'RezervasyonSayisi', name: 'Reservations', type: 'bar', color: '#C2185B' }],
-            argumentField: 'Ay',
+            series: [{ argumentField: 'Ay', valueField: 'RezervasyonSayisi', name: 'Reservations', type: 'bar', color: '#C2185B' }],
             argumentAxis: { argumentType: 'string' },
             legend: { visible: false },
             tooltip: { enabled: true }

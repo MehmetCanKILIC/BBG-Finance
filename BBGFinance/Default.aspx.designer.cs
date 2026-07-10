@@ -8,7 +8,6 @@ namespace BBGFinance
 {
     public partial class Default
     {
-        protected global::System.Web.UI.WebControls.Label lblAdSoyad;
         protected global::System.Web.UI.WebControls.Label lblTarih;
     }
 }
