@@ -139,7 +139,7 @@
                 { dataField: 'Cost',             caption: 'Maliyet', width: 110, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
                 { dataField: 'Commission',       caption: 'Komisyon', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
                 { dataField: 'Profit',           caption: 'Kâr', width: 100, dataType: 'number', format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-                { dataField: 'LineCancelled',    caption: 'Durum', width: 80,
+                { dataField: 'LineIptalMi',      caption: 'Durum', width: 80,
                   cellTemplate: function (c, o) {
                       $('<span>').addClass('badge ' + (o.value ? 'badge-red' : 'badge-green')).text(o.value ? 'İptal' : 'Aktif').appendTo(c);
                   }

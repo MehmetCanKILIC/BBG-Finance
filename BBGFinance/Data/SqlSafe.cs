@@ -26,5 +26,24 @@ namespace BBGFinance.Data
         {
             return Txt(a) + " = " + Txt(b);
         }
+
+        /// <summary>
+        /// Gerçek iptal göstergesi JP_BookingDetailLine.LineCancelledDate'tir (JP_BookingDetail.CancelDate
+        /// DEĞİL - o kolon iptal edilmemiş kayıtlarda bile 1900-01-01 sentinel değeriyle dolu, hiçbir
+        /// zaman gerçek NULL olmuyor). LineCancelledDate de aynı deseni izleyebileceğinden hem NULL hem
+        /// de 1900-01-01 sentinel'i "iptal değil" sayılır.
+        /// </summary>
+        public static string SatirAktifMi(string lineCancelledDateKolonu)
+        {
+            return "(" + lineCancelledDateKolonu + " IS NULL OR " + lineCancelledDateKolonu + " <= '19000101')";
+        }
+
+        /// <summary>Bir rezervasyon (BookingCode), en az bir aktif (iptal olmayan) kalemi varsa aktif sayılır.</summary>
+        public static string RezervasyonAktifMi(string bookingCodeIfadesi, string altSorguAlias = "_l")
+        {
+            return "EXISTS (SELECT 1 FROM dbo.JP_BookingDetailLine " + altSorguAlias +
+                   " WHERE " + altSorguAlias + ".BookingCode = " + bookingCodeIfadesi +
+                   " AND " + SatirAktifMi(altSorguAlias + ".LineCancelledDate") + ")";
+        }
     }
 }

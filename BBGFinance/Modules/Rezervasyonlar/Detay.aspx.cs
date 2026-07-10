@@ -39,7 +39,7 @@ namespace BBGFinance.Modules.Rezervasyonlar
             litBookingCode.Text = Metin(r, "BookingCode");
             litBaslik.Text      = Metin(r, "BookingCode");
 
-            bool iptalMi = r["CancelDate"] != DBNull.Value;
+            bool iptalMi = BitMetin(r, "TumSatirlarIptal");
             litDurum.Text        = iptalMi ? "İptal" : "Aktif";
             litDurum.CssClass    = "badge " + (iptalMi ? "badge-red" : "badge-green");
 

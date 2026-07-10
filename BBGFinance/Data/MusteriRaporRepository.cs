@@ -37,14 +37,15 @@ namespace BBGFinance.Data
             string sql = @"
                 SELECT
                     COUNT(DISTINCT bd.BookingCode) AS ToplamRezervasyon,
-                    SUM(CASE WHEN bd.CancelDate IS NOT NULL THEN 1 ELSE 0 END) AS IptalSayisi,
+                    SUM(CASE WHEN ISNULL(satirlar.AktifSatirSayisi, 0) = 0 THEN 1 ELSE 0 END) AS IptalSayisi,
                     ISNULL(SUM(satirlar.ToplamGece), 0) AS ToplamGece,
                     ISNULL(SUM(satirlar.ToplamPax), 0)  AS ToplamPax
                 FROM dbo.JP_BookingDetail bd
                 INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
                 OUTER APPLY (
                     SELECT SUM(ISNULL(" + SqlSafe.Num("l.NightsNumber") + @", 0)) AS ToplamGece,
-                           SUM(ISNULL(" + SqlSafe.Num("l.PaxNumber") + @", 0))    AS ToplamPax
+                           SUM(ISNULL(" + SqlSafe.Num("l.PaxNumber") + @", 0))    AS ToplamPax,
+                           SUM(CASE WHEN " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @" THEN 1 ELSE 0 END) AS AktifSatirSayisi
                     FROM dbo.JP_BookingDetailLine l
                     WHERE l.BookingCode = bd.BookingCode
                 ) satirlar
@@ -185,19 +186,21 @@ namespace BBGFinance.Data
                 ReportDbHelper.Param("@Bit", bit));
         }
 
-        /// <summary>Milliyet (ülke) dağılımı - yolcuların Country alanına göre.</summary>
+        /// <summary>
+        /// Milliyet dağılımı - JP_BookingDetail.HolderNacionalidad'a göre (rezervasyon/tutan kişi
+        /// bazında). JP_BookingDetailLinePaxes.Country pratikte boş çıktığından kullanılmıyor.
+        /// </summary>
         public static DataTable MilliyetDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
         {
             string sql = @"
                 SELECT TOP (@TopN)
-                    ISNULL(NULLIF(LTRIM(RTRIM(px.Country)), ''), 'Belirtilmemiş') AS Milliyet,
-                    COUNT(*) AS Adet
-                FROM dbo.JP_BookingDetailLinePaxes px
-                INNER JOIN dbo.JP_BookingDetail bd ON " + SqlSafe.JoinEq("bd.BookingCode", "px.BookingCode") + @"
+                    ISNULL(NULLIF(LTRIM(RTRIM(bd.HolderNacionalidad)), ''), 'Belirtilmemiş') AS Milliyet,
+                    COUNT(DISTINCT bd.BookingCode) AS Adet
+                FROM dbo.JP_BookingDetail bd
                 INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
                   AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
-                GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(px.Country)), ''), 'Belirtilmemiş')
+                GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(bd.HolderNacionalidad)), ''), 'Belirtilmemiş')
                 ORDER BY Adet DESC";
 
             return ReportDbHelper.ExecuteQuery(sql,
@@ -228,8 +231,7 @@ namespace BBGFinance.Data
                    AND " + SqlSafe.JoinEq("rl.IdBookLine", "l.IdBookLine") + @"
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
                   AND l.BeginTravelDate >= CAST(GETDATE() AS DATE)
-                  AND ISNULL(l.LineCancelled, 0) = 0
-                  AND bd.CancelDate IS NULL
+                  AND " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @"
                 ORDER BY l.BeginTravelDate ASC";
 
             return ReportDbHelper.ExecuteQuery(sql,

@@ -14,9 +14,11 @@ namespace BBGFinance.Data
     /// JP_BookingDetail = rezervasyon başlığı (bir BookingCode = bir rezervasyon).
     /// JP_BookingDetailLine = rezervasyon kalemleri (otel/hizmet satırları, fiyat/kar/tedarikçi bilgisi).
     ///
-    /// Status kolonunun değer kümesi (kod anlamları) bilinmediğinden iptal tespiti bu katmanda
-    /// Status'a değil, kendini açıklayan CancelDate (başlık) ve LineCancelled (kalem) alanlarına
-    /// göre yapılır.
+    /// Gerçek iptal göstergesi JP_BookingDetailLine.LineCancelledDate'tir. (JP_BookingDetail.CancelDate
+    /// KULLANILMAZ - bu kolon iptal edilmemiş kayıtlarda bile 1900-01-01 sentinel değeriyle doludur,
+    /// hiçbir zaman gerçek SQL NULL olmaz; ham haliyle "IS NOT NULL" kontrolü her zaman true döner.)
+    /// Bir rezervasyon (BookingCode), en az bir aktif (iptal olmayan) kalemi varsa aktif sayılır -
+    /// bkz. SqlSafe.RezervasyonAktifMi / SatirAktifMi.
     ///
     /// JP_ROIBEDS'te sayısal görünümlü alanlar (tutar/adet/gece vb.) VARCHAR olarak tutulur;
     /// bu yüzden toplama (SUM/AVG) veya sayısal karşılaştırma öncesinde <see cref="Num"/> ile
@@ -40,13 +42,14 @@ namespace BBGFinance.Data
             string sql = @"
                 SELECT
                     COUNT(DISTINCT bd.BookingCode) AS ToplamRezervasyon,
-                    SUM(CASE WHEN bd.CancelDate IS NOT NULL THEN 1 ELSE 0 END) AS IptalSayisi,
+                    SUM(CASE WHEN ISNULL(satirlar.AktifSatirSayisi, 0) = 0 THEN 1 ELSE 0 END) AS IptalSayisi,
                     ISNULL(SUM(satirlar.ToplamGece), 0) AS ToplamGece,
                     ISNULL(SUM(satirlar.ToplamPax), 0)  AS ToplamPax
                 FROM dbo.JP_BookingDetail bd
                 OUTER APPLY (
                     SELECT SUM(ISNULL(" + Num("l.NightsNumber") + @", 0)) AS ToplamGece,
-                           SUM(ISNULL(" + Num("l.PaxNumber") + @", 0))    AS ToplamPax
+                           SUM(ISNULL(" + Num("l.PaxNumber") + @", 0))    AS ToplamPax,
+                           SUM(CASE WHEN " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @" THEN 1 ELSE 0 END) AS AktifSatirSayisi
                     FROM dbo.JP_BookingDetailLine l
                     WHERE l.BookingCode = bd.BookingCode
                 ) satirlar
@@ -115,11 +118,11 @@ namespace BBGFinance.Data
 
         public static DataTable AylikTrend(DateTime bas, DateTime bit)
         {
-            const string sql = @"
+            string sql = @"
                 SELECT
                     FORMAT(bd.BookingDate, 'yyyy-MM') AS Ay,
                     COUNT(DISTINCT bd.BookingCode) AS RezervasyonSayisi,
-                    SUM(CASE WHEN bd.CancelDate IS NOT NULL THEN 1 ELSE 0 END) AS IptalSayisi
+                    SUM(CASE WHEN " + SqlSafe.RezervasyonAktifMi("bd.BookingCode") + @" THEN 0 ELSE 1 END) AS IptalSayisi
                 FROM dbo.JP_BookingDetail bd
                 WHERE bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
                 GROUP BY FORMAT(bd.BookingDate, 'yyyy-MM')
@@ -215,7 +218,7 @@ namespace BBGFinance.Data
                     " + Num("bd.SellingPrice") + @" AS SellingPrice,
                     (SELECT TOP 1 l.SellCurrency FROM dbo.JP_BookingDetailLine l
                      WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi,
-                    CASE WHEN bd.CancelDate IS NOT NULL THEN 1 ELSE 0 END AS IptalMi
+                    CASE WHEN " + SqlSafe.RezervasyonAktifMi("bd.BookingCode") + @" THEN 0 ELSE 1 END AS IptalMi
                 FROM dbo.JP_BookingDetail bd
                 ORDER BY bd.BookingDate DESC";
 
@@ -236,8 +239,7 @@ namespace BBGFinance.Data
                 FROM dbo.JP_BookingDetailLine l
                 INNER JOIN dbo.JP_BookingDetail bd ON bd.BookingCode = l.BookingCode
                 WHERE l.BeginTravelDate >= CAST(GETDATE() AS DATE)
-                  AND ISNULL(l.LineCancelled, 0) = 0
-                  AND bd.CancelDate IS NULL
+                  AND " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @"
                 ORDER BY l.BeginTravelDate ASC";
 
             return ReportDbHelper.ExecuteQuery(sql, ReportDbHelper.Param("@TopN", topN));
@@ -264,9 +266,9 @@ namespace BBGFinance.Data
                 parametreler.Add(ReportDbHelper.Param("@Bit", bit.Value.AddDays(1)));
             }
             if (durum == "Aktif")
-                where.Append(" AND bd.CancelDate IS NULL ");
+                where.Append(" AND " + SqlSafe.RezervasyonAktifMi("bd.BookingCode") + " ");
             else if (durum == "Iptal")
-                where.Append(" AND bd.CancelDate IS NOT NULL ");
+                where.Append(" AND NOT " + SqlSafe.RezervasyonAktifMi("bd.BookingCode") + " ");
 
             if (!string.IsNullOrEmpty(kanal))
             {
@@ -286,7 +288,7 @@ namespace BBGFinance.Data
                     bd.Id,
                     bd.BookingCode,
                     bd.BookingDate,
-                    CASE WHEN bd.CancelDate IS NOT NULL THEN 'Iptal' ELSE 'Aktif' END AS Durum,
+                    CASE WHEN " + SqlSafe.RezervasyonAktifMi("bd.BookingCode") + @" THEN 'Aktif' ELSE 'Iptal' END AS Durum,
                     ISNULL(bd.CustomerName, '') AS CustomerName,
                     ISNULL(bd.AgentName, '')    AS AgentName,
                     ISNULL(bd.Channel, '')      AS Channel,
@@ -329,6 +331,7 @@ namespace BBGFinance.Data
             string sql = @"
                 SELECT
                     bd.Logicalref, bd.Id, bd.Status, bd.CancelDate,
+                    CASE WHEN " + SqlSafe.RezervasyonAktifMi("bd.BookingCode") + @" THEN 0 ELSE 1 END AS TumSatirlarIptal,
                     bd.tcNumber, bd.tcAccountNumber,
                     " + Num("bd.tcPointsAmount") + @" AS tcPointsAmount,
                     bd.BookingLabel, bd.InvoiceFinalCustomer,
@@ -364,6 +367,7 @@ namespace BBGFinance.Data
                 SELECT
                     l.Logicalref, l.IdBookLine, l.BookingCode, l.Status, l.LineDate,
                     l.LineCancelled, l.LineCancelledDate,
+                    CASE WHEN " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @" THEN 0 ELSE 1 END AS LineIptalMi,
                     " + Num("l.LineMarkup") + @" AS LineMarkup,
                     l.Externalreference, l.ExternalClientBookingNo, l.DirectPayment, l.PaymentAtDestination,
                     l.NumPackage, l.NonRefundable, l.LineCancellationChargesDate, l.SupplierLocator, l.Blocked,

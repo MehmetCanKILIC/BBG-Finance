@@ -290,7 +290,7 @@
     guvenliKur('chartMilliyet', function () {
         dxOlustur(DevExpress.viz.dxChart, {
             dataSource: dashboardData.milliyetDagilim,
-            series: [{ type: 'bar', argumentField: 'Milliyet', valueField: 'Adet', name: 'Yolcu Sayısı', color: '#F9A825' }],
+            series: [{ type: 'bar', argumentField: 'Milliyet', valueField: 'Adet', name: 'Rezervasyon Sayısı', color: '#F9A825' }],
             rotated: true,
             legend: { visible: false },
             tooltip: { enabled: true }
