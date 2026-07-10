@@ -273,12 +273,19 @@
     });
 
     guvenliKur('chartKanal', function () {
+        // Çok sayıda küçük dilim olduğunda bağlantı çizgili etiketler üst üste biniyordu;
+        // etiketleri kapatıp legend + tooltip'e (üzerine gelince) taşındı.
         dxOlustur(DevExpress.viz.dxPieChart, {
             dataSource: dashboardData.kanalDagilim,
-            series: [{ argumentField: 'Kanal', valueField: 'Adet', label: { visible: true, connector: { visible: true } } }],
-            palette: ['#00695C', '#F9A825', '#26A69A', '#8E44AD', '#546E7A'],
-            legend: { visible: true },
-            tooltip: { enabled: true }
+            series: [{ argumentField: 'Kanal', valueField: 'Adet', label: { visible: false } }],
+            palette: ['#00695C', '#F9A825', '#26A69A', '#8E44AD', '#546E7A', '#1976D2', '#C0392B', '#7F8C8D', '#16A085', '#D35400'],
+            legend: { visible: true, horizontalAlignment: 'center', verticalAlignment: 'bottom', margin: { top: 10 } },
+            tooltip: {
+                enabled: true,
+                customizeTooltip: function (arg) {
+                    return { text: arg.argumentText + ': ' + arg.valueText + ' (' + arg.percentText + ')' };
+                }
+            }
         }, document.getElementById('chartKanal'));
     });
 
