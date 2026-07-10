@@ -1,4 +1,4 @@
-<%@ Page Title="Dashboard" Language="C#" MasterPageFile="~/Site.Master"
+<%@ Page Title="Dashboard" Language="C#" MasterPageFile="~/Site.Master" Async="true" AsyncTimeout="00:02:00"
          AutoEventWireup="true" CodeBehind="MusteriDashboard.aspx.cs" Inherits="BBGFinance.MusteriDashboard"
          ContentType="text/html" ResponseEncoding="UTF-8" %>
 
@@ -51,7 +51,7 @@
             </div>
             <div class="filter-actions">
                 <button type="button" class="btn-search" onclick="filtreyiUygula()">Apply</button>
-                <button type="button" class="btn-clear"  onclick="filtreyiTemizle()">Last 6 Months</button>
+                <button type="button" class="btn-clear"  onclick="filtreyiTemizle()">Last 2 Months</button>
             </div>
         </div>
     </div>

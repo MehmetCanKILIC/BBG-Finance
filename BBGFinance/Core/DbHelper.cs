@@ -2,6 +2,7 @@ using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 
 namespace BBGFinance.Core
 {
@@ -62,6 +63,16 @@ namespace BBGFinance.Core
             return SqlHelperCore.ExecuteQuery(GetConnection, sql, parameters);
         }
 
+        /// <summary>Gerçek async ADO.NET çağrısı (OpenAsync/ExecuteReaderAsync) - DataTable.Load
+        /// senkron bir reader tüketimi olsa da, DB'ye gidip cevap BEKLEME kısmı I/O tamamlanma
+        /// portlarını kullanır ve thread'i BLOKE ETMEZ. Dashboard'daki paralel rapor sorguları
+        /// bunu kullanır - Task.Run + senkron Fill() ThreadPool worker thread'lerini I/O boyunca
+        /// meşgul tutuyordu, bu ise tutmaz.</summary>
+        public static Task<DataTable> ExecuteQueryAsync(string sql, params SqlParameter[] parameters)
+        {
+            return SqlHelperCore.ExecuteQueryAsync(GetConnection, sql, parameters);
+        }
+
         public static object ExecuteScalar(string sql, params SqlParameter[] parameters)
         {
             return SqlHelperCore.ExecuteScalar(GetConnection, sql, parameters);
@@ -92,6 +103,22 @@ namespace BBGFinance.Core
                 con.Open();
                 using (var adapter = new SqlDataAdapter(cmd))
                     adapter.Fill(dt);
+            }
+            return dt;
+        }
+
+        public static async Task<DataTable> ExecuteQueryAsync(Func<SqlConnection> connFactory, string sql, SqlParameter[] parameters)
+        {
+            var dt = new DataTable();
+            using (var con = connFactory())
+            using (var cmd = new SqlCommand(sql, con))
+            {
+                cmd.CommandTimeout = 60;
+                if (parameters != null)
+                    cmd.Parameters.AddRange(parameters);
+                await con.OpenAsync().ConfigureAwait(false);
+                using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+                    dt.Load(reader);
             }
             return dt;
         }

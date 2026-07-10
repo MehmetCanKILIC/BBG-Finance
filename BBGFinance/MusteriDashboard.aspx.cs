@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using System.Web.UI;
 using BBGFinance.Core;
 using BBGFinance.Data;
 using Newtonsoft.Json;
@@ -34,7 +35,15 @@ namespace BBGFinance
                 FilterBaslangic = bas.ToString("yyyy-MM-dd");
                 FilterBitis     = bit.AddDays(-1).ToString("yyyy-MM-dd");
 
-                DashboardJson = DashboardVerisiniHazirla(bas, bit);
+                // @Page Async="true" ile birlikte kayıtlı bu görev bitene kadar ASP.NET
+                // sayfayı render etmez - DashboardJson dolu olarak render'a girer. Gerçek
+                // async ADO.NET (bkz. ReportDbHelper.ExecuteQueryAsync) kullanıldığından bu
+                // 7 rapor sorgusu ThreadPool worker thread'lerini I/O boyunca MEŞGUL ETMEDEN
+                // paralel çalışır (eski Task.Run + senkron sorgu yaklaşımının aksine).
+                RegisterAsyncTask(new PageAsyncTask(async () =>
+                {
+                    DashboardJson = await DashboardVerisiniHazirlaAsync(bas, bit).ConfigureAwait(false);
+                }));
             }
         }
 
@@ -47,11 +56,11 @@ namespace BBGFinance
             bool basVar = DateTime.TryParse(basStr, out basParsed);
             bool bitVar = DateTime.TryParse(bitStr, out bitParsed);
 
-            bas = basVar ? basParsed.Date : DateTime.Today.AddMonths(-6).Date;
+            bas = basVar ? basParsed.Date : DateTime.Today.AddMonths(-2).Date;
             bit = bitVar ? bitParsed.Date.AddDays(1) : DateTime.Today.AddDays(1);
         }
 
-        private string DashboardVerisiniHazirla(DateTime bas, DateTime bit)
+        private async Task<string> DashboardVerisiniHazirlaAsync(DateTime bas, DateTime bit)
         {
             var data = new Dictionary<string, object>();
 
@@ -76,12 +85,11 @@ namespace BBGFinance
             var hatalar = new ConcurrentBag<string>();
 
             // Her rapor sorgusu KENDİ SqlConnection'ını açtığından (bkz. ReportDbHelper) birbirinden
-            // bağımsızdır - sırayla değil, paralel olarak çalıştırılır. İlk açılışta sayfanın yavaş
-            // gelmesinin ana nedeni bu 7 sorgunun art arda (toplamları kadar) beklenmesiydi; paralel
-            // çalıştırıldığında toplam süre en yavaş tek sorgu kadar olur.
-            var ozetTask            = GuvenliAsync(() =>
+            // bağımsızdır - sırayla değil, paralel olarak çalıştırılır. Ayrıca her sorgu KENDİ
+            // try/catch'i içinde çalışır - biri hata verirse sadece o widget boş kalır.
+            var ozetTask = Guvenli(async () =>
             {
-                var dtOzet = MusteriRaporRepository.GenelOzet(customerGroupId, bas, bit);
+                var dtOzet = await MusteriRaporRepository.GenelOzet(customerGroupId, bas, bit).ConfigureAwait(false);
                 int toplamRezervasyon = 0, toplamGece = 0, toplamPax = 0;
                 if (dtOzet.Rows.Count > 0)
                 {
@@ -93,16 +101,16 @@ namespace BBGFinance
                 return (object)new { ToplamRezervasyon = toplamRezervasyon, ToplamGece = toplamGece, ToplamPax = toplamPax };
             }, new { ToplamRezervasyon = 0, ToplamGece = 0, ToplamPax = 0 }, "ozet", hatalar);
 
-            var satisTask           = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.ParaBirimiBazliSatis(customerGroupId, bas, bit)), new object[0], "satis", hatalar);
-            var aylikTrendTask      = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.AylikTrend(customerGroupId, bas, bit)), new object[0], "aylikTrend", hatalar);
-            var bolgeDagilimTask    = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.BolgeDagilimi(customerGroupId, bas, bit)), new object[0], "bolgeDagilim", hatalar);
-            var odaTipiDagilimTask  = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.OdaTipiDagilimi(customerGroupId, bas, bit)), new object[0], "odaTipiDagilim", hatalar);
-            var yasGrubuDagilimTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.YasGrubuDagilimi(customerGroupId, bas, bit)), new object[0], "yasGrubuDagilim", hatalar);
-            var milliyetDagilimTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.MilliyetDagilimi(customerGroupId, bas, bit)), new object[0], "milliyetDagilim", hatalar);
-            var bekleyenGirislerTask = GuvenliAsync(() => (object)TabloyaÇevir(MusteriRaporRepository.BekleyenGirisler(customerGroupId, bas, bit, 20)), new object[0], "bekleyenGirisler", hatalar);
+            var satisTask           = Guvenli(async () => (object)TabloyaÇevir(await MusteriRaporRepository.ParaBirimiBazliSatis(customerGroupId, bas, bit).ConfigureAwait(false)), new object[0], "satis", hatalar);
+            var aylikTrendTask      = Guvenli(async () => (object)TabloyaÇevir(await MusteriRaporRepository.AylikTrend(customerGroupId, bas, bit).ConfigureAwait(false)), new object[0], "aylikTrend", hatalar);
+            var bolgeDagilimTask    = Guvenli(async () => (object)TabloyaÇevir(await MusteriRaporRepository.BolgeDagilimi(customerGroupId, bas, bit).ConfigureAwait(false)), new object[0], "bolgeDagilim", hatalar);
+            var odaTipiDagilimTask  = Guvenli(async () => (object)TabloyaÇevir(await MusteriRaporRepository.OdaTipiDagilimi(customerGroupId, bas, bit).ConfigureAwait(false)), new object[0], "odaTipiDagilim", hatalar);
+            var yasGrubuDagilimTask = Guvenli(async () => (object)TabloyaÇevir(await MusteriRaporRepository.YasGrubuDagilimi(customerGroupId, bas, bit).ConfigureAwait(false)), new object[0], "yasGrubuDagilim", hatalar);
+            var milliyetDagilimTask = Guvenli(async () => (object)TabloyaÇevir(await MusteriRaporRepository.MilliyetDagilimi(customerGroupId, bas, bit).ConfigureAwait(false)), new object[0], "milliyetDagilim", hatalar);
+            var bekleyenGirislerTask = Guvenli(async () => (object)TabloyaÇevir(await MusteriRaporRepository.BekleyenGirisler(customerGroupId, bas, bit, 20).ConfigureAwait(false)), new object[0], "bekleyenGirisler", hatalar);
 
-            Task.WaitAll(ozetTask, satisTask, aylikTrendTask, bolgeDagilimTask, odaTipiDagilimTask,
-                yasGrubuDagilimTask, milliyetDagilimTask, bekleyenGirislerTask);
+            await Task.WhenAll(ozetTask, satisTask, aylikTrendTask, bolgeDagilimTask, odaTipiDagilimTask,
+                yasGrubuDagilimTask, milliyetDagilimTask, bekleyenGirislerTask).ConfigureAwait(false);
 
             data["ozet"]             = ozetTask.Result;
             data["satis"]            = satisTask.Result;
@@ -121,20 +129,17 @@ namespace BBGFinance
             return JsonConvert.SerializeObject(data);
         }
 
-        private static Task<object> GuvenliAsync(Func<object> sorgu, object varsayilan, string alanAdi, ConcurrentBag<string> hatalar)
+        private static async Task<object> Guvenli(Func<Task<object>> sorgu, object varsayilan, string alanAdi, ConcurrentBag<string> hatalar)
         {
-            return Task.Run(() =>
+            try
             {
-                try
-                {
-                    return sorgu();
-                }
-                catch (Exception ex)
-                {
-                    hatalar.Add(alanAdi + ": " + ex.Message);
-                    return varsayilan;
-                }
-            });
+                return await sorgu().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                hatalar.Add(alanAdi + ": " + ex.Message);
+                return varsayilan;
+            }
         }
 
         private static List<Dictionary<string, object>> TabloyaÇevir(DataTable dt)

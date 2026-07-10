@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Text;
+using System.Threading.Tasks;
 using BBGFinance.Core;
 
 namespace BBGFinance.Data
@@ -32,7 +33,7 @@ namespace BBGFinance.Data
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)";
         }
 
-        public static DataTable GenelOzet(int customerGroupId, DateTime bas, DateTime bit)
+        public static Task<DataTable> GenelOzet(int customerGroupId, DateTime bas, DateTime bit)
         {
             // NOT: OUTER APPLY bir tablo kaynağıdır (FROM/JOIN ile aynı grupta), WHERE'den
             // ÖNCE gelmelidir - bu yüzden burada BuildJoin() (WHERE'i baştan ekler) yerine
@@ -55,7 +56,7 @@ namespace BBGFinance.Data
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
                   AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit";
 
-            return ReportDbHelper.ExecuteQuery(sql,
+            return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
                 ReportDbHelper.Param("@Bas", bas),
                 ReportDbHelper.Param("@Bit", bit));
@@ -63,7 +64,7 @@ namespace BBGFinance.Data
 
         /// <summary>Para birimi bazında sadece SATIŞ ve BEKLEYEN TAHSİLAT (kendi ödeme
         /// yükümlülüğü) - komisyon/maliyet/kâr burada YOKTUR.</summary>
-        public static DataTable ParaBirimiBazliSatis(int customerGroupId, DateTime bas, DateTime bit)
+        public static Task<DataTable> ParaBirimiBazliSatis(int customerGroupId, DateTime bas, DateTime bit)
         {
             string sql = @"
                 ;WITH Rez AS (
@@ -85,13 +86,13 @@ namespace BBGFinance.Data
                 GROUP BY ISNULL(ParaBirimi, 'Belirtilmemiş')
                 ORDER BY ToplamSatis DESC";
 
-            return ReportDbHelper.ExecuteQuery(sql,
+            return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
                 ReportDbHelper.Param("@Bas", bas),
                 ReportDbHelper.Param("@Bit", bit));
         }
 
-        public static DataTable AylikTrend(int customerGroupId, DateTime bas, DateTime bit)
+        public static Task<DataTable> AylikTrend(int customerGroupId, DateTime bas, DateTime bit)
         {
             // NOT: BookingDate bazı ortamlarda VARCHAR olarak saklanabildiğinden FORMAT()
             // doğrudan çağrılırsa tip hatası fırlatabilir - önce TRY_CONVERT ile DATETIME'a
@@ -105,14 +106,14 @@ namespace BBGFinance.Data
                 GROUP BY ISNULL(FORMAT(TRY_CONVERT(DATETIME, bd.BookingDate), 'yyyy-MM'), 'Belirtilmemiş')
                 ORDER BY 1";
 
-            return ReportDbHelper.ExecuteQuery(sql,
+            return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
                 ReportDbHelper.Param("@Bas", bas),
                 ReportDbHelper.Param("@Bit", bit));
         }
 
         /// <summary>Bölge dağılımı: JP_BookingDetailLine'daki Zone alanları esas alınır.</summary>
-        public static DataTable BolgeDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
+        public static Task<DataTable> BolgeDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
         {
             string sql = @"
                 SELECT TOP (@TopN)
@@ -131,7 +132,7 @@ namespace BBGFinance.Data
                             ISNULL(NULLIF(LTRIM(RTRIM(l.Zonecountry)), ''), 'Belirtilmemiş')))
                 ORDER BY ToplamSatis DESC";
 
-            return ReportDbHelper.ExecuteQuery(sql,
+            return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@TopN", topN),
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
                 ReportDbHelper.Param("@Bas", bas),
@@ -144,7 +145,7 @@ namespace BBGFinance.Data
         /// bazı rezervasyonlarda eşleşmediğinden (BookingCode/IdBookLine uyuşmazlığı) sadece
         /// yedek (fallback) olarak LEFT JOIN ile kullanılır.
         /// </summary>
-        public static DataTable OdaTipiDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
+        public static Task<DataTable> OdaTipiDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
         {
             string sql = @"
                 SELECT TOP (@TopN)
@@ -164,7 +165,7 @@ namespace BBGFinance.Data
                         ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş'))
                 ORDER BY ToplamSatis DESC";
 
-            return ReportDbHelper.ExecuteQuery(sql,
+            return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@TopN", topN),
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
                 ReportDbHelper.Param("@Bas", bas),
@@ -172,7 +173,7 @@ namespace BBGFinance.Data
         }
 
         /// <summary>Yetişkin/Çocuk/Bebek dağılımı. TipPax: 0=Adult, 1=Child, 2=Baby.</summary>
-        public static DataTable YasGrubuDagilimi(int customerGroupId, DateTime bas, DateTime bit)
+        public static Task<DataTable> YasGrubuDagilimi(int customerGroupId, DateTime bas, DateTime bit)
         {
             string sql = @"
                 SELECT
@@ -196,7 +197,7 @@ namespace BBGFinance.Data
                     END
                 ORDER BY Adet DESC";
 
-            return ReportDbHelper.ExecuteQuery(sql,
+            return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
                 ReportDbHelper.Param("@Bas", bas),
                 ReportDbHelper.Param("@Bit", bit));
@@ -206,7 +207,7 @@ namespace BBGFinance.Data
         /// Milliyet dağılımı - JP_BookingDetail.HolderNacionalidad'a göre (rezervasyon/tutan kişi
         /// bazında). JP_BookingDetailLinePaxes.Country pratikte boş çıktığından kullanılmıyor.
         /// </summary>
-        public static DataTable MilliyetDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
+        public static Task<DataTable> MilliyetDagilimi(int customerGroupId, DateTime bas, DateTime bit, int topN = 10)
         {
             string sql = @"
                 SELECT TOP (@TopN)
@@ -219,7 +220,7 @@ namespace BBGFinance.Data
                 GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(bd.HolderNacionalidad)), ''), 'Belirtilmemiş')
                 ORDER BY Adet DESC";
 
-            return ReportDbHelper.ExecuteQuery(sql,
+            return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@TopN", topN),
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
                 ReportDbHelper.Param("@Bas", bas),
@@ -234,7 +235,7 @@ namespace BBGFinance.Data
         /// Dashboard'daki tarih filtresine göre bd.BookingDate (satış tarihi) aralığıyla da
         /// sınırlanır - bu sayede tarih filtresi değiştirildiğinde bu tablo da güncellenir.
         /// </summary>
-        public static DataTable BekleyenGirisler(int customerGroupId, DateTime bas, DateTime bit, int topN = 20)
+        public static Task<DataTable> BekleyenGirisler(int customerGroupId, DateTime bas, DateTime bit, int topN = 20)
         {
             string sql = @"
                 SELECT TOP (@TopN)
@@ -260,7 +261,7 @@ namespace BBGFinance.Data
                   AND " + SqlSafe.SatirAktifMi("l.LineCancelledDate") + @"
                 ORDER BY l.BeginTravelDate ASC";
 
-            return ReportDbHelper.ExecuteQuery(sql,
+            return ReportDbHelper.ExecuteQueryAsync(sql,
                 ReportDbHelper.Param("@Bas", bas),
                 ReportDbHelper.Param("@Bit", bit),
                 ReportDbHelper.Param("@TopN", topN),

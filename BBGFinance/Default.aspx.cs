@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using System.Web.UI;
 using BBGFinance.Core;
 using BBGFinance.Data;
 using Newtonsoft.Json;
@@ -27,7 +28,15 @@ namespace BBGFinance
                 FilterBaslangic = bas.ToString("yyyy-MM-dd");
                 FilterBitis     = bit.AddDays(-1).ToString("yyyy-MM-dd");
 
-                DashboardJson = DashboardVerisiniHazirla(bas, bit);
+                // @Page Async="true" ile birlikte kayıtlı bu görev bitene kadar ASP.NET
+                // sayfayı render etmez - DashboardJson dolu olarak render'a girer. Gerçek
+                // async ADO.NET (bkz. ReportDbHelper.ExecuteQueryAsync) kullanıldığından bu
+                // 10 rapor sorgusu ThreadPool worker thread'lerini I/O boyunca MEŞGUL ETMEDEN
+                // paralel çalışır (eski Task.Run + senkron sorgu yaklaşımının aksine).
+                RegisterAsyncTask(new PageAsyncTask(async () =>
+                {
+                    DashboardJson = await DashboardVerisiniHazirlaAsync(bas, bit).ConfigureAwait(false);
+                }));
             }
         }
 
@@ -41,23 +50,21 @@ namespace BBGFinance
             bool basVar = DateTime.TryParse(basStr, out basParsed);
             bool bitVar = DateTime.TryParse(bitStr, out bitParsed);
 
-            bas = basVar ? basParsed.Date : DateTime.Today.AddMonths(-6).Date;
+            bas = basVar ? basParsed.Date : DateTime.Today.AddMonths(-2).Date;
             bit = bitVar ? bitParsed.Date.AddDays(1) : DateTime.Today.AddDays(1);
         }
 
-        private string DashboardVerisiniHazirla(DateTime bas, DateTime bit)
+        private async Task<string> DashboardVerisiniHazirlaAsync(DateTime bas, DateTime bit)
         {
             var data = new Dictionary<string, object>();
             var hatalar = new ConcurrentBag<string>();
 
             // Her rapor sorgusu KENDİ SqlConnection'ını açtığından (bkz. ReportDbHelper) birbirinden
-            // bağımsızdır - sırayla değil, paralel olarak çalıştırılır. İlk açılışta sayfanın yavaş
-            // gelmesinin ana nedeni bu sorguların art arda (toplamları kadar) beklenmesiydi; paralel
-            // çalıştırıldığında toplam süre en yavaş tek sorgu kadar olur. Ayrıca her sorgu KENDİ
+            // bağımsızdır - sırayla değil, paralel olarak çalıştırılır. Ayrıca her sorgu KENDİ
             // try/catch'i içinde çalışır - biri hata verirse sadece o widget boş kalır.
-            var ozetTask = GuvenliAsync(() =>
+            var ozetTask = Guvenli(async () =>
             {
-                var dtOzet = RezervasyonRepository.GenelOzet(bas, bit);
+                var dtOzet = await RezervasyonRepository.GenelOzet(bas, bit).ConfigureAwait(false);
                 int toplamRezervasyon = 0, iptalSayisi = 0, toplamGece = 0, toplamPax = 0;
                 if (dtOzet.Rows.Count > 0)
                 {
@@ -81,18 +88,18 @@ namespace BBGFinance
                 };
             }, new { ToplamRezervasyon = 0, IptalSayisi = 0, IptalOrani = (decimal)0, ToplamGece = 0, ToplamPax = 0 }, "ozet", hatalar);
 
-            var finansalTask            = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.ParaBirimiBazliTutarlar(bas, bit)), new object[0], "finansal", hatalar);
-            var karTask                 = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.ParaBirimiBazliKar(bas, bit)), new object[0], "kar", hatalar);
-            var aylikTrendTask          = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.AylikTrend(bas, bit)), new object[0], "aylikTrend", hatalar);
-            var kanalDagilimTask        = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.KanalDagilimi(bas, bit)), new object[0], "kanalDagilim", hatalar);
-            var urunGrubuTask           = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.UrunGrubuDagilimi(bas, bit)), new object[0], "urunGrubu", hatalar);
-            var pazarDagilimTask        = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.PazarDagilimi(bas, bit)), new object[0], "pazarDagilim", hatalar);
-            var tedarikciTask           = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.TedarikciDagilimi(bas, bit)), new object[0], "tedarikci", hatalar);
-            var sonRezervasyonlarTask   = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.SonRezervasyonlar(bas, bit, 10)), new object[0], "sonRezervasyonlar", hatalar);
-            var yaklasanKonaklamalarTask = GuvenliAsync(() => (object)TabloyaÇevir(RezervasyonRepository.YaklasanKonaklamalar(bas, bit, 10)), new object[0], "yaklasanKonaklamalar", hatalar);
+            var finansalTask            = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.ParaBirimiBazliTutarlar(bas, bit).ConfigureAwait(false)), new object[0], "finansal", hatalar);
+            var karTask                 = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.ParaBirimiBazliKar(bas, bit).ConfigureAwait(false)), new object[0], "kar", hatalar);
+            var aylikTrendTask          = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.AylikTrend(bas, bit).ConfigureAwait(false)), new object[0], "aylikTrend", hatalar);
+            var kanalDagilimTask        = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.KanalDagilimi(bas, bit).ConfigureAwait(false)), new object[0], "kanalDagilim", hatalar);
+            var urunGrubuTask           = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.UrunGrubuDagilimi(bas, bit).ConfigureAwait(false)), new object[0], "urunGrubu", hatalar);
+            var pazarDagilimTask        = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.PazarDagilimi(bas, bit).ConfigureAwait(false)), new object[0], "pazarDagilim", hatalar);
+            var tedarikciTask           = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.TedarikciDagilimi(bas, bit).ConfigureAwait(false)), new object[0], "tedarikci", hatalar);
+            var sonRezervasyonlarTask   = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.SonRezervasyonlar(bas, bit, 10).ConfigureAwait(false)), new object[0], "sonRezervasyonlar", hatalar);
+            var yaklasanKonaklamalarTask = Guvenli(async () => (object)TabloyaÇevir(await RezervasyonRepository.YaklasanKonaklamalar(bas, bit, 10).ConfigureAwait(false)), new object[0], "yaklasanKonaklamalar", hatalar);
 
-            Task.WaitAll(ozetTask, finansalTask, karTask, aylikTrendTask, kanalDagilimTask,
-                urunGrubuTask, pazarDagilimTask, tedarikciTask, sonRezervasyonlarTask, yaklasanKonaklamalarTask);
+            await Task.WhenAll(ozetTask, finansalTask, karTask, aylikTrendTask, kanalDagilimTask,
+                urunGrubuTask, pazarDagilimTask, tedarikciTask, sonRezervasyonlarTask, yaklasanKonaklamalarTask).ConfigureAwait(false);
 
             data["ozet"]                 = ozetTask.Result;
             data["finansal"]             = finansalTask.Result;
@@ -113,20 +120,17 @@ namespace BBGFinance
             return JsonConvert.SerializeObject(data);
         }
 
-        private static Task<object> GuvenliAsync(Func<object> sorgu, object varsayilan, string alanAdi, ConcurrentBag<string> hatalar)
+        private static async Task<object> Guvenli(Func<Task<object>> sorgu, object varsayilan, string alanAdi, ConcurrentBag<string> hatalar)
         {
-            return Task.Run(() =>
+            try
             {
-                try
-                {
-                    return sorgu();
-                }
-                catch (Exception ex)
-                {
-                    hatalar.Add(alanAdi + ": " + ex.Message);
-                    return varsayilan;
-                }
-            });
+                return await sorgu().ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                hatalar.Add(alanAdi + ": " + ex.Message);
+                return varsayilan;
+            }
         }
 
         private static List<Dictionary<string, object>> TabloyaÇevir(DataTable dt)
