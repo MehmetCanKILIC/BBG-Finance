@@ -31,20 +31,25 @@ namespace BBGFinance.Data
 
         public static DataTable GenelOzet(int customerGroupId, DateTime bas, DateTime bit)
         {
+            // NOT: OUTER APPLY bir tablo kaynağıdır (FROM/JOIN ile aynı grupta), WHERE'den
+            // ÖNCE gelmelidir - bu yüzden burada BuildJoin() (WHERE'i baştan ekler) yerine
+            // JOIN'ü elle yazıp WHERE'i en sona koyuyoruz.
             string sql = @"
                 SELECT
                     COUNT(DISTINCT bd.BookingCode) AS ToplamRezervasyon,
                     SUM(CASE WHEN bd.CancelDate IS NOT NULL THEN 1 ELSE 0 END) AS IptalSayisi,
                     ISNULL(SUM(satirlar.ToplamGece), 0) AS ToplamGece,
                     ISNULL(SUM(satirlar.ToplamPax), 0)  AS ToplamPax
-                " + BuildJoin() + @"
-                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit
+                FROM dbo.JP_BookingDetail bd
+                INNER JOIN dbo.JP_Customer c ON " + SqlSafe.JoinEq("bd.CustomerId", "c.Id") + @"
                 OUTER APPLY (
                     SELECT SUM(ISNULL(" + SqlSafe.Num("l.NightsNumber") + @", 0)) AS ToplamGece,
                            SUM(ISNULL(" + SqlSafe.Num("l.PaxNumber") + @", 0))    AS ToplamPax
                     FROM dbo.JP_BookingDetailLine l
                     WHERE l.BookingCode = bd.BookingCode
-                ) satirlar";
+                ) satirlar
+                WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
+                  AND bd.BookingDate >= @Bas AND bd.BookingDate < @Bit";
 
             return ReportDbHelper.ExecuteQuery(sql,
                 ReportDbHelper.Param("@CustomerGroupId", customerGroupId),
