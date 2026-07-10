@@ -204,3 +204,148 @@ GO
 
 CREATE INDEX IX_JP_BookingDetailLine_BookingCode ON dbo.JP_BookingDetailLine(BookingCode);
 GO
+
+-- ============================================================
+-- JP_Customer: müşteri/acente ana tablosu. CustomerGroupId çoklu
+-- müşteri (tenant) izolasyonunun anahtarıdır - bkz. MusteriRaporRepository.
+-- ============================================================
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('dbo.JP_Customer') AND type = 'U')
+CREATE TABLE dbo.JP_Customer (
+    Id                                  INT IDENTITY(1,1) PRIMARY KEY,
+    Name                                NVARCHAR(200)   NULL,
+    RegistrationName                    NVARCHAR(200)   NULL,
+    CustomerGroup                       NVARCHAR(100)   NULL,
+    CustomerGroupId                     INT             NULL,
+    ClientRefNumber                     NVARCHAR(50)    NULL,
+    Category_Id                         NVARCHAR(50)    NULL,
+    Category__text                      NVARCHAR(100)   NULL,
+    AgencyGroup_Id                      NVARCHAR(50)    NULL,
+    AgencyGroup__text                   NVARCHAR(100)   NULL,
+    Channel_Id                          NVARCHAR(50)    NULL,
+    Channel__text                       NVARCHAR(100)   NULL,
+    LastModified                        DATETIME        NULL,
+    CustomerManager                     NVARCHAR(100)   NULL,
+    AccountManager                      NVARCHAR(100)   NULL,
+    DefaultCountry_Id                   NVARCHAR(50)    NULL,
+    DefaultCountry__text                NVARCHAR(100)   NULL,
+    Integrator                          NVARCHAR(100)   NULL,
+    BranchOffice                        NVARCHAR(100)   NULL,
+    Login                               NVARCHAR(100)   NULL,
+    ContactContactName                  NVARCHAR(150)   NULL,
+    ContactCompanyName                  NVARCHAR(200)   NULL,
+    ContactRemarks                      NVARCHAR(1000)  NULL,
+    ContactPhone1                       NVARCHAR(50)    NULL,
+    ContactPhone2                       NVARCHAR(50)    NULL,
+    ContactMobile                       NVARCHAR(50)    NULL,
+    ContactFax                          NVARCHAR(50)    NULL,
+    ContactEmail                        NVARCHAR(150)   NULL,
+    ContactAddress                      NVARCHAR(300)   NULL,
+    ContactAddressNumber                NVARCHAR(20)    NULL,
+    ContactAddressBuilding              NVARCHAR(100)   NULL,
+    ContactCountry                      NVARCHAR(100)   NULL,
+    ContactCity_ZIP                     NVARCHAR(50)    NULL,
+    ContactState                        NVARCHAR(100)   NULL,
+    ContactDistrict                     NVARCHAR(100)   NULL,
+    ContactTown                         NVARCHAR(100)   NULL,
+    InvoicingDetailsContactName         NVARCHAR(150)   NULL,
+    InvoicingDetailsCreditCard1         NVARCHAR(50)    NULL,
+    InvoicingDetailsCreditCard2         NVARCHAR(50)    NULL,
+    InvoicingDetailsInvoiceContact      NVARCHAR(150)   NULL,
+    InvoicingDetailsAccountRefNumber    NVARCHAR(50)    NULL,
+    InvoicingDetailsCompanyName         NVARCHAR(200)   NULL,
+    InvoicingDetailsPhone1              NVARCHAR(50)    NULL,
+    InvoicingDetailsPhone2              NVARCHAR(50)    NULL,
+    InvoicingDetailsFax                 NVARCHAR(50)    NULL,
+    InvoicingDetailsMobile              NVARCHAR(50)    NULL,
+    InvoicingDetailsEmail               NVARCHAR(150)   NULL,
+    InvoicingDetailsAddress             NVARCHAR(300)   NULL,
+    InvoicingDetailsAddressNumber       NVARCHAR(20)    NULL,
+    InvoicingDetailsAddressBuilding     NVARCHAR(100)   NULL,
+    InvoicingDetailsCountry             NVARCHAR(100)   NULL,
+    InvoicingDetailsCity_ZIP            NVARCHAR(50)    NULL,
+    InvoicingDetailsState               NVARCHAR(100)   NULL,
+    InvoicingDetailsCreditLimit_CurrencyCode   NVARCHAR(10)  NULL,
+    InvoicingDetailsBillingLimit_CurrencyCode  NVARCHAR(10)  NULL,
+    InvoicingDetailsBankAccountsAllowed  BIT             NULL,
+    InvoicingDetails_TaxId              NVARCHAR(50)    NULL,
+    InvoicingDetails_TradeCode          NVARCHAR(50)    NULL,
+    InvoicingDetails_PaymentTerms       NVARCHAR(100)   NULL,
+    Type                                NVARCHAR(50)    NULL,
+    -- Bu müşterinin kendi komisyon tutarını görüp göremeyeceğini belirler (BBG Finance
+    -- portalında: SeesCommission=0 ise komisyon her durumda gizlenir).
+    SeesCommission                      BIT             NULL,
+    CategoryLeader                      NVARCHAR(100)   NULL,
+    GroupLeader                         NVARCHAR(100)   NULL,
+    CreationDate                        DATETIME        NULL,
+    ActivationDate                      DATETIME        NULL,
+    Active                              BIT             NULL,
+    AgencyRefRequired                   BIT             NULL,
+    IATA                                NVARCHAR(50)    NULL,
+    AgencyExternalRefRequired           BIT             NULL,
+    PaymentType                         NVARCHAR(50)    NULL,
+    Market                              NVARCHAR(100)   NULL,
+    ServiceStatus                       NVARCHAR(50)    NULL
+);
+GO
+
+CREATE INDEX IX_JP_Customer_CustomerGroupId ON dbo.JP_Customer(CustomerGroupId);
+GO
+
+-- ============================================================
+-- JP_BookingDetailLineRoomList: rezervasyon kalemi başına oda/otel bilgisi.
+-- Not: costroom (maliyet) BBG Finance portalında müşteri sorgularına ASLA dahil edilmez.
+-- ============================================================
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('dbo.JP_BookingDetailLineRoomList') AND type = 'U')
+CREATE TABLE dbo.JP_BookingDetailLineRoomList (
+    Logicalref          INT IDENTITY(1,1) PRIMARY KEY,
+    BookingCode         NVARCHAR(50)    NOT NULL,
+    IdBookLine          INT             NULL,
+    hotelcode           NVARCHAR(50)    NULL,
+    namehotel           NVARCHAR(200)   NULL,
+    addressline         NVARCHAR(300)   NULL,
+    JPCode              NVARCHAR(50)    NULL,
+    typeroom            NVARCHAR(50)    NULL,
+    typeroomname        NVARCHAR(150)   NULL,
+    roomnumber          NVARCHAR(20)    NULL,
+    priceroom           DECIMAL(18,2)   NULL,
+    costroom            DECIMAL(18,2)   NULL,
+    boardtype           NVARCHAR(50)    NULL,
+    name                NVARCHAR(100)   NULL,
+    lastname             NVARCHAR(100)   NULL,
+    CaducidadDocumento   DATETIME        NULL,
+    typepax             NVARCHAR(50)    NULL,
+    bookingemail         NVARCHAR(150)   NULL
+);
+GO
+
+CREATE INDEX IX_JP_BookingDetailLineRoomList_BookingCode ON dbo.JP_BookingDetailLineRoomList(BookingCode, IdBookLine);
+GO
+
+-- ============================================================
+-- JP_BookingDetailLinePaxes: rezervasyon kalemi başına yolcu (misafir) bilgisi.
+-- TipPax: 0 = Yetişkin, 1 = Çocuk, 2 = Bebek.
+-- ============================================================
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID('dbo.JP_BookingDetailLinePaxes') AND type = 'U')
+CREATE TABLE dbo.JP_BookingDetailLinePaxes (
+    Logicalref          INT IDENTITY(1,1) PRIMARY KEY,
+    BookingCode         NVARCHAR(50)    NOT NULL,
+    IdBookLine          INT             NULL,
+    Id                  NVARCHAR(50)    NULL,
+    Name                NVARCHAR(100)   NULL,
+    LastName            NVARCHAR(100)   NULL,
+    TipPax              INT             NULL,
+    Age                 INT             NULL,
+    Born                DATETIME        NULL,
+    City                NVARCHAR(100)   NULL,
+    ZIP                 NVARCHAR(20)    NULL,
+    Country             NVARCHAR(100)   NULL,
+    TipoDocumento       NVARCHAR(50)    NULL,
+    NumeroDocumento     NVARCHAR(50)    NULL,
+    CaducidadDocumento  DATETIME        NULL,
+    Email               NVARCHAR(150)   NULL,
+    ReferenceNumber     NVARCHAR(50)    NULL
+);
+GO
+
+CREATE INDEX IX_JP_BookingDetailLinePaxes_BookingCode ON dbo.JP_BookingDetailLinePaxes(BookingCode, IdBookLine);
+GO

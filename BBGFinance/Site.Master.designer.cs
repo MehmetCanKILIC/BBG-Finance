@@ -13,6 +13,7 @@ namespace BBGFinance
         protected global::System.Web.UI.WebControls.Label lblRol;
         protected global::System.Web.UI.WebControls.LinkButton lnkCikis;
         protected global::System.Web.UI.WebControls.Panel pnlBreadcrumb;
+        protected global::System.Web.UI.WebControls.Panel pnlAdminMenu;
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphTitle;
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphHead;
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphBreadcrumb;

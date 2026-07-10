@@ -34,4 +34,21 @@ namespace BBGFinance.Core
             get { return AdminMi ? null : SessionManager.CustomerGroupId; }
         }
     }
+
+    /// <summary>
+    /// SADECE Admin rolünün erişebildiği sayfalar için (ciro/kâr/tedarikçi/komisyon gibi
+    /// müşterilerin asla görmemesi gereken verileri içeren tüm sayfalar bundan türemelidir).
+    /// Musteri rolü buraya URL ile doğrudan gelmeye çalışırsa MusteriDashboard.aspx'e atılır.
+    /// </summary>
+    public abstract class AdminBase : AuthBase
+    {
+        protected override void OnInit(EventArgs e)
+        {
+            base.OnInit(e);
+            if (!AdminMi)
+            {
+                Response.Redirect("~/MusteriDashboard.aspx", true);
+            }
+        }
+    }
 }

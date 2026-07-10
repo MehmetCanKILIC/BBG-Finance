@@ -19,6 +19,9 @@ namespace BBGFinance
                 lblAdSoyad.Text = SessionManager.AdSoyad;
                 lblRol.Text     = RolEtiket(SessionManager.Rol);
                 lblAvatar.Text  = AvatarHarf(SessionManager.AdSoyad);
+
+                // Rezervasyonlar menüsü (maliyet/kâr/tedarikçi içerir) sadece Admin'e gösterilir.
+                pnlAdminMenu.Visible = SessionManager.Rol == AppConstants.Roller.Admin;
             }
         }
 
@@ -35,12 +38,21 @@ namespace BBGFinance
                 ? "active" : "";
         }
 
+        /// <summary>Admin -> iç Dashboard; Musteri -> kendi (sadeleştirilmiş) Dashboard.</summary>
+        protected string AnaSayfaUrl()
+        {
+            return SessionManager.Rol == AppConstants.Roller.Admin
+                ? "~/Default.aspx"
+                : "~/MusteriDashboard.aspx";
+        }
+
         private static string RolEtiket(string rol)
         {
             switch (rol)
             {
-                case AppConstants.Roller.Admin: return "Yönetici";
-                default:                        return "Kullanıcı";
+                case AppConstants.Roller.Admin:   return "Yönetici";
+                case AppConstants.Roller.Musteri: return "Müşteri";
+                default:                          return "Kullanıcı";
             }
         }
 

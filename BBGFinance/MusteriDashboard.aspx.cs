@@ -7,14 +7,21 @@ using Newtonsoft.Json;
 
 namespace BBGFinance
 {
-    public partial class Default : AdminBase
+    /// <summary>
+    /// Musteri (acente) rolü için sadeleştirilmiş dashboard. Cost/Profit/Commission/Tedarikçi
+    /// bilgisi bu sayfada ve arkasındaki MusteriRaporRepository sorgularında KESİNLİKLE yoktur.
+    /// Admin bu sayfaya erişebilir (kendi CustomerGroupId'si olmadığından veri boş döner);
+    /// Musteri rolü ise Default.aspx / Modules/Rezervasyonlar sayfalarına AdminBase tarafından
+    /// sokulmaz, sadece burayı görür.
+    /// </summary>
+    public partial class MusteriDashboard : AuthBase
     {
         protected string DashboardJson = "{}";
         protected string FilterBaslangic = "";
         protected string FilterBitis     = "";
 
         protected void Page_Load(object sender, EventArgs e)
-        { 
+        {
             if (!IsPostBack)
             {
                 lblAdSoyad.Text = SessionManager.AdSoyad;
@@ -32,7 +39,6 @@ namespace BBGFinance
 
         private void CozFiltreTarihleri(out DateTime bas, out DateTime bit)
         {
-            // bit (üst sınır) her zaman DIŞLANAN gün olarak tutulur: BookingDate < bit
             string basStr = Request.QueryString["bas"];
             string bitStr = Request.QueryString["bit"];
 
@@ -48,54 +54,63 @@ namespace BBGFinance
         {
             var data = new Dictionary<string, object>();
 
+            // CustomerGroupId'si olmayan bir kullanıcı (örn. Admin ya da yanlış yapılandırılmış
+            // bir Musteri hesabı) için hiçbir JP_ROIBEDS sorgusu ÇALIŞTIRILMAZ - boş sonuç döner.
+            int? grupId = CustomerGroupId;
+            if (!grupId.HasValue)
+            {
+                data["yapilandirmaEksik"] = true;
+                data["ozet"] = new { ToplamRezervasyon = 0, ToplamGece = 0, ToplamPax = 0 };
+                data["satis"] = new object[0];
+                data["aylikTrend"] = new object[0];
+                data["bolgeDagilim"] = new object[0];
+                data["odaTipiDagilim"] = new object[0];
+                data["yasGrubuDagilim"] = new object[0];
+                data["milliyetDagilim"] = new object[0];
+                data["bekleyenGirisler"] = new object[0];
+                return JsonConvert.SerializeObject(data);
+            }
+
+            int customerGroupId = grupId.Value;
+
             try
             {
-                var dtOzet = RezervasyonRepository.GenelOzet(bas, bit);
-                int toplamRezervasyon = 0, iptalSayisi = 0, toplamGece = 0, toplamPax = 0;
+                var dtOzet = MusteriRaporRepository.GenelOzet(customerGroupId, bas, bit);
+                int toplamRezervasyon = 0, toplamGece = 0, toplamPax = 0;
                 if (dtOzet.Rows.Count > 0)
                 {
                     var r = dtOzet.Rows[0];
                     toplamRezervasyon = ToInt(r["ToplamRezervasyon"]);
-                    iptalSayisi       = ToInt(r["IptalSayisi"]);
                     toplamGece        = ToInt(r["ToplamGece"]);
                     toplamPax         = ToInt(r["ToplamPax"]);
                 }
-                decimal iptalOrani = toplamRezervasyon > 0
-                    ? Math.Round((decimal)iptalSayisi / toplamRezervasyon * 100, 1)
-                    : 0;
 
                 data["ozet"] = new
                 {
                     ToplamRezervasyon = toplamRezervasyon,
-                    IptalSayisi       = iptalSayisi,
-                    IptalOrani        = iptalOrani,
                     ToplamGece        = toplamGece,
                     ToplamPax         = toplamPax
                 };
 
-                data["finansal"]      = TabloyaÇevir(RezervasyonRepository.ParaBirimiBazliTutarlar(bas, bit));
-                data["kar"]           = TabloyaÇevir(RezervasyonRepository.ParaBirimiBazliKar(bas, bit));
-                data["aylikTrend"]    = TabloyaÇevir(RezervasyonRepository.AylikTrend(bas, bit));
-                data["kanalDagilim"]  = TabloyaÇevir(RezervasyonRepository.KanalDagilimi(bas, bit));
-                data["urunGrubu"]     = TabloyaÇevir(RezervasyonRepository.UrunGrubuDagilimi(bas, bit));
-                data["pazarDagilim"]  = TabloyaÇevir(RezervasyonRepository.PazarDagilimi(bas, bit));
-                data["tedarikci"]     = TabloyaÇevir(RezervasyonRepository.TedarikciDagilimi(bas, bit));
-                data["sonRezervasyonlar"]    = TabloyaÇevir(RezervasyonRepository.SonRezervasyonlar(10));
-                data["yaklasanKonaklamalar"] = TabloyaÇevir(RezervasyonRepository.YaklasanKonaklamalar(10));
+                data["satis"]            = TabloyaÇevir(MusteriRaporRepository.ParaBirimiBazliSatis(customerGroupId, bas, bit));
+                data["aylikTrend"]       = TabloyaÇevir(MusteriRaporRepository.AylikTrend(customerGroupId, bas, bit));
+                data["bolgeDagilim"]     = TabloyaÇevir(MusteriRaporRepository.BolgeDagilimi(customerGroupId, bas, bit));
+                data["odaTipiDagilim"]   = TabloyaÇevir(MusteriRaporRepository.OdaTipiDagilimi(customerGroupId, bas, bit));
+                data["yasGrubuDagilim"]  = TabloyaÇevir(MusteriRaporRepository.YasGrubuDagilimi(customerGroupId, bas, bit));
+                data["milliyetDagilim"]  = TabloyaÇevir(MusteriRaporRepository.MilliyetDagilimi(customerGroupId, bas, bit));
+                data["bekleyenGirisler"] = TabloyaÇevir(MusteriRaporRepository.BekleyenGirisler(customerGroupId, 20));
             }
             catch (Exception ex)
             {
                 data["hata"] = ex.Message;
-                data["ozet"] = new { ToplamRezervasyon = 0, IptalSayisi = 0, IptalOrani = 0, ToplamGece = 0, ToplamPax = 0 };
-                data["finansal"] = new object[0];
-                data["kar"] = new object[0];
+                data["ozet"] = new { ToplamRezervasyon = 0, ToplamGece = 0, ToplamPax = 0 };
+                data["satis"] = new object[0];
                 data["aylikTrend"] = new object[0];
-                data["kanalDagilim"] = new object[0];
-                data["urunGrubu"] = new object[0];
-                data["pazarDagilim"] = new object[0];
-                data["tedarikci"] = new object[0];
-                data["sonRezervasyonlar"] = new object[0];
-                data["yaklasanKonaklamalar"] = new object[0];
+                data["bolgeDagilim"] = new object[0];
+                data["odaTipiDagilim"] = new object[0];
+                data["yasGrubuDagilim"] = new object[0];
+                data["milliyetDagilim"] = new object[0];
+                data["bekleyenGirisler"] = new object[0];
             }
 
             return JsonConvert.SerializeObject(data);

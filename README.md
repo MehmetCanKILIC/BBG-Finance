@@ -19,13 +19,52 @@ bileşenleri, SQL Server ve Forms Authentication tabanlı oturum yönetimi.
 
 ```
 BBGFinance/
-  Core/                 DbHelper (Auth+Report), SessionManager, AuthBase, AppConstants, JsonHelper
-  Data/                 RezervasyonRepository.cs  (JP_ROIBEDS okuma sorguları)
-  Modules/Rezervasyonlar/ Liste.aspx (filtrelenebilir liste), Detay.aspx (rezervasyon + kalemler)
-  Default.aspx          Dashboard: KPI kartları, trend/kanal/pazar/tedarikçi grafikleri
-  Login.aspx            Giriş ekranı
+  Core/                 DbHelper (Auth+Report), SessionManager, AuthBase/AdminBase, AppConstants, JsonHelper
+  Data/                 RezervasyonRepository.cs (Admin), MusteriRaporRepository.cs (Musteri), SqlSafe.cs
+  Modules/Rezervasyonlar/ Liste.aspx / Detay.aspx  — SADECE Admin (AdminBase)
+  Default.aspx           Admin Dashboard: ciro/kâr/komisyon/tedarikçi dahil tam görünüm
+  MusteriDashboard.aspx  Musteri Dashboard: kendi verisi, cost/profit/commission/tedarikçi YOK
+  Login.aspx             Giriş ekranı (role göre Default.aspx / MusteriDashboard.aspx'e yönlendirir)
   Database/              Kurulum ve yerel test scriptleri
 ```
+
+## Rol modeli ve veri izolasyonu (ÖNEMLİ)
+
+Bu portalda iki rol vardır:
+
+- **Admin** — BBG Finance içindeki iç kullanıcılar (yönetim/finans ekibi). Tüm
+  müşteri gruplarının verisini, maliyet/kâr/komisyon/tedarikçi bilgisi dahil
+  tam olarak görür. `Default.aspx` ve `Modules/Rezervasyonlar/*` sadece Admin'e
+  açıktır (`Core/AuthBase.cs` içindeki `AdminBase` bunu zorunlu kılar — Musteri
+  rolü bu sayfalara URL ile doğrudan gitmeye çalışsa bile `MusteriDashboard.aspx`'e
+  yönlendirilir).
+- **Musteri** — Portalı kullanan acente/müşteri hesapları. Sadece
+  `MusteriDashboard.aspx`'i görür ve orada **yalnızca kendi müşteri grubuna**
+  ait veriyi görür.
+
+**Çoklu müşteri (tenant) izolasyonu**: Her `Kullanici` kaydının (bizim kendi
+`AuthDB`'mizdeki) bir `CustomerGroupId` kolonu vardır. Musteri rolündeki bir
+kullanıcı giriş yaptığında bu değer oturuma yüklenir (`SessionManager.CustomerGroupId`)
+ve `MusteriRaporRepository` içindeki HER sorgu
+`JP_BookingDetail.CustomerId -> JP_Customer.Id -> JP_Customer.CustomerGroupId`
+üzerinden bu değere filtrelenir. Admin için bu alan `NULL`'dur ve hiçbir filtre
+uygulanmaz.
+
+**Asla göstermeme garantisi**: `Data/MusteriRaporRepository.cs` — Musteri
+rolüne sunulan TEK sorgu katmanı — hiçbir zaman `Cost`, `Profit`,
+`Commission`/`ComissionAmount` veya tedarikçi (`SupplierName`/`SupplierId`)
+kolonlarını SEÇMEZ. Bu sadece arayüzde gizleme değil, sorgunun kendisinde bu
+kolonların hiç bulunmamasıdır — yani tarayıcının ağ sekmesinden bakan teknik
+bir kullanıcı bile bu verilere ulaşamaz. Bu sınıfa yeni bir rapor eklerken bu
+kuralı bozmadığınızdan emin olun. Komisyon görünürlüğü ileride müşteri bazında
+esnetilmek istenirse `JP_Customer.SeesCommission` alanı zaten mevcuttur, ancak
+şu an için bu portal komisyonu Musteri rolünden koşulsuz gizler.
+
+Yerel test için: `Database/03_TestData.sql` üç örnek acente
+(`Acente Madrid`/`Acente Roma` → `CustomerGroupId=100`, `Acente Paris` → `200`,
+`Acente Londra` → `300`) ve `Database/01_CreateAuthDatabase.sql` bu gruplardan
+birine bağlı örnek bir Musteri kullanıcısı (`musteri.madrid` / `Musteri2026!`)
+oluşturur.
 
 ## Kurulum
 
@@ -68,17 +107,31 @@ BBGFinance/
   varsayımlarla belirlendi. Gerçek JP_ROIBEDS'e bağlanıldığında bu script
   kullanılmaz, sadece yerel test içindir.
 - DevExtreme bileşenleri CDN üzerinden (deneme/topluluk sürümü) yüklenir;
-  üretimde lisanslı bir DevExtreme sürümü kullanılması gerekebilir.
+  üretimde lisanslı bir DevExtreme sürümü kullanılması gerekebilir. Bu CDN'lere
+  erişim yoksa (örn. kapalı kurumsal ağ), sayfalar KPI kartları/tablolar gibi
+  düz-DOM içerikleri yine gösterir; grafik/grid alanlarında görünür bir uyarı
+  çıkar ve konsola hata basılır (bkz. `Default.aspx`/`MusteriDashboard.aspx`
+  script'lerindeki `guvenliKur` sarmalayıcısı).
+- `JP_BookingDetailLinePaxes.TipPax`: 0 = Yetişkin, 1 = Çocuk, 2 = Bebek.
+- "Bölge" raporu `JP_BookingDetailLine.Zonedescription/Zonestate/Zonecountry`
+  alanlarına dayanır (otel adres bilgisi değil).
+- `JP_Customer.Id`/`CustomerGroupId` gibi ID alanlarının gerçek üretimde INT mi
+  yoksa VARCHAR mı olduğu bilinmediğinden, `MusteriRaporRepository`'deki tüm
+  JOIN'ler `Data/SqlSafe.JoinEq` ile metin bazlı (tip farkına duyarsız) yapılır.
 
 ## Sayfalar
 
 - **Login.aspx** — Giriş ekranı (AuthDB `Kullanici` tablosu, SHA-256 + tuz).
-- **Default.aspx** — Dashboard: toplam rezervasyon, iptal oranı, toplam
-  gece/pax, para birimi bazlı satış/komisyon/bekleyen tahsilat/kâr, aylık
-  trend, kanal/pazar/ürün grubu/tedarikçi dağılımları, son rezervasyonlar ve
-  yaklaşan konaklamalar.
-- **Modules/Rezervasyonlar/Liste.aspx** — Tarih aralığı, durum (aktif/iptal),
-  kanal ve serbest metin aramasıyla filtrelenebilen, sıralanabilir/dışa
-  aktarılabilir rezervasyon listesi.
-- **Modules/Rezervasyonlar/Detay.aspx** — Bir rezervasyonun başlık bilgileri
-  (müşteri, acente, finansal özet) ve kalem (hizmet) satırları.
+  Admin → `Default.aspx`'e, Musteri → `MusteriDashboard.aspx`'e yönlendirir.
+- **Default.aspx** _(Admin)_ — Dashboard: toplam rezervasyon, iptal oranı,
+  toplam gece/pax, para birimi bazlı satış/komisyon/bekleyen tahsilat/kâr,
+  aylık trend, kanal/pazar/ürün grubu/tedarikçi dağılımları, son rezervasyonlar
+  ve yaklaşan konaklamalar.
+- **Modules/Rezervasyonlar/Liste.aspx / Detay.aspx** _(Admin)_ — Tüm
+  rezervasyonların filtrelenebilir listesi ve maliyet/kâr/tedarikçi dahil tam
+  detayı.
+- **MusteriDashboard.aspx** _(Musteri)_ — Kendi müşteri grubuna ait: toplam
+  rezervasyon/gece/pax, para birimi bazlı satış ve bekleyen tahsilat (komisyon/
+  maliyet/kâr YOK), aylık trend, bölge dağılımı, oda tipi dağılımı,
+  yetişkin/çocuk/bebek dağılımı, milliyet dağılımı ve girişi henüz gelmemiş
+  odalar listesi.

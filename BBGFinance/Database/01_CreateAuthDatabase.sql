@@ -73,3 +73,24 @@ VALUES (
     1
 );
 GO
+
+-- ============================================================
+-- Örnek müşteri (Musteri) kullanıcısı - sadece yerel test için.
+--   Kullanıcı adı : musteri.madrid
+--   Geçici şifre  : Musteri2026!
+--   CustomerGroupId = 100 (03_TestData.sql'deki 'Acente Madrid' / 'Acente Roma' grubu)
+-- Bu kullanıcı ile giriş yapıldığında sadece bu gruba ait rezervasyonlar görülür ve
+-- Cost/Profit/Commission/Tedarikçi hiçbir zaman gösterilmez.
+-- ============================================================
+IF NOT EXISTS (SELECT * FROM dbo.Kullanici WHERE KullaniciAdi = 'musteri.madrid')
+INSERT INTO dbo.Kullanici (KullaniciAdi, SifreHash, SifreTuz, AdSoyad, Rol, CustomerGroupId, AktifMi)
+VALUES (
+    'musteri.madrid',
+    'ef19b666bb8cf8e671f8d88a06feb042f072e6d7a5ad8cadec0939e68f8f8eb5',
+    'BBGMusteriSalt456==',
+    'Acente Madrid',
+    'Musteri',
+    100,
+    1
+);
+GO

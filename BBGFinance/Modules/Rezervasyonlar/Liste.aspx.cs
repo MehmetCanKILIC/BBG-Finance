@@ -4,7 +4,7 @@ using BBGFinance.Data;
 
 namespace BBGFinance.Modules.Rezervasyonlar
 {
-    public partial class Liste : AuthBase
+    public partial class Liste : AdminBase
     {
         protected string GridJson    = "[]";
         protected string KanallarJson = "[]";

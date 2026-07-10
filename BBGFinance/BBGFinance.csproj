@@ -135,6 +135,23 @@
   <!-- Data -->
   <ItemGroup>
     <Compile Include="Data\RezervasyonRepository.cs" />
+    <Compile Include="Data\MusteriRaporRepository.cs" />
+    <Compile Include="Data\SqlSafe.cs" />
+  </ItemGroup>
+  <!-- MusteriDashboard.aspx -->
+  <ItemGroup>
+    <Content Include="MusteriDashboard.aspx">
+      <Generator>ASPXCodeGenerator</Generator>
+      <LastGenOutput>MusteriDashboard.aspx.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="MusteriDashboard.aspx.cs">
+      <DependentUpon>MusteriDashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="MusteriDashboard.aspx.designer.cs">
+      <DependentUpon>MusteriDashboard.aspx</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
   </ItemGroup>
   <!-- Modules/Rezervasyonlar -->
   <ItemGroup>

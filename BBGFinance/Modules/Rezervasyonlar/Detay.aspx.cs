@@ -5,7 +5,7 @@ using BBGFinance.Data;
 
 namespace BBGFinance.Modules.Rezervasyonlar
 {
-    public partial class Detay : AuthBase
+    public partial class Detay : AdminBase
     {
         protected string KalemlerJson = "[]";
 

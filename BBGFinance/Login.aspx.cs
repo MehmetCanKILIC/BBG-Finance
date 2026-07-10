@@ -12,7 +12,7 @@ namespace BBGFinance
             if (!IsPostBack)
             {
                 if (SessionManager.OturumAcikMi)
-                    Response.Redirect("~/Default.aspx", true);
+                    Response.Redirect(VarsayilanSayfa(), true);
 
                 if (Request.QueryString["timeout"] == "1")
                 {
@@ -38,7 +38,7 @@ namespace BBGFinance
             try
             {
                 var dt = DbHelper.ExecuteQuery(@"
-                    SELECT KullaniciID, SifreHash, SifreTuz, AdSoyad, Rol,
+                    SELECT KullaniciID, SifreHash, SifreTuz, AdSoyad, Rol, CustomerGroupId,
                            AktifMi, HesapKilitliMi, BasarisizGiris
                     FROM   dbo.Kullanici
                     WHERE  KullaniciAdi = @KullaniciAdi",
@@ -77,10 +77,13 @@ namespace BBGFinance
                 }
 
                 // Başarılı giriş
-                SessionManager.KullaniciID  = kullaniciID;
-                SessionManager.KullaniciAdi = kullaniciAdi;
-                SessionManager.AdSoyad      = row["AdSoyad"].ToString();
-                SessionManager.Rol          = row["Rol"].ToString();
+                SessionManager.KullaniciID     = kullaniciID;
+                SessionManager.KullaniciAdi    = kullaniciAdi;
+                SessionManager.AdSoyad         = row["AdSoyad"].ToString();
+                SessionManager.Rol             = row["Rol"].ToString();
+                SessionManager.CustomerGroupId = row["CustomerGroupId"] != DBNull.Value
+                    ? (int?)Convert.ToInt32(row["CustomerGroupId"])
+                    : null;
 
                 DbHelper.ExecuteNonQuery(@"
                     UPDATE dbo.Kullanici
@@ -97,7 +100,7 @@ namespace BBGFinance
                 if (!string.IsNullOrEmpty(returnUrl) && IsLocalUrl(returnUrl))
                     Response.Redirect(returnUrl, true);
                 else
-                    Response.Redirect("~/Default.aspx", true);
+                    Response.Redirect(VarsayilanSayfa(), true);
             }
             catch (Exception ex)
             {
@@ -156,6 +159,14 @@ namespace BBGFinance
         private bool IsLocalUrl(string url)
         {
             return !string.IsNullOrEmpty(url) && (url.StartsWith("/") || url.StartsWith("~/"));
+        }
+
+        /// <summary>Admin -> iç Dashboard; Musteri -> kendi (sadeleştirilmiş) Dashboard.</summary>
+        private string VarsayilanSayfa()
+        {
+            return SessionManager.Rol == AppConstants.Roller.Admin
+                ? "~/Default.aspx"
+                : "~/MusteriDashboard.aspx";
         }
     }
 }

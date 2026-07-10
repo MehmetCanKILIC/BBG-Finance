@@ -30,7 +30,7 @@
             <button type="button" class="sidebar-toggle" id="btnSidebarToggle" onclick="toggleSidebar()" title="Menüyü Aç/Kapat">
                 <span></span><span></span><span></span>
             </button>
-            <a href="<%= ResolveUrl("~/Default.aspx") %>" class="app-logo">
+            <a href="<%= ResolveUrl(AnaSayfaUrl()) %>" class="app-logo">
                 <svg width="32" height="32" viewBox="0 0 60 60" fill="none">
                     <rect width="60" height="60" rx="12" fill="#00695C"/>
                     <path d="M14 40 L24 22 L30 32 L36 20 L46 40" stroke="#F9A825" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -68,19 +68,19 @@
     <nav class="app-sidebar" id="appSidebar">
         <div class="sidebar-section">
             <span class="section-label">ANA MENÜ</span>
-            <a href="<%= ResolveUrl("~/Default.aspx") %>" class="nav-item <%= ActivePage("Default") %>">
+            <a href="<%= ResolveUrl(AnaSayfaUrl()) %>" class="nav-item <%= ActivePage("Default") %> <%= ActivePage("MusteriDashboard") %>">
                 <i data-feather="home" class="nav-icon"></i>
                 <span>Dashboard</span>
             </a>
         </div>
 
-        <div class="sidebar-section">
+        <asp:Panel ID="pnlAdminMenu" runat="server" CssClass="sidebar-section">
             <span class="section-label">REZERVASYONLAR</span>
             <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Liste.aspx") %>" class="nav-item <%= ActivePage("Rezervasyonlar") %>">
                 <i data-feather="calendar" class="nav-icon"></i>
                 <span>Tüm Rezervasyonlar</span>
             </a>
-        </div>
+        </asp:Panel>
 
         <div class="sidebar-footer">
             <small>v1.0.0 &mdash; &copy; <%= DateTime.Now.Year %> BBG Finance</small>
@@ -95,7 +95,7 @@
         <!-- Breadcrumb -->
         <asp:Panel ID="pnlBreadcrumb" runat="server" CssClass="breadcrumb-bar">
             <asp:ContentPlaceHolder ID="cphBreadcrumb" runat="server">
-                <a href="<%= ResolveUrl("~/Default.aspx") %>">Dashboard</a>
+                <a href="<%= ResolveUrl(AnaSayfaUrl()) %>">Dashboard</a>
             </asp:ContentPlaceHolder>
         </asp:Panel>
 
