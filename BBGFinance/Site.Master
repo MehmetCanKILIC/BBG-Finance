@@ -131,7 +131,19 @@
          hatalara yol açabiliyor. -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn3.devexpress.com/jslib/21.1.5/js/dx.all.js"></script>
-    <script src="<%= ResolveUrl("~/Scripts/site.js") %>"></script>
+    <script src="<%= ResolveUrl("~/Scripts/site.js") %>?v=2"></script>
+
+    <script>
+        // GÜVENCE: dxOlustur normalde Scripts/site.js içinde tanımlanır. site.js sunucu/tarayıcı
+        // cache'i yüzünden güncellenmemiş olsa bile, bu satırlar HER SAYFA isteğinde sunucu
+        // tarafından TAZE üretilen bu HTML'in bir parçası olduğundan dxOlustur her zaman burada
+        // garanti altına alınır.
+        if (typeof window.dxOlustur !== 'function') {
+            window.dxOlustur = function (Ctor, options, element) {
+                return new Ctor(element, options);
+            };
+        }
+    </script>
 
     <asp:ContentPlaceHolder ID="cphScripts" runat="server" />
 
