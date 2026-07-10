@@ -31,12 +31,7 @@
                 <span></span><span></span><span></span>
             </button>
             <a href="<%= ResolveUrl(AnaSayfaUrl()) %>" class="app-logo">
-                <svg width="32" height="32" viewBox="0 0 60 60" fill="none">
-                    <rect width="60" height="60" rx="12" fill="#C2185B"/>
-                    <path d="M14 40 L24 22 L30 32 L36 20 L46 40" stroke="#F9A825" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-                    <circle cx="46" cy="20" r="4" fill="#F9A825"/>
-                </svg>
-                <span class="app-name">BBG Finance</span>
+                <img src="bbg.png" />
             </a>
         </div>
 

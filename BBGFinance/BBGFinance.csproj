@@ -63,6 +63,7 @@
   </ItemGroup>
   <!-- İçerik dosyaları (.aspx, .master, .css, .js, config) -->
   <ItemGroup>
+    <Content Include="bbg.png" />
     <Content Include="Web.config" />
     <Content Include="Content\css\site.css" />
     <Content Include="Content\css\login.css" />
@@ -155,7 +156,6 @@
   </ItemGroup>
   <!-- Modules/Rezervasyonlar -->
   <ItemGroup>
-    <Folder Include="Modules\Rezervasyonlar\" />
     <Content Include="Modules\Rezervasyonlar\Liste.aspx">
       <Generator>ASPXCodeGenerator</Generator>
       <LastGenOutput>Liste.aspx.designer.cs</LastGenOutput>
@@ -183,7 +183,6 @@
   </ItemGroup>
   <!-- Modules/Rezervasyonlar/Musteri (customer-facing "My Reservations") -->
   <ItemGroup>
-    <Folder Include="Modules\Rezervasyonlar\Musteri\" />
     <Content Include="Modules\Rezervasyonlar\Musteri\Liste.aspx">
       <Generator>ASPXCodeGenerator</Generator>
       <LastGenOutput>Liste.aspx.designer.cs</LastGenOutput>
