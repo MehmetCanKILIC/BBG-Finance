@@ -12,7 +12,7 @@
     if (typeof DevExpress !== 'undefined' && DevExpress.ui) {
         DevExpress.ui.dxDataGrid.defaultOptions({
             options: {
-                showBorders: true,
+                showBorders: true,   
                 rowAlternationEnabled: true,
                 hoverStateEnabled: true,
                 filterRow: { visible: true },
