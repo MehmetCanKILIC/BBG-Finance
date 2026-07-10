@@ -62,7 +62,7 @@ namespace BBGFinance
                 data["yapilandirmaEksik"] = true;
                 data["ozet"] = new { ToplamRezervasyon = 0, ToplamGece = 0, ToplamPax = 0 };
                 data["satis"] = new object[0];
-                data["aylikTrend"] = new object[0];
+                data["aylikTrend"] = new object[0]; 
                 data["bolgeDagilim"] = new object[0];
                 data["odaTipiDagilim"] = new object[0];
                 data["yasGrubuDagilim"] = new object[0];
