@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <!-- Site CSS -->
     <link rel="stylesheet" href="<%= ResolveUrl("~/Content/css/site.css") %>?v=3" />
-
+     
     <asp:ContentPlaceHolder ID="cphHead" runat="server" />
 </head>
 <body class="dx-viewport">
