@@ -174,7 +174,7 @@ namespace BBGFinance.Data
             string sql = @"
                 SELECT TOP (@TopN)
                     ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''),
-                        ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''), 'Belirtilmemiş')) AS OdaTipi,
+                        ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'All')) AS OdaTipi,
                     COUNT(*) AS OdaSayisi,
                     SUM(ISNULL(" + SqlSafe.Num("l.SellingPrice") + @", ISNULL(" + SqlSafe.Num("rl.priceroom") + @", 0))) AS ToplamSatis
                 FROM dbo.JP_BookingDetailLine l
@@ -186,7 +186,7 @@ namespace BBGFinance.Data
                 WHERE " + SqlSafe.Txt("c.CustomerGroupId") + @" = CONVERT(NVARCHAR(50), @CustomerGroupId)
                   AND l.BeginTravelDate >= @Bas AND l.BeginTravelDate < @Bit
                 GROUP BY ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''),
-                        ISNULL(NULLIF(LTRIM(RTRIM(l.ProductTypeName)), ''), 'Belirtilmemiş'))
+                        ISNULL(NULLIF(LTRIM(RTRIM(rl.typeroomname)), ''), 'Belirtilmemiş'))
                 ORDER BY ToplamSatis DESC";
 
             return ReportDbHelper.ExecuteQueryAsync(sql,
