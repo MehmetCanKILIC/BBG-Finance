@@ -92,7 +92,7 @@
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-half">
-            <div class="panel-header"><h3>Sales / Commission / Outstanding Amount</h3></div>
+            <div class="panel-header"><h3>Sales / Commission</h3></div>
             <div style="padding:16px 18px;" id="finansalTablo"></div>
         </div>
         <div class="dashboard-panel panel-half">
@@ -206,8 +206,7 @@
 
     finansalTabloOlustur('finansalTablo', dashboardData.finansal, [
         { field: 'ToplamSatis', label: 'Total Sales' },
-        { field: 'ToplamKomisyon', label: 'Total Commission' },
-        { field: 'BekleyenTahsilat', label: 'Outstanding Amount' }
+        { field: 'ToplamKomisyon', label: 'Total Commission' }
     ]);
 
     finansalTabloOlustur('karTablo', dashboardData.kar, [

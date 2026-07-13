@@ -86,7 +86,6 @@
             <div class="info-item"><label>Selling Price</label><span><asp:Literal ID="litSellingPrice" runat="server" /></span></div>
             <div class="info-item"><label>Cost</label><span><asp:Literal ID="litCost" runat="server" /></span></div>
             <div class="info-item"><label>Commission</label><span><asp:Literal ID="litCommission" runat="server" /></span></div>
-            <div class="info-item"><label>Outstanding Amount</label><span><asp:Literal ID="litOutstanding" runat="server" /></span></div>
             <div class="info-item"><label>Invoiced</label><span><asp:Literal ID="litInvoiced" runat="server" /></span></div>
         </div>
     </div>

@@ -167,8 +167,6 @@
                 { dataField: 'ParaBirimi',   caption: 'Cur.', width: 60 },
                 { dataField: 'Commission',   caption: 'Commission', width: 110, dataType: 'number',
                   format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
-                { dataField: 'OutStandingAmount', caption: 'Outstanding Amount', width: 130, dataType: 'number',
-                  format: { type: 'fixedPoint', precision: 2 }, alignment: 'right' },
                 { dataField: 'ToplamGece',  caption: 'Nights', width: 70, dataType: 'number' },
                 { dataField: 'ToplamPax',   caption: 'Pax', width: 70, dataType: 'number' },
                 {

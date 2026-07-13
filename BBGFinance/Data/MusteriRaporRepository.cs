@@ -75,10 +75,10 @@ namespace BBGFinance.Data
                 ReportDbHelper.Param("@Bit", bit));
         }
 
-        /// <summary>Para birimi bazında sadece SATIŞ ve BEKLEYEN TAHSİLAT (kendi ödeme
-        /// yükümlülüğü) - komisyon/maliyet/kâr burada YOKTUR. Tarih filtresi CHECK-IN aralığıdır;
-        /// SellingPrice/OutStandingAmount booking (başlık) seviyesinde tutulduğundan, bu tutarlar
-        /// aralıkta check-in'i OLAN rezervasyonların tamamı için sayılır (satır bazında bölünmez).</summary>
+        /// <summary>Para birimi bazında sadece SATIŞ - komisyon/maliyet/kâr burada YOKTUR.
+        /// Tarih filtresi CHECK-IN aralığıdır; SellingPrice booking (başlık) seviyesinde
+        /// tutulduğundan, bu tutar aralıkta check-in'i OLAN rezervasyonların tamamı için
+        /// sayılır (satır bazında bölünmez).</summary>
         public static Task<DataTable> ParaBirimiBazliSatis(int customerGroupId, DateTime bas, DateTime bit)
         {
             string sql = @"
@@ -86,7 +86,6 @@ namespace BBGFinance.Data
                     SELECT
                         bd.BookingCode,
                         " + SqlSafe.Num("bd.SellingPrice") + @"      AS SellingPrice,
-                        " + SqlSafe.Num("bd.OutStandingAmount") + @" AS OutStandingAmount,
                         (SELECT TOP 1 l.SellCurrency
                          FROM dbo.JP_BookingDetailLine l
                          WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi
@@ -99,8 +98,7 @@ namespace BBGFinance.Data
                 )
                 SELECT
                     ISNULL(ParaBirimi, 'Belirtilmemiş') AS ParaBirimi,
-                    SUM(ISNULL(SellingPrice, 0))        AS ToplamSatis,
-                    SUM(ISNULL(OutStandingAmount, 0))   AS BekleyenTahsilat
+                    SUM(ISNULL(SellingPrice, 0))        AS ToplamSatis
                 FROM Rez
                 GROUP BY ISNULL(ParaBirimi, 'Belirtilmemiş')
                 ORDER BY ToplamSatis DESC";

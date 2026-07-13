@@ -88,7 +88,7 @@
     ====================================================== -->
     <div class="dashboard-row">
         <div class="dashboard-panel panel-wide">
-            <div class="panel-header"><h3>Sales / Outstanding Amount</h3></div>
+            <div class="panel-header"><h3>Sales</h3></div>
             <div style="padding:16px 18px;" id="satisTablo"></div>
         </div>
     </div>
@@ -196,8 +196,7 @@
     }
 
     finansalTabloOlustur('satisTablo', dashboardData.satis, [
-        { field: 'ToplamSatis', label: 'Total Sales' },
-        { field: 'BekleyenTahsilat', label: 'Outstanding Amount' }
+        { field: 'ToplamSatis', label: 'Total Sales' }
     ]);
 
     // ---- DevExtreme-dependent widgets ----

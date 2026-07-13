@@ -64,7 +64,6 @@ namespace BBGFinance.Modules.Rezervasyonlar
             litSellingPrice.Text    = TutarMetin(r, "SellingPrice");
             litCost.Text            = TutarMetin(r, "Cost");
             litCommission.Text      = TutarMetin(r, "Commission");
-            litOutstanding.Text     = TutarMetin(r, "OutStandingAmount");
             litInvoiced.Text        = BitMetin(r, "Invoiced") ? "Yes" : "No";
 
             litDescription.Text     = Metin(r, "Description");

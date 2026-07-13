@@ -29,7 +29,6 @@ namespace BBGFinance.Modules.Rezervasyonlar
         protected global::System.Web.UI.WebControls.Literal litSellingPrice;
         protected global::System.Web.UI.WebControls.Literal litCost;
         protected global::System.Web.UI.WebControls.Literal litCommission;
-        protected global::System.Web.UI.WebControls.Literal litOutstanding;
         protected global::System.Web.UI.WebControls.Literal litInvoiced;
         protected global::System.Web.UI.WebControls.Literal litDescription;
         protected global::System.Web.UI.WebControls.Literal litRemarks;

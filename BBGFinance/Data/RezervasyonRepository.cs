@@ -62,9 +62,9 @@ namespace BBGFinance.Data
         }
 
         /// <summary>
-        /// Rezervasyon başlığındaki tutarlar (satış/komisyon/bekleyen tahsilat) para birimi
-        /// bazında gruplanır; başlıkta doğrudan para birimi kolonu olmadığından her rezervasyonun
-        /// ilk kalem satırındaki SellCurrency'si o rezervasyonun para birimi kabul edilir.
+        /// Rezervasyon başlığındaki tutarlar (satış/komisyon) para birimi bazında gruplanır;
+        /// başlıkta doğrudan para birimi kolonu olmadığından her rezervasyonun ilk kalem
+        /// satırındaki SellCurrency'si o rezervasyonun para birimi kabul edilir.
         /// </summary>
         public static Task<DataTable> ParaBirimiBazliTutarlar(DateTime bas, DateTime bit)
         {
@@ -74,8 +74,6 @@ namespace BBGFinance.Data
                         bd.BookingCode,
                         " + Num("bd.SellingPrice") + @"      AS SellingPrice,
                         " + Num("bd.Commission") + @"        AS Commission,
-                        " + Num("bd.OutStandingAmount") + @" AS OutStandingAmount,
-                        " + Num("bd.Invoiced") + @"          AS Invoiced,
                         (SELECT TOP 1 l.SellCurrency
                          FROM dbo.JP_BookingDetailLine l
                          WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi
@@ -85,8 +83,7 @@ namespace BBGFinance.Data
                 SELECT
                     ISNULL(ParaBirimi, 'Belirtilmemiş') AS ParaBirimi,
                     SUM(ISNULL(SellingPrice, 0))        AS ToplamSatis,
-                    SUM(ISNULL(Commission, 0))          AS ToplamKomisyon,
-                    SUM(CASE WHEN ISNULL(Invoiced, 0) = 0 THEN ISNULL(OutStandingAmount, 0) ELSE 0 END) AS BekleyenTahsilat
+                    SUM(ISNULL(Commission, 0))          AS ToplamKomisyon
                 FROM BookingParaBirimi
                 GROUP BY ISNULL(ParaBirimi, 'Belirtilmemiş')
                 ORDER BY ToplamSatis DESC";
@@ -307,7 +304,6 @@ namespace BBGFinance.Data
                     ISNULL(bd.Channel, '')      AS Channel,
                     " + Num("bd.SellingPrice") + @"      AS SellingPrice,
                     " + Num("bd.Commission") + @"        AS Commission,
-                    " + Num("bd.OutStandingAmount") + @" AS OutStandingAmount,
                     ISNULL(" + Num("bd.Invoiced") + @", 0) AS Invoiced,
                     (SELECT TOP 1 l.SellCurrency FROM dbo.JP_BookingDetailLine l
                      WHERE l.BookingCode = bd.BookingCode AND l.SellCurrency IS NOT NULL) AS ParaBirimi,
@@ -368,7 +364,6 @@ namespace BBGFinance.Data
                     bd.Description,
                     " + Num("bd.Cost") + @"       AS Cost,
                     " + Num("bd.Commission") + @" AS Commission,
-                    " + Num("bd.OutStandingAmount") + @" AS OutStandingAmount,
                     bd.Invoiced, bd.Remarks, bd.InRemarks, bd.FinancialNotes,
                     bd.BookingAdmin, bd.AccountManager,
                     bd.CustomerId, bd.Customercodcli, bd.CustomerName,
