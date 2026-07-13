@@ -101,7 +101,7 @@ namespace BBGFinance
             await Task.WhenAll(ozetTask, finansalTask, karTask, aylikTrendTask, kanalDagilimTask,
                 urunGrubuTask, pazarDagilimTask, tedarikciTask, sonRezervasyonlarTask, yaklasanKonaklamalarTask).ConfigureAwait(false);
 
-            data["ozet"]                 = ozetTask.Result;
+            data["ozet"]                 = ozetTask.Result; 
             data["finansal"]             = finansalTask.Result;
             data["kar"]                  = karTask.Result;
             data["aylikTrend"]           = aylikTrendTask.Result;
