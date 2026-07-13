@@ -333,6 +333,20 @@ namespace BBGFinance.Data
             return ReportDbHelper.ExecuteQuery(sql);
         }
 
+        /// <summary>Yeni kullanıcı oluşturma ekranındaki "Customer Group" seçim listesi için
+        /// JP_Customer'daki kayıtlı müşteri gruplarını döner (CustomerGroupId + görünen etiket).</summary>
+        public static DataTable MusteriGruplari()
+        {
+            const string sql = @"
+                SELECT DISTINCT CustomerGroupId,
+                       ISNULL(NULLIF(LTRIM(RTRIM(CustomerGroup)), ''), 'Group #' + CAST(CustomerGroupId AS VARCHAR(20))) AS CustomerGroup
+                FROM dbo.JP_Customer
+                WHERE CustomerGroupId IS NOT NULL
+                ORDER BY CustomerGroup";
+
+            return ReportDbHelper.ExecuteQuery(sql);
+        }
+
         // ---------------------------------------------------------------
         // REZERVASYON DETAYI
         // ---------------------------------------------------------------

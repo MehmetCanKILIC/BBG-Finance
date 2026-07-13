@@ -77,6 +77,14 @@
             </a>
         </asp:Panel>
 
+        <asp:Panel ID="pnlAdminKullanicilarMenu" runat="server" CssClass="sidebar-section">
+            <span class="section-label">ADMINISTRATION</span>
+            <a href="<%= ResolveUrl("~/Modules/Kullanicilar/Ekle.aspx") %>" class="nav-item <%= ActivePage("Kullanicilar") %>">
+                <i data-feather="user-plus" class="nav-icon"></i>
+                <span>Add User</span>
+            </a>
+        </asp:Panel>
+
         <asp:Panel ID="pnlMusteriMenu" runat="server" CssClass="sidebar-section">
             <span class="section-label">RESERVATIONS</span>
             <a href="<%= ResolveUrl("~/Modules/Rezervasyonlar/Musteri/Liste.aspx") %>" class="nav-item <%= ActivePage("Musteri/Liste") %>">

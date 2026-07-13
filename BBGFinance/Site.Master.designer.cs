@@ -1,10 +1,10 @@
 //------------------------------------------------------------------------------
-// <otomatik üretildi>
-//     Bu kod bir araç tarafýndan oluþturuldu.
+// <otomatik ï¿½retildi>
+//     Bu kod bir araï¿½ tarafï¿½ndan oluï¿½turuldu.
 //
-//     Bu dosyada yapýlacak deðiþiklikler yanlýþ davranýþa neden olabilir ve
-//     kod tekrar üretildi. 
-// </otomatik üretildi>
+//     Bu dosyada yapï¿½lacak deï¿½iï¿½iklikler yanlï¿½ï¿½ davranï¿½ï¿½a neden olabilir ve
+//     kod tekrar ï¿½retildi. 
+// </otomatik ï¿½retildi>
 //------------------------------------------------------------------------------
 
 namespace BBGFinance
@@ -18,8 +18,8 @@ namespace BBGFinance
         /// cphTitle denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphTitle;
 
@@ -27,8 +27,8 @@ namespace BBGFinance
         /// cphHead denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphHead;
 
@@ -36,8 +36,8 @@ namespace BBGFinance
         /// frmMain denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.HtmlControls.HtmlForm frmMain;
 
@@ -45,8 +45,8 @@ namespace BBGFinance
         /// lblAvatar denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblAvatar;
 
@@ -54,8 +54,8 @@ namespace BBGFinance
         /// lblAdSoyad denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblAdSoyad;
 
@@ -63,8 +63,8 @@ namespace BBGFinance
         /// lblRol denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Label lblRol;
 
@@ -72,8 +72,8 @@ namespace BBGFinance
         /// lnkCikis denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.LinkButton lnkCikis;
 
@@ -81,17 +81,26 @@ namespace BBGFinance
         /// pnlAdminMenu denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Panel pnlAdminMenu;
+
+        /// <summary>
+        /// pnlAdminKullanicilarMenu denetimi.
+        /// </summary>
+        /// <remarks>
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Panel pnlAdminKullanicilarMenu;
 
         /// <summary>
         /// pnlMusteriMenu denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Panel pnlMusteriMenu;
 
@@ -99,8 +108,8 @@ namespace BBGFinance
         /// pnlBreadcrumb denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Panel pnlBreadcrumb;
 
@@ -108,8 +117,8 @@ namespace BBGFinance
         /// cphBreadcrumb denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphBreadcrumb;
 
@@ -117,8 +126,8 @@ namespace BBGFinance
         /// cphPageTitle denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphPageTitle;
 
@@ -126,8 +135,8 @@ namespace BBGFinance
         /// cphPageSubtitle denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphPageSubtitle;
 
@@ -135,8 +144,8 @@ namespace BBGFinance
         /// cphPageActions denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphPageActions;
 
@@ -144,8 +153,8 @@ namespace BBGFinance
         /// cphContent denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphContent;
 
@@ -153,8 +162,8 @@ namespace BBGFinance
         /// cphScripts denetimi.
         /// </summary>
         /// <remarks>
-        /// Otomatik üretilmiþ alan.
-        /// Deðiþtirmek için, alan bildirimini tasarýmcý dosyasýndan arka plan kod dosyasýna taþýyýn.
+        /// Otomatik ï¿½retilmiï¿½ alan.
+        /// Deï¿½iï¿½tirmek iï¿½in, alan bildirimini tasarï¿½mcï¿½ dosyasï¿½ndan arka plan kod dosyasï¿½na taï¿½ï¿½yï¿½n.
         /// </remarks>
         protected global::System.Web.UI.WebControls.ContentPlaceHolder cphScripts;
     }

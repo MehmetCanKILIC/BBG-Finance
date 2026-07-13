@@ -27,8 +27,9 @@ namespace BBGFinance
                 // different casing, etc.) must still fall on the customer side, not disappear
                 // from the sidebar entirely.
                 bool adminMi = SessionManager.Rol == AppConstants.Roller.Admin;
-                pnlAdminMenu.Visible   = adminMi;
-                pnlMusteriMenu.Visible = !adminMi;
+                pnlAdminMenu.Visible             = adminMi;
+                pnlAdminKullanicilarMenu.Visible = adminMi;
+                pnlMusteriMenu.Visible           = !adminMi;
             }
         }
 
