@@ -1,9 +1,9 @@
-<%@ Page Title="Add User" Language="C#" MasterPageFile="~/Site.Master"
-         AutoEventWireup="true" CodeBehind="Ekle.aspx.cs"
-         Inherits="BBGFinance.Modules.Kullanicilar.Ekle"
+<%@ Page Title="Edit User" Language="C#" MasterPageFile="~/Site.Master"
+         AutoEventWireup="true" CodeBehind="Duzenle.aspx.cs"
+         Inherits="BBGFinance.Modules.Kullanicilar.Duzenle"
          ContentType="text/html" ResponseEncoding="UTF-8" %>
 
-<asp:Content ID="cTitle" ContentPlaceHolderID="cphTitle" runat="server">Add User</asp:Content>
+<asp:Content ID="cTitle" ContentPlaceHolderID="cphTitle" runat="server">Edit User</asp:Content>
 
 <asp:Content ID="cHead" ContentPlaceHolderID="cphHead" runat="server">
 <style>
@@ -12,6 +12,7 @@
     .form-row label { display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:4px; }
     .form-row .form-control { width:100%; max-width:360px; padding:8px 10px; border:1px solid #ccc; border-radius:4px; font-size:14px; box-sizing:border-box; }
     .form-row select.form-control { background:#fff; }
+    .form-row .static-value { padding:8px 0; color:#333; font-size:14px; }
     .password-row { display:flex; gap:8px; align-items:center; }
     .btn-suggest { background:#757575; color:#fff; border:none; border-radius:4px; padding:8px 14px; cursor:pointer; font-size:13px; white-space:nowrap; }
     .btn-save { background:#C2185B; color:#fff; border:none; border-radius:4px; padding:9px 22px; cursor:pointer; font-size:14px; margin-top:8px; }
@@ -27,19 +28,24 @@
     <span> / </span>
     <a href="<%= ResolveUrl("~/Modules/Kullanicilar/Liste.aspx") %>">Users</a>
     <span> / </span>
-    <span>Add User</span>
+    <span>Edit</span>
 </asp:Content>
 
 <asp:Content ID="cPageTitle" ContentPlaceHolderID="cphPageTitle" runat="server">
-    Add User
+    Edit User
 </asp:Content>
 
 <asp:Content ID="cPageSubtitle" ContentPlaceHolderID="cphPageSubtitle" runat="server">
-    Create a new login. Customers must be linked to a customer group.
+    Update the account's details, role, customer group, active/locked state, or password.
 </asp:Content>
 
 <asp:Content ID="cContent" ContentPlaceHolderID="cphContent" runat="server">
 
+    <asp:Panel ID="pnlBulunamadi" runat="server" CssClass="alert-error" Visible="false">
+        User not found.
+    </asp:Panel>
+
+    <asp:Panel ID="pnlForm" runat="server">
     <div class="form-card">
 
         <asp:Panel ID="pnlHata" runat="server" CssClass="alert-error" Visible="false">
@@ -51,11 +57,8 @@
         </asp:Panel>
 
         <div class="form-row">
-            <label for="<%= txtKullaniciAdi.ClientID %>">Username</label>
-            <asp:TextBox ID="txtKullaniciAdi" runat="server" CssClass="form-control" MaxLength="50" autocomplete="off" />
-            <asp:RequiredFieldValidator ID="rfvKullaniciAdi" runat="server"
-                ControlToValidate="txtKullaniciAdi" Display="Dynamic" CssClass="field-error"
-                ErrorMessage="Username is required." ValidationGroup="Kaydet" />
+            <label>Username</label>
+            <div class="static-value"><asp:Literal ID="litKullaniciAdi" runat="server" /></div>
         </div>
 
         <div class="form-row">
@@ -84,28 +87,40 @@
             <asp:DropDownList ID="ddlCustomerGroup" runat="server" CssClass="form-control" />
         </div>
 
-        <div class="form-row">
-            <label for="<%= txtSifre.ClientID %>">Password</label>
-            <div class="password-row">
-                <asp:TextBox ID="txtSifre" runat="server" CssClass="form-control" MaxLength="100" autocomplete="new-password" />
-                <button type="button" class="btn-suggest" onclick="sifreOner()">Suggest Password</button>
-            </div>
-            <asp:RequiredFieldValidator ID="rfvSifre" runat="server"
-                ControlToValidate="txtSifre" Display="Dynamic" CssClass="field-error"
-                ErrorMessage="A password is required (type one or click Suggest Password)." ValidationGroup="Kaydet" />
-            <small style="color:#777;">At least 8 characters. The admin can type a password or generate a suggested one.</small>
-        </div>
-
         <div class="form-row checkbox-row">
             <label>
-                <asp:CheckBox ID="chkAktif" runat="server" Checked="true" />
+                <asp:CheckBox ID="chkAktif" runat="server" />
                 <span>Account active</span>
             </label>
         </div>
 
-        <asp:Button ID="btnKaydet" runat="server" Text="Create User" CssClass="btn-save"
+        <div class="form-row checkbox-row">
+            <label>
+                <asp:CheckBox ID="chkKilitliyiAc" runat="server" />
+                <span>Unlock account (clears failed login count)</span>
+            </label>
+        </div>
+
+        <div class="form-row checkbox-row">
+            <label>
+                <asp:CheckBox ID="chkSifreDegistir" runat="server" onclick="sifreAlaniniGoster()" />
+                <span>Set a new password</span>
+            </label>
+        </div>
+
+        <div class="form-row" id="rowSifre" runat="server">
+            <label for="<%= txtSifre.ClientID %>">New Password</label>
+            <div class="password-row">
+                <asp:TextBox ID="txtSifre" runat="server" CssClass="form-control" MaxLength="100" autocomplete="new-password" />
+                <button type="button" class="btn-suggest" onclick="sifreOner()">Suggest Password</button>
+            </div>
+            <small style="color:#777;">At least 8 characters.</small>
+        </div>
+
+        <asp:Button ID="btnKaydet" runat="server" Text="Save Changes" CssClass="btn-save"
             OnClick="btnKaydet_Click" ValidationGroup="Kaydet" />
     </div>
+    </asp:Panel>
 
 </asp:Content>
 
@@ -116,6 +131,11 @@
         document.getElementById('<%= rowCustomerGroup.ClientID %>').style.display = (rol === 'Musteri') ? '' : 'none';
     }
 
+    function sifreAlaniniGoster() {
+        var goster = document.getElementById('<%= chkSifreDegistir.ClientID %>').checked;
+        document.getElementById('<%= rowSifre.ClientID %>').style.display = goster ? '' : 'none';
+    }
+
     function sifreOner() {
         var alfabe = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%';
         var sifre = '';
@@ -123,8 +143,13 @@
             sifre += alfabe.charAt(Math.floor(Math.random() * alfabe.length));
         }
         document.getElementById('<%= txtSifre.ClientID %>').value = sifre;
+        document.getElementById('<%= chkSifreDegistir.ClientID %>').checked = true;
+        sifreAlaniniGoster();
     }
 
-    document.addEventListener('DOMContentLoaded', rolDegisti);
+    document.addEventListener('DOMContentLoaded', function () {
+        rolDegisti();
+        sifreAlaniniGoster();
+    });
 </script>
 </asp:Content>

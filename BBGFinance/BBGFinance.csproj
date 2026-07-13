@@ -206,7 +206,7 @@
       <AutoGen>True</AutoGen>
     </Compile>
   </ItemGroup>
-  <!-- Modules/Kullanicilar (admin: add user) -->
+  <!-- Modules/Kullanicilar (admin: user management) -->
   <ItemGroup>
     <Content Include="Modules\Kullanicilar\Ekle.aspx">
       <Generator>ASPXCodeGenerator</Generator>
@@ -218,6 +218,30 @@
     </Compile>
     <Compile Include="Modules\Kullanicilar\Ekle.aspx.designer.cs">
       <DependentUpon>Ekle.aspx</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Content Include="Modules\Kullanicilar\Liste.aspx">
+      <Generator>ASPXCodeGenerator</Generator>
+      <LastGenOutput>Liste.aspx.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="Modules\Kullanicilar\Liste.aspx.cs">
+      <DependentUpon>Liste.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Modules\Kullanicilar\Liste.aspx.designer.cs">
+      <DependentUpon>Liste.aspx</DependentUpon>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Content Include="Modules\Kullanicilar\Duzenle.aspx">
+      <Generator>ASPXCodeGenerator</Generator>
+      <LastGenOutput>Duzenle.aspx.designer.cs</LastGenOutput>
+    </Content>
+    <Compile Include="Modules\Kullanicilar\Duzenle.aspx.cs">
+      <DependentUpon>Duzenle.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Modules\Kullanicilar\Duzenle.aspx.designer.cs">
+      <DependentUpon>Duzenle.aspx</DependentUpon>
       <AutoGen>True</AutoGen>
     </Compile>
   </ItemGroup>
